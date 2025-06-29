@@ -255,6 +255,54 @@
             width: 100%;
         }
 
+        /* Language Switcher */
+        .language-switcher {
+            display: flex;
+            gap: 8px;
+            margin-left: 20px;
+        }
+
+        .lang-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: rgba(248, 250, 252, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 8px;
+            color: rgba(248, 250, 252, 0.7);
+            font-family: var(--font-primary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+        }
+
+        .lang-btn:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: var(--accent-white);
+            transform: translateY(-1px);
+        }
+
+        .lang-btn.active {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--accent-cyan);
+            color: var(--accent-white);
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
+        }
+
+        .flag-icon {
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .lang-text {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
         .hero {
             height: 100vh;
             display: flex;
@@ -414,6 +462,33 @@
             padding: 60px 48px; /* Reduced */
             text-align: center;
             margin: 60px 0; /* Reduced */
+            position: relative;
+            overflow: hidden;
+        }
+
+        .philosophy-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        #d3-philosophy-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        .philosophy-content {
+            position: relative;
+            z-index: 10;
         }
 
         .philosophy h2 {
@@ -937,6 +1012,25 @@
                 display: none;
             }
             
+            .language-switcher {
+                margin-left: 0;
+                gap: 6px;
+            }
+            
+            .lang-btn {
+                padding: 6px 8px;
+                font-size: 11px;
+                gap: 4px;
+            }
+            
+            .flag-icon {
+                font-size: 12px;
+            }
+            
+            nav {
+                justify-content: space-between;
+            }
+            
             .philosophy, .vision-section, .contact-section, .team-section {
                 padding: 48px 32px;
             }
@@ -1056,12 +1150,22 @@
         <nav class="container">
             <div class="logo">Baryon Labs</div>
             <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#concept">Concept</a></li>
-                <li><a href="#philosophy">Philosophy</a></li>
-                <li><a href="#team">Team</a></li>
-                <li><a href="#contact">Contact</a></li>
+                <li><a href="#home" data-i18n="nav.home">Home</a></li>
+                <li><a href="#concept" data-i18n="nav.concept">Concept</a></li>
+                <li><a href="#philosophy" data-i18n="nav.philosophy">Philosophy</a></li>
+                <li><a href="#team" data-i18n="nav.team">Team</a></li>
+                <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
             </ul>
+            <div class="language-switcher">
+                <button class="lang-btn active" data-lang="en" title="English">
+                    <span class="flag-icon">🇺🇸</span>
+                    <span class="lang-text">EN</span>
+                </button>
+                <button class="lang-btn" data-lang="ko" title="한국어">
+                    <span class="flag-icon">🇰🇷</span>
+                    <span class="lang-text">KO</span>
+                </button>
+            </div>
         </nav>
     </header>
 
@@ -1072,13 +1176,13 @@
         
         <div class="hero-content">
             <h1>Baryon Labs</h1>
-            <div class="subtitle">AI from First Principles</div>
-            <p class="description">
+            <div class="subtitle" data-i18n="hero.subtitle">AI from First Principles</div>
+            <p class="description" data-i18n="hero.description">
                 Like baryons forming matter's foundation,<br>
                 we build revolutionary AI from core elements.
             </p>
             <a href="#concept" class="cta-button">
-                Explore Vision
+                <span data-i18n="hero.cta">Explore Vision</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="9,18 15,12 9,6"></polyline>
                 </svg>
@@ -1088,7 +1192,7 @@
 
     <section id="concept" class="section">
         <div class="container">
-            <h2 class="section-title">Fundamental Architecture</h2>
+            <h2 class="section-title" data-i18n="concept.title">Fundamental Architecture</h2>
             
             <div class="concept-grid">
                 <div class="concept-card">
@@ -1098,8 +1202,8 @@
                         <path d="M20.2 15.6A8 8 0 0 1 3.8 15.6"/>
                         <circle cx="12" cy="12" r="1"/>
                     </svg>
-                    <h3>Atomic Components</h3>
-                    <p>Core algorithms and data structures forming the foundation of scalable AI systems.</p>
+                    <h3 data-i18n="concept.atomic.title">Atomic Components</h3>
+                    <p data-i18n="concept.atomic.description">Core algorithms and data structures forming the foundation of scalable AI systems.</p>
                 </div>
                 
                 <div class="concept-card">
@@ -1108,8 +1212,8 @@
                         <polyline points="3.27,6.96 12,12.01 20.73,6.96"/>
                         <line x1="12" y1="22.08" x2="12" y2="12"/>
                     </svg>
-                    <h3>Neural Composition</h3>
-                    <p>Attention mechanisms and transformer architectures enabling emergent intelligence.</p>
+                    <h3 data-i18n="concept.neural.title">Neural Composition</h3>
+                    <p data-i18n="concept.neural.description">Attention mechanisms and transformer architectures enabling emergent intelligence.</p>
                 </div>
                 
                 <div class="concept-card">
@@ -1118,42 +1222,47 @@
                         <path d="M2 17l10 5 10-5"/>
                         <path d="M2 12l10 5 10-5"/>
                     </svg>
-                    <h3>Quantum Leap</h3>
-                    <p>Revolutionary breakthroughs through foundational principle combinations.</p>
+                    <h3 data-i18n="concept.quantum.title">Quantum Leap</h3>
+                    <p data-i18n="concept.quantum.description">Revolutionary breakthroughs through foundational principle combinations.</p>
                 </div>
             </div>
 
             <div class="vision-section">
-                <h2 class="section-title" style="margin-bottom: 20px;">AI Architecture</h2>
+                <h2 class="section-title" style="margin-bottom: 20px;" data-i18n="vision.title">AI Architecture</h2>
                 <div class="vision-grid">
                     <div class="vision-item">
-                        <h4>Attention Mechanisms</h4>
-                        <p>Self-attention and cross-attention layers enabling context understanding.</p>
+                        <h4 data-i18n="vision.attention.title">Attention Mechanisms</h4>
+                        <p data-i18n="vision.attention.description">Self-attention and cross-attention layers enabling context understanding.</p>
                     </div>
                     <div class="vision-item">
-                        <h4>Group Optimization</h4>
-                        <p>Policy gradient methods and reinforcement learning for adaptive behavior.</p>
+                        <h4 data-i18n="vision.optimization.title">Group Optimization</h4>
+                        <p data-i18n="vision.optimization.description">Policy gradient methods and reinforcement learning for adaptive behavior.</p>
                     </div>
                     <div class="vision-item">
-                        <h4>Emergent Intelligence</h4>
-                        <p>Complex behaviors arising from simple component interactions.</p>
+                        <h4 data-i18n="vision.intelligence.title">Emergent Intelligence</h4>
+                        <p data-i18n="vision.intelligence.description">Complex behaviors arising from simple component interactions.</p>
                     </div>
                 </div>
             </div>
 
             <div class="philosophy">
-                <h2>Core Philosophy</h2>
-                <p>
-                    "Three quarks form a baryon, baryons create nuclei, atoms bond into elements. 
-                    We start with AI's fundamental building blocks and compose transformative technologies."
-                </p>
+                <div class="philosophy-bg">
+                    <svg id="d3-philosophy-background"></svg>
+                </div>
+                <div class="philosophy-content">
+                    <h2 data-i18n="philosophy.title">Core Philosophy</h2>
+                    <p data-i18n="philosophy.content">
+                        "Three quarks form a baryon, baryons create nuclei, atoms bond into elements. 
+                        We start with AI's fundamental building blocks and compose transformative technologies."
+                    </p>
+                </div>
             </div>
         </div>
     </section>
 
     <section id="team" class="team-section">
         <div class="container">
-            <h2 class="section-title">Our Team</h2>
+            <h2 class="section-title" data-i18n="team.title">Our Team</h2>
             
             <div class="team-grid">
                 <div class="team-member">
@@ -1204,18 +1313,19 @@
 
     <section id="contact" class="contact-section">
         <div class="contact-container">
-            <h2 class="section-title">Contact Us</h2>
+            <h2 class="section-title" data-i18n="contact.title">Contact Us</h2>
             
             <form class="contact-form" id="contactForm">
                 <!-- Required Fields -->
                 <div class="form-grid required">
                     <div class="form-group">
-                        <label class="form-label" for="name">Name *</label>
+                        <label class="form-label" for="name" data-i18n="contact.name">Name *</label>
                         <input 
                             type="text" 
                             id="name" 
                             name="name" 
                             class="form-input required-field" 
+                            data-i18n-placeholder="contact.namePlaceholder"
                             placeholder="Your name"
                             required
                         >
@@ -1223,12 +1333,13 @@
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="email">Work Email *</label>
+                        <label class="form-label" for="email" data-i18n="contact.workEmail">Work Email *</label>
                         <input 
                             type="email" 
                             id="work_email" 
                             name="work_email" 
                             class="form-input required-field" 
+                            data-i18n-placeholder="contact.emailPlaceholder"
                             placeholder="your@company.com"
                             required
                         >
@@ -1236,41 +1347,42 @@
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="inquiry-type">Inquiry Type *</label>
+                        <label class="form-label" for="inquiry-type" data-i18n="contact.inquiryType">Inquiry Type *</label>
                         <select id="inquiry-type" name="inquiry_type" class="form-select required-field" required>
-                            <option value="">Select inquiry type</option>
-                            <option value="partnership">Partnership</option>
-                            <option value="investment">Investment</option>
-                            <option value="collaboration">Collaboration</option>
-                            <option value="consulting">Consulting</option>
-                            <option value="general">General Inquiry</option>
-                            <option value="support">Technical Support</option>
+                            <option value="" data-i18n="contact.selectInquiry">Select inquiry type</option>
+                            <option value="partnership" data-i18n="contact.partnership">Partnership</option>
+                            <option value="investment" data-i18n="contact.investment">Investment</option>
+                            <option value="collaboration" data-i18n="contact.collaboration">Collaboration</option>
+                            <option value="consulting" data-i18n="contact.consulting">Consulting</option>
+                            <option value="general" data-i18n="contact.general">General Inquiry</option>
+                            <option value="support" data-i18n="contact.support">Technical Support</option>
                         </select>
                         <div class="form-error" id="inquiryTypeError"></div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="subject">Subject *</label>
+                        <label class="form-label" for="subject" data-i18n="contact.subject">Subject *</label>
                         <select id="subject" name="subject" class="form-select required-field" required>
-                            <option value="">Select subject</option>
-                            <option value="ai-consultation">AI Strategy Consultation</option>
-                            <option value="partnership-proposal">Partnership Proposal</option>
-                            <option value="investment-discussion">Investment Discussion</option>
-                            <option value="technical-collaboration">Technical Collaboration</option>
-                            <option value="product-development">Product Development</option>
-                            <option value="research-partnership">Research Partnership</option>
-                            <option value="business-inquiry">Business Inquiry</option>
-                            <option value="other">Other</option>
+                            <option value="" data-i18n="contact.selectSubject">Select subject</option>
+                            <option value="ai-consultation" data-i18n="contact.aiConsultation">AI Strategy Consultation</option>
+                            <option value="partnership-proposal" data-i18n="contact.partnershipProposal">Partnership Proposal</option>
+                            <option value="investment-discussion" data-i18n="contact.investmentDiscussion">Investment Discussion</option>
+                            <option value="technical-collaboration" data-i18n="contact.technicalCollaboration">Technical Collaboration</option>
+                            <option value="product-development" data-i18n="contact.productDevelopment">Product Development</option>
+                            <option value="research-partnership" data-i18n="contact.researchPartnership">Research Partnership</option>
+                            <option value="business-inquiry" data-i18n="contact.businessInquiry">Business Inquiry</option>
+                            <option value="other" data-i18n="contact.other">Other</option>
                         </select>
                         <div class="form-error" id="subjectError"></div>
                     </div>
                     
                     <div class="form-group full-width">
-                        <label class="form-label" for="message">Message *</label>
+                        <label class="form-label" for="message" data-i18n="contact.message">Message *</label>
                         <textarea 
                             id="message" 
                             name="message" 
                             class="form-textarea required-field" 
+                            data-i18n-placeholder="contact.messagePlaceholder"
                             placeholder="Tell us about your project or inquiry..."
                             required
                         ></textarea>
@@ -1280,7 +1392,7 @@
 
                 <!-- Optional Toggle Button -->
                 <div class="optional-toggle">
-                    <button type="button" class="toggle-btn" id="toggleOptional">
+                    <button type="button" class="toggle-btn" id="toggleOptional" data-i18n="contact.addOptional">
                         + Add Optional Details
                     </button>
                 </div>
@@ -1288,24 +1400,26 @@
                 <!-- Optional Fields (Initially Hidden) -->
                 <div class="form-grid optional" id="optionalFields">
                     <div class="form-group">
-                        <label class="form-label" for="phone">Phone</label>
+                        <label class="form-label" for="phone" data-i18n="contact.phone">Phone</label>
                         <input 
                             type="tel" 
                             id="phone" 
                             name="phone" 
                             class="form-input" 
+                            data-i18n-placeholder="contact.phonePlaceholder"
                             placeholder="+1 (555) 123-4567"
                         >
                         <div class="form-error" id="phoneError"></div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="company">Company</label>
+                        <label class="form-label" for="company" data-i18n="contact.company">Company</label>
                         <input 
                             type="text" 
                             id="company" 
                             name="company" 
                             class="form-input" 
+                            data-i18n-placeholder="contact.companyPlaceholder"
                             placeholder="Your company"
                         >
                     </div>
@@ -1313,7 +1427,7 @@
                 
                 <button type="submit" class="form-submit" id="submitBtn">
                     <span class="loading-spinner"></span>
-                    Send Message
+                    <span data-i18n="contact.sendMessage">Send Message</span>
                 </button>
                 
                 <div class="form-message" id="formMessage"></div>
@@ -1323,7 +1437,7 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2025 Baryon Labs. AI Innovation from the Ground Up.</p>
+            <p data-i18n="footer.copyright">&copy; 2025 Baryon Labs. AI Innovation from the Ground Up.</p>
             
             <div class="footer-links">
                 <a href="https://github.com/baryonlabs" class="footer-link" target="_blank" rel="noopener noreferrer">
@@ -1421,12 +1535,12 @@
         });
 
         // D3.js Advanced Neural Network Background
-        function initD3Background() {
-            const svg = d3.select('#d3-background');
-            const heroSection = document.querySelector('.hero');
+        function createD3Background(svgId, containerSelector, nodeCount = 20) {
+            const svg = d3.select(svgId);
+            const containerSection = document.querySelector(containerSelector);
             
             function updateDimensions() {
-                const rect = heroSection.getBoundingClientRect();
+                const rect = containerSection.getBoundingClientRect();
                 svg.attr('width', rect.width).attr('height', rect.height);
                 return { width: rect.width, height: rect.height };
             }
@@ -1435,7 +1549,7 @@
             let mouseX = width / 2, mouseY = height / 2;
             
             // Network data with enhanced properties (optimized for performance)
-            const nodeCount = 20;
+            // nodeCount 파라미터로 받아서 사용
             const nodes = Array.from({length: nodeCount}, (_, i) => ({
                 id: i,
                 x: Math.random() * width,
@@ -1699,19 +1813,20 @@
             }
             animate();
             
-            // Enhanced scroll interaction
-            window.addEventListener('scroll', () => {
-                const scrolled = window.pageYOffset;
-                const scrollFactor = scrolled * 0.0008;
-                
-                nodes.forEach(node => {
-                    const wave = Math.sin(scrolled * 0.01 + node.id * 0.1) * scrollFactor;
-                    node.vx += wave;
-                    node.vy += wave * 0.5;
-                    node.vx = Math.max(-3, Math.min(3, node.vx));
-                    node.vy = Math.max(-3, Math.min(3, node.vy));
-                });
-            });
+            // Return scroll update function for external management
+            return {
+                updateFromScroll: (scrolled) => {
+                    const scrollFactor = scrolled * 0.0008;
+                    
+                    nodes.forEach(node => {
+                        const wave = Math.sin(scrolled * 0.01 + node.id * 0.1) * scrollFactor;
+                        node.vx += wave;
+                        node.vy += wave * 0.5;
+                        node.vx = Math.max(-3, Math.min(3, node.vx));
+                        node.vy = Math.max(-3, Math.min(3, node.vy));
+                    });
+                }
+            };
             
             // Resize handler
             window.addEventListener('resize', () => {
@@ -1937,8 +2052,16 @@
                 observer.observe(card);
             });
 
-            // Initialize D3.js Neural Network Background
-            initD3Background();
+            // Initialize D3.js Neural Network Backgrounds
+            const heroBackground = createD3Background('#d3-background', '.hero', 20); // Hero background with 20 nodes
+            const philosophyBackground = createD3Background('#d3-philosophy-background', '.philosophy', 60); // Philosophy background with 60 nodes (3x)
+            
+            // Global scroll handler for both backgrounds
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                heroBackground.updateFromScroll(scrolled);
+                philosophyBackground.updateFromScroll(scrolled);
+            });
             
             // Initialize Baryon Particles for Team Cards
             initBaryonParticles();
@@ -2203,6 +2326,260 @@
                 setLoadingState(false);
             }
         });
+
+        // 다국어 처리 시스템
+        const translations = {
+            en: {
+                nav: {
+                    home: 'Home',
+                    concept: 'Concept',
+                    philosophy: 'Philosophy',
+                    team: 'Team',
+                    contact: 'Contact'
+                },
+                hero: {
+                    subtitle: 'AI from First Principles',
+                    description: 'Like baryons forming matter\'s foundation,<br>we build revolutionary AI from core elements.',
+                    cta: 'Explore Vision'
+                },
+                concept: {
+                    title: 'Fundamental Architecture',
+                    atomic: {
+                        title: 'Atomic Components',
+                        description: 'Core algorithms and data structures forming the foundation of scalable AI systems.'
+                    },
+                    neural: {
+                        title: 'Neural Composition',
+                        description: 'Attention mechanisms and transformer architectures enabling emergent intelligence.'
+                    },
+                    quantum: {
+                        title: 'Quantum Leap',
+                        description: 'Revolutionary breakthroughs through foundational principle combinations.'
+                    }
+                },
+                vision: {
+                    title: 'AI Architecture',
+                    attention: {
+                        title: 'Attention Mechanisms',
+                        description: 'Self-attention and cross-attention layers enabling context understanding.'
+                    },
+                    optimization: {
+                        title: 'Group Optimization',
+                        description: 'Policy gradient methods and reinforcement learning for adaptive behavior.'
+                    },
+                    intelligence: {
+                        title: 'Emergent Intelligence',
+                        description: 'Complex behaviors arising from simple component interactions.'
+                    }
+                },
+                philosophy: {
+                    title: 'Core Philosophy',
+                    content: '"Three quarks form a baryon, baryons create nuclei, atoms bond into elements. We start with AI\'s fundamental building blocks and compose transformative technologies."'
+                },
+                team: {
+                    title: 'Our Team'
+                },
+                contact: {
+                    title: 'Contact Us',
+                    name: 'Name *',
+                    namePlaceholder: 'Your name',
+                    workEmail: 'Work Email *',
+                    emailPlaceholder: 'your@company.com',
+                    inquiryType: 'Inquiry Type *',
+                    selectInquiry: 'Select inquiry type',
+                    partnership: 'Partnership',
+                    investment: 'Investment',
+                    collaboration: 'Collaboration',
+                    consulting: 'Consulting',
+                    general: 'General Inquiry',
+                    support: 'Technical Support',
+                    subject: 'Subject *',
+                    selectSubject: 'Select subject',
+                    aiConsultation: 'AI Strategy Consultation',
+                    partnershipProposal: 'Partnership Proposal',
+                    investmentDiscussion: 'Investment Discussion',
+                    technicalCollaboration: 'Technical Collaboration',
+                    productDevelopment: 'Product Development',
+                    researchPartnership: 'Research Partnership',
+                    businessInquiry: 'Business Inquiry',
+                    other: 'Other',
+                    message: 'Message *',
+                    messagePlaceholder: 'Tell us about your project or inquiry...',
+                    addOptional: '+ Add Optional Details',
+                    hideOptional: '- Hide Optional Details',
+                    phone: 'Phone',
+                    phonePlaceholder: '+1 (555) 123-4567',
+                    company: 'Company',
+                    companyPlaceholder: 'Your company',
+                    sendMessage: 'Send Message'
+                },
+                footer: {
+                    copyright: '© 2025 Baryon Labs. AI Innovation from the Ground Up.'
+                }
+            },
+            ko: {
+                nav: {
+                    home: '홈',
+                    concept: '컨셉트',
+                    philosophy: '철학',
+                    team: '팀',
+                    contact: '연락처'
+                },
+                hero: {
+                    subtitle: '첫 번째 원리에서 시작하는 AI',
+                    description: '바리온이 물질의 기초를 형성하듯,<br>우리는 핵심 요소로부터 혁신적인 AI를 구축합니다.',
+                    cta: '비전 탐색'
+                },
+                concept: {
+                    title: '기본 아키텍처',
+                    atomic: {
+                        title: '원자 구성요소',
+                        description: '확장 가능한 AI 시스템의 기초를 형성하는 핵심 알고리즘과 데이터 구조입니다.'
+                    },
+                    neural: {
+                        title: '신경망 조합',
+                        description: '창발적 지능을 가능하게 하는 어텐션 메커니즘과 트랜스포머 아키텍처입니다.'
+                    },
+                    quantum: {
+                        title: '양자도약',
+                        description: '기본 원리 조합을 통한 혁신적인 돌파구입니다.'
+                    }
+                },
+                vision: {
+                    title: 'AI 아키텍처',
+                    attention: {
+                        title: '어텐션 메커니즘',
+                        description: '컨텍스트 이해를 가능하게 하는 셀프-어텐션 및 크로스-어텐션 레이어입니다.'
+                    },
+                    optimization: {
+                        title: '그룹 최적화',
+                        description: '적응적 행동을 위한 정책 그래디언트 방법과 강화학습입니다.'
+                    },
+                    intelligence: {
+                        title: '창발적 지능',
+                        description: '단순한 구성요소 상호작용에서 나타나는 복잡한 행동입니다.'
+                    }
+                },
+                philosophy: {
+                    title: '핵심 철학',
+                    content: '"세 개의 쿼크가 바리온을 형성하고, 바리온이 핵을 만들며, 원자가 원소로 결합됩니다. 우리는 AI의 기본 구성 요소부터 시작하여 혁신적인 기술을 구성합니다."'
+                },
+                team: {
+                    title: '우리 팀'
+                },
+                contact: {
+                    title: '연락하기',
+                    name: '이름 *',
+                    namePlaceholder: '이름을 입력하세요',
+                    workEmail: '회사 이메일 *',
+                    emailPlaceholder: 'your@company.com',
+                    inquiryType: '문의 유형 *',
+                    selectInquiry: '문의 유형을 선택하세요',
+                    partnership: '파트너십',
+                    investment: '투자',
+                    collaboration: '협업',
+                    consulting: '컨설팅',
+                    general: '일반 문의',
+                    support: '기술 지원',
+                    subject: '주제 *',
+                    selectSubject: '주제를 선택하세요',
+                    aiConsultation: 'AI 전략 컨설팅',
+                    partnershipProposal: '파트너십 제안',
+                    investmentDiscussion: '투자 논의',
+                    technicalCollaboration: '기술 협업',
+                    productDevelopment: '제품 개발',
+                    researchPartnership: '연구 파트너십',
+                    businessInquiry: '비즈니스 문의',
+                    other: '기타',
+                    message: '메시지 *',
+                    messagePlaceholder: '프로젝트나 문의 사항에 대해 알려주세요...',
+                    addOptional: '+ 추가 정보 입력',
+                    hideOptional: '- 추가 정보 숨기기',
+                    phone: '전화번호',
+                    phonePlaceholder: '+82 10-1234-5678',
+                    company: '회사',
+                    companyPlaceholder: '회사명',
+                    sendMessage: '메시지 보내기'
+                },
+                footer: {
+                    copyright: '© 2025 Baryon Labs. 기초부터 시작하는 AI 혁신.'
+                }
+            }
+        };
+
+        let currentLanguage = localStorage.getItem('language') || 'en';
+
+        function translateElement(element, key) {
+            const keys = key.split('.');
+            let value = translations[currentLanguage];
+            
+            for (const k of keys) {
+                value = value?.[k];
+            }
+            
+            if (value) {
+                if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                    if (element.type === 'text' || element.type === 'email' || element.type === 'tel' || element.tagName === 'TEXTAREA') {
+                        element.placeholder = value;
+                    }
+                } else {
+                    element.innerHTML = value;
+                }
+            }
+        }
+
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            
+            // Update language buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            
+            // Translate all elements with data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                translateElement(element, key);
+            });
+            
+            // Translate placeholder elements
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                translateElement(element, key);
+            });
+            
+            // Update toggle button text based on state
+            const toggleBtn = document.getElementById('toggleOptional');
+            const optionalFields = document.getElementById('optionalFields');
+            if (toggleBtn) {
+                const isExpanded = optionalFields?.classList.contains('expanded');
+                const key = isExpanded ? 'contact.hideOptional' : 'contact.addOptional';
+                translateElement(toggleBtn, key);
+            }
+        }
+
+        // Initialize language switcher
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial language
+            switchLanguage(currentLanguage);
+            
+            // Add event listeners to language buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    switchLanguage(btn.dataset.lang);
+                });
+            });
+        });
+
+        // Update toggle button text when toggled
+        const originalToggleFunction = toggleOptionalFields;
+        toggleOptionalFields = function() {
+            originalToggleFunction();
+            const isExpanded = optionalFields.classList.contains('expanded');
+            const key = isExpanded ? 'contact.hideOptional' : 'contact.addOptional';
+            translateElement(toggleBtn, key);
+        };
     </script>
 </body>
 </html>
