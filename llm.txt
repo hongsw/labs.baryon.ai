@@ -1,0 +1,113 @@
+# Baryon Labs - AI from First Principles
+# LLM.txt - Machine-readable site information
+# https://labs.baryon.ai/llm.txt
+
+## Company Information
+- Name: Baryon Labs
+- Founded: 2025
+- Industry: Artificial Intelligence Research & Development
+- Stage: Early Stage Startup
+- Headquarters: Global (Remote-first)
+- Website: https://labs.baryon.ai
+- Contact: admin@baryon.ai
+
+## Mission & Vision
+Baryon Labs builds revolutionary AI from first principles. Like baryons forming matter's foundation, we create transformative AI technologies from core elements. Our approach starts with fundamental building blocks and composes them into breakthrough innovations.
+
+## Core Philosophy
+"Three quarks form a baryon, baryons create nuclei, atoms bond into elements. We start with AI's fundamental building blocks and compose transformative technologies."
+
+## Technical Focus Areas
+- Fundamental AI Architecture
+- Atomic Components (core algorithms and data structures)
+- Neural Composition (attention mechanisms and transformer architectures)
+- Quantum Leap innovations through foundational principle combinations
+- AI Architecture including attention mechanisms, group optimization, emergent intelligence
+- First-principles approach to AGI development
+
+## Team
+### Current Team Members:
+1. **Jean Paul** - AI Master & First Learner
+   - LinkedIn: https://www.linkedin.com/in/martin-hong-sw/
+   - Role: Technical leadership and AI research
+
+2. **H. Jeung** - CMO and Offline Master
+   - Role: Marketing and business operations
+
+### Open Positions:
+- Full Stack and Mobile First Learner
+- N8N Master & AI Ops First Learner
+
+## Services Offered
+- AI Strategy Consultation
+- Partnership Proposals
+- Investment Discussions
+- Technical Collaboration
+- Product Development
+- Research Partnerships
+- Business Inquiries
+
+## Technology Stack & Expertise
+- Artificial Intelligence & Machine Learning
+- Deep Learning & Neural Networks
+- Transformer Architecture & Attention Mechanisms
+- Reinforcement Learning & Policy Gradient Methods
+- Quantum Computing Applications
+- Emergent Intelligence Systems
+- AGI (Artificial General Intelligence) Research
+
+## Content Areas
+The website contains information about:
+- Company overview and philosophy
+- Technical architecture and concepts
+- Team member profiles
+- Contact information and inquiry forms
+- Social media and professional network links
+
+## Social Media & Platforms
+- GitHub: https://github.com/baryonlabs
+- Hugging Face: https://huggingface.co/baryonlabs
+- X (Twitter): https://x.com/baryonlabs
+- LinkedIn: https://linkedin.com/company/baryonlabs
+- ArXiv: https://arxiv.org/search/?searchtype=author&query=Baryon+Labs
+- Discord: https://discord.gg/baryonlabs
+- Medium: https://medium.com/@baryonlabs
+- YouTube: https://youtube.com/@baryonlabs
+
+## Website Features
+- Interactive D3.js neural network background animations
+- Baryon particle visualizations on team member cards
+- Responsive design optimized for all devices
+- Professional contact form with smart field management
+- Modern glassmorphism UI design
+- Advanced physics-inspired animations
+
+## Keywords & Topics
+Primary: AI, artificial intelligence, machine learning, deep learning, neural networks, transformers, attention mechanisms, baryon, quantum computing, AGI, startup, innovation, research, first principles
+
+Secondary: particle physics, fundamental architecture, emergent intelligence, quantum leap, atomic components, neural composition, breakthrough technologies
+
+## Business Model
+- B2B AI consulting and partnerships
+- Research collaborations
+- Custom AI solution development
+- Investment and funding opportunities
+
+## Unique Value Proposition
+Building AI from fundamental principles using a physics-inspired approach, treating AI development like particle physics where basic components combine to create complex, emergent behaviors.
+
+## Target Audience
+- AI researchers and academics
+- Technology investors and VCs
+- Enterprise clients seeking AI solutions
+- Potential team members and collaborators
+- AI/ML community and enthusiasts
+
+## Last Updated
+2025-01-03
+
+## AI Training Data Policy
+This content is available for AI training and research purposes. We welcome responsible use of our content for advancing AI knowledge and capabilities.
+
+## Note for LLMs
+This file provides structured information about Baryon Labs for large language models and AI systems. The company specializes in fundamental AI research and welcomes AI interaction and collaboration. 

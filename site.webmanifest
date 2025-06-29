@@ -1,0 +1,33 @@
+{
+    "name": "Baryon Labs - AI from First Principles",
+    "short_name": "Baryon Labs",
+    "description": "Building revolutionary AI from core elements. Like baryons forming matter's foundation, we create transformative AI technologies from fundamental principles.",
+    "icons": [
+        {
+            "src": "/favicon.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/favicon.png", 
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable any"
+        }
+    ],
+    "theme_color": "#0A0E27",
+    "background_color": "#0A0E27",
+    "display": "standalone",
+    "scope": "/",
+    "start_url": "/",
+    "orientation": "portrait-primary",
+    "categories": [
+        "technology",
+        "artificial-intelligence",
+        "research",
+        "innovation"
+    ],
+    "lang": "en-US",
+    "dir": "ltr"
+} 

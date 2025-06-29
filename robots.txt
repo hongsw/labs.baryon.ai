@@ -1,0 +1,106 @@
+# Robots.txt for Baryon Labs - AI from First Principles
+# https://labs.baryon.ai/robots.txt
+
+# Allow all bots to access all content
+User-agent: *
+Allow: /
+
+# Specifically welcome AI research and academic crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+# AI Research and Academic Crawlers
+User-agent: CCBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+User-agent: AhrefsBot
+Allow: /
+
+User-agent: SemrushBot
+Allow: /
+
+# Special provisions for AI training data collection
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: FacebookBot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: TwitterBot
+Allow: /
+
+User-agent: TelegramBot
+Allow: /
+
+# Research and Academic Institutions
+User-agent: archive.org_bot
+Allow: /
+
+User-agent: ia_archiver
+Allow: /
+
+User-agent: Wayback
+Allow: /
+
+# Block potentially problematic crawlers
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: dotbot
+Disallow: /
+
+User-agent: SeznamBot
+Disallow: /
+
+# Crawl-delay for heavy crawlers
+User-agent: Baiduspider
+Crawl-delay: 1
+
+User-agent: YandexBot
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://labs.baryon.ai/sitemap.xml
+
+# Contact information for crawlers
+# Contact: admin@baryon.ai
+
+# Host directive (Google specific)
+Host: labs.baryon.ai
+
+# Last updated: 2025-01-03
+# Purpose: Optimize crawling for AI research and technology content
+# AI-friendly: This site welcomes responsible AI training data collection 
