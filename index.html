@@ -1951,10 +1951,38 @@
         const toggleBtn = document.getElementById('toggleOptional');
         const optionalFields = document.getElementById('optionalFields');
 
+
+
         // Form validation functions
         function validateEmail(email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
+        }
+
+        function validateWorkEmail(email) {
+            // 기본 이메일 형식 체크
+            if (!validateEmail(email)) {
+                return { valid: false, message: 'Please enter a valid email address' };
+            }
+
+            // 개인 이메일 서비스 제공업체 도메인 목록
+            const personalEmailDomains = [
+                'gmail.com', 'naver.com', 'hotmail.com', 'outlook.com', 'yahoo.com',
+                'daum.net', 'hanmail.net', 'live.com', 'msn.com', 'yahoo.co.kr',
+                'icloud.com', 'me.com', 'mac.com', 'qq.com', '163.com', '126.com',
+                'sina.com', 'sohu.com', 'yeah.net', 'yandex.com', 'mail.ru',
+                'protonmail.com', 'tutanota.com', 'guerrillamail.com', 'temp-mail.org',
+                'mailinator.com', '10minutemail.com', 'aol.com', 'zoho.com'
+            ];
+
+            // 도메인 추출
+            const domain = email.split('@')[1]?.toLowerCase();
+            
+            if (personalEmailDomains.includes(domain)) {
+                return { valid: false, message: 'Please use your work email address, not personal email services' };
+            }
+
+            return { valid: true };
         }
 
         function validatePhone(phone) {
@@ -1968,17 +1996,25 @@
             const errorElement = document.getElementById(fieldId + 'Error');
             const inputElement = document.getElementById(fieldId === 'inquiry-type' ? 'inquiry-type' : fieldId);
             
-            errorElement.textContent = message;
-            errorElement.classList.add('show');
-            inputElement.style.borderColor = '#EF4444';
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.add('show');
+            }
+            if (inputElement) {
+                inputElement.style.borderColor = '#EF4444';
+            }
         }
 
         function clearError(fieldId) {
             const errorElement = document.getElementById(fieldId + 'Error');
             const inputElement = document.getElementById(fieldId === 'inquiry-type' ? 'inquiry-type' : fieldId);
             
-            errorElement.classList.remove('show');
-            inputElement.style.borderColor = 'rgba(59, 130, 246, 0.2)';
+            if (errorElement) {
+                errorElement.classList.remove('show');
+            }
+            if (inputElement) {
+                inputElement.style.borderColor = 'rgba(59, 130, 246, 0.2)';
+            }
         }
 
         function clearAllErrors() {
@@ -2043,8 +2079,13 @@
 
         // Real-time validation
         document.getElementById('work_email').addEventListener('blur', function() {
-            if (this.value && !validateEmail(this.value)) {
-                showError('work_email', 'Please enter a valid email address');
+            if (this.value) {
+                const validation = validateWorkEmail(this.value);
+                if (!validation.valid) {
+                    showError('work_email', validation.message);
+                } else {
+                    clearError('work_email');
+                }
             } else {
                 clearError('work_email');
             }
@@ -2099,9 +2140,12 @@
             if (!data.work_email) {
                 showError('work_email', 'Work email is required');
                 hasErrors = true;
-            } else if (!validateEmail(data.work_email)) {
-                showError('work_email', 'Please enter a valid work email address');
-                hasErrors = true;
+            } else {
+                const validation = validateWorkEmail(data.work_email);
+                if (!validation.valid) {
+                    showError('work_email', validation.message);
+                    hasErrors = true;
+                }
             }
 
             if (data.phone && !validatePhone(data.phone)) {
@@ -2140,7 +2184,7 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        form_id: 'baryon-labs-contact-form', // You should replace this with actual UUID
+                        form_id: '99f754ea-af00-4048-9fcc-18bae53fed3f', // Fixed UUID for Baryon Labs contact form
                         data: data
                     })
                 });
