@@ -1726,181 +1726,403 @@
             });
         }
 
-        // Baryon Particle Animation for Team Cards
+        // 3D Baryon Particle Animation for Team Cards
         function initBaryonParticles() {
             const baryonConfigs = [
-                { id: 'baryon-1', type: 'proton', color: '#3B82F6', rotation: 0.8 },
-                { id: 'baryon-2', type: 'neutron', color: '#06B6D4', rotation: -0.6 },
-                { id: 'baryon-3', type: 'lambda', color: '#8B5CF6', rotation: 1.2 },
-                { id: 'baryon-4', type: 'sigma', color: '#10B981', rotation: -0.9 }
+                { 
+                    id: 'baryon-1', 
+                    type: 'icosahedron',
+                    colors: ['#FF6B6B', '#FF8E8E', '#FFB3B3', '#FF4444', '#E64A4A', '#FF9999'],
+                    rotationSpeed: { x: 0.012, y: 0.018, z: 0.008, wobbleX: 0.005, wobbleY: 0.007, wobbleZ: 0.003 }
+                },
+                { 
+                    id: 'baryon-2', 
+                    type: 'dodecahedron',
+                    colors: ['#4ECDC4', '#6DD5D1', '#8CDDD8', '#2BC5BD', '#24B3AB', '#5FD7CE'],
+                    rotationSpeed: { x: -0.009, y: 0.014, z: -0.016, wobbleX: 0.006, wobbleY: -0.004, wobbleZ: 0.008 }
+                },
+                { 
+                    id: 'baryon-3', 
+                    type: 'compound',
+                    colors: ['#8B5CF6', '#A374F9', '#BB8CFB', '#7C44F2', '#6B3BE6', '#9966FF'],
+                    rotationSpeed: { x: 0.016, y: -0.011, z: 0.013, wobbleX: -0.007, wobbleY: 0.009, wobbleZ: -0.005 }
+                },
+                { 
+                    id: 'baryon-4', 
+                    type: 'stella_octangula',
+                    colors: ['#10B981', '#22D68A', '#47E195', '#0CA871', '#0A9B6B', '#15C491'],
+                    rotationSpeed: { x: -0.014, y: 0.020, z: -0.007, wobbleX: 0.008, wobbleY: -0.006, wobbleZ: 0.010 }
+                }
             ];
 
-            baryonConfigs.forEach(config => {
+            baryonConfigs.forEach((config, index) => {
                 const svg = d3.select(`#${config.id}`);
-                const container = svg.node().parentElement;
-                const rect = container.getBoundingClientRect();
                 
                 svg.attr('width', '100%')
                    .attr('height', '100%')
-                   .attr('viewBox', '0 0 300 300');
+                   .attr('viewBox', '0 0 400 400');
 
-                // Create baryon particle structure (bacteriophage head-like)
-                const centerX = 150;
-                const centerY = 150;
-                const radius = 95;
+                const centerX = 200;
+                const centerY = 200;
+                const baseRadius = 85;
 
-                // Create gradients for each particle
+                // 6축 회전 변수
+                let rotationX = 0, rotationY = 0, rotationZ = 0;
+                let wobbleX = 0, wobbleY = 0, wobbleZ = 0;
+                let breathingPhase = Math.random() * Math.PI * 2;
+                let energyPhase = Math.random() * Math.PI * 2;
+
+                // 고급 그라디언트와 필터
                 const defs = svg.append('defs');
-                const gradient = defs.append('radialGradient')
-                    .attr('id', `gradient-${config.id}`)
-                    .attr('cx', '50%').attr('cy', '50%').attr('r', '50%');
                 
-                gradient.append('stop')
-                    .attr('offset', '0%')
-                    .attr('stop-color', config.color)
-                    .attr('stop-opacity', 0.8);
-                
-                gradient.append('stop')
-                    .attr('offset', '100%')
-                    .attr('stop-color', config.color)
-                    .attr('stop-opacity', 0.1);
-
-                // Main container for rotation
-                const particleGroup = svg.append('g')
-                    .attr('class', 'baryon-particle')
-                    .attr('transform', `translate(${centerX}, ${centerY})`);
-
-                // Create hexagonal capsid structure (bacteriophage head)
-                const hexagon = particleGroup.append('polygon')
-                    .attr('points', generateHexagonPoints(0, 0, radius * 0.75))
-                    .attr('fill', `url(#gradient-${config.id})`)
-                    .attr('stroke', config.color)
-                    .attr('stroke-width', 2.5)
-                    .attr('stroke-opacity', 0.7);
-
-                // Create three quarks positioned at vertices
-                const quarkPositions = [
-                    { x: 0, y: -radius * 0.85, type: 'up' },
-                    { x: radius * 0.75, y: radius * 0.45, type: 'down' },
-                    { x: -radius * 0.75, y: radius * 0.45, type: 'strange' }
-                ];
-
-                const quarkColors = {
-                    'up': '#FF6B6B',
-                    'down': '#4ECDC4', 
-                    'strange': '#45B7D1'
-                };
-
-                quarkPositions.forEach((quark, i) => {
-                    const quarkGroup = particleGroup.append('g')
-                        .attr('class', 'quark')
-                        .attr('transform', `translate(${quark.x}, ${quark.y})`);
-
-                    // Quark core
-                    quarkGroup.append('circle')
-                        .attr('r', 12)
-                        .attr('fill', quarkColors[quark.type])
-                        .attr('opacity', 0.9);
-
-                    // Quark glow
-                    quarkGroup.append('circle')
-                        .attr('r', 18)
-                        .attr('fill', 'none')
-                        .attr('stroke', quarkColors[quark.type])
-                        .attr('stroke-width', 2)
-                        .attr('stroke-opacity', 0.6);
+                // 다중 그라디언트 생성
+                config.colors.forEach((color, i) => {
+                    // 메인 그라디언트
+                    const gradient = defs.append('radialGradient')
+                        .attr('id', `gradient3d-${config.id}-${i}`)
+                        .attr('cx', '20%').attr('cy', '20%').attr('r', '80%');
+                    
+                    gradient.append('stop')
+                        .attr('offset', '0%')
+                        .attr('stop-color', d3.color(color).brighter(1.2))
+                        .attr('stop-opacity', 0.95);
+                    
+                    gradient.append('stop')
+                        .attr('offset', '40%')
+                        .attr('stop-color', color)
+                        .attr('stop-opacity', 0.85);
                         
-                    // Quark outer ring
-                    quarkGroup.append('circle')
-                        .attr('r', 25)
-                        .attr('fill', 'none')
-                        .attr('stroke', quarkColors[quark.type])
-                        .attr('stroke-width', 1)
-                        .attr('stroke-opacity', 0.3)
-                        .attr('stroke-dasharray', '3,3');
+                    gradient.append('stop')
+                        .attr('offset', '100%')
+                        .attr('stop-color', d3.color(color).darker(1.5))
+                        .attr('stop-opacity', 0.2);
+                        
+                    // 메탈릭 그라디언트
+                    const metalGradient = defs.append('radialGradient')
+                        .attr('id', `metal-${config.id}-${i}`)
+                        .attr('cx', '30%').attr('cy', '30%').attr('r', '70%');
+                    
+                    metalGradient.append('stop')
+                        .attr('offset', '0%')
+                        .attr('stop-color', d3.color(color).brighter(2))
+                        .attr('stop-opacity', 0.9);
+                    
+                    metalGradient.append('stop')
+                        .attr('offset', '30%')
+                        .attr('stop-color', d3.color(color).brighter(0.5))
+                        .attr('stop-opacity', 0.7);
+                        
+                    metalGradient.append('stop')
+                        .attr('offset', '100%')
+                        .attr('stop-color', d3.color(color).darker(2))
+                        .attr('stop-opacity', 0.3);
                 });
 
-                // Add connecting lines between quarks (gluon field)
-                for (let i = 0; i < quarkPositions.length; i++) {
-                    for (let j = i + 1; j < quarkPositions.length; j++) {
-                        const line = particleGroup.append('line')
-                            .attr('x1', quarkPositions[i].x)
-                            .attr('y1', quarkPositions[i].y)
-                            .attr('x2', quarkPositions[j].x)
-                            .attr('y2', quarkPositions[j].y)
-                            .attr('stroke', config.color)
-                            .attr('stroke-width', 2)
-                            .attr('stroke-opacity', 0.5)
-                            .attr('stroke-dasharray', '4,4');
+                // 고급 필터들
+                const glowFilter = defs.append('filter').attr('id', `glow-${config.id}`);
+                glowFilter.append('feGaussianBlur')
+                    .attr('stdDeviation', 5)
+                    .attr('result', 'coloredBlur');
+                const feMerge = glowFilter.append('feMerge');
+                feMerge.append('feMergeNode').attr('in', 'coloredBlur');
+                feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
+                const innerGlowFilter = defs.append('filter').attr('id', `innerGlow-${config.id}`);
+                innerGlowFilter.append('feGaussianBlur')
+                    .attr('stdDeviation', 2)
+                    .attr('result', 'innerBlur');
+
+                // 3D 파티클 그룹
+                const particle3D = svg.append('g')
+                    .attr('class', 'particle3d')
+                    .attr('transform', `translate(${centerX}, ${centerY})`);
+
+                // 복잡한 3D 다면체 생성
+                function generateAdvancedPolyhedron(type, radius) {
+                    const vertices = [];
+
+                    switch(type) {
+                        case 'icosahedron':
+                            // 20면체 - 더 많은 점들
+                            const phi = (1 + Math.sqrt(5)) / 2;
+                            const scale = radius / Math.sqrt(1 + phi * phi);
+                            
+                            const basicVertices = [
+                                [-1, phi, 0], [1, phi, 0], [-1, -phi, 0], [1, -phi, 0],
+                                [0, -1, phi], [0, 1, phi], [0, -1, -phi], [0, 1, -phi],
+                                [phi, 0, -1], [phi, 0, 1], [-phi, 0, -1], [-phi, 0, 1]
+                            ];
+                            
+                            basicVertices.forEach(v => {
+                                vertices.push([v[0] * scale, v[1] * scale, v[2] * scale]);
+                            });
+                            
+                            // 추가 중간점들
+                            for (let i = 0; i < basicVertices.length; i++) {
+                                for (let j = i + 1; j < basicVertices.length; j++) {
+                                    const midPoint = [
+                                        (basicVertices[i][0] + basicVertices[j][0]) * scale * 0.5,
+                                        (basicVertices[i][1] + basicVertices[j][1]) * scale * 0.5,
+                                        (basicVertices[i][2] + basicVertices[j][2]) * scale * 0.5
+                                    ];
+                                    if (Math.random() > 0.7) vertices.push(midPoint);
+                                }
+                            }
+                            break;
+
+                        case 'dodecahedron':
+                            // 12면체 - 황금비 기반
+                            const phi2 = (1 + Math.sqrt(5)) / 2;
+                            const invPhi = 1 / phi2;
+                            
+                            const dodecaVertices = [
+                                [1, 1, 1], [1, 1, -1], [1, -1, 1], [1, -1, -1],
+                                [-1, 1, 1], [-1, 1, -1], [-1, -1, 1], [-1, -1, -1],
+                                [0, invPhi, phi2], [0, invPhi, -phi2], [0, -invPhi, phi2], [0, -invPhi, -phi2],
+                                [invPhi, phi2, 0], [invPhi, -phi2, 0], [-invPhi, phi2, 0], [-invPhi, -phi2, 0],
+                                [phi2, 0, invPhi], [phi2, 0, -invPhi], [-phi2, 0, invPhi], [-phi2, 0, -invPhi]
+                            ];
+                            
+                            dodecaVertices.forEach(v => {
+                                const len = Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+                                vertices.push([
+                                    v[0] / len * radius * 0.9,
+                                    v[1] / len * radius * 0.9,
+                                    v[2] / len * radius * 0.9
+                                ]);
+                            });
+                            break;
+
+                        case 'compound':
+                            // 복합 다면체 (정사면체 + 정팔면체)
+                            // 정사면체
+                            const tetraA = radius * 0.7;
+                            vertices.push(
+                                [tetraA, tetraA, tetraA], [tetraA, -tetraA, -tetraA], 
+                                [-tetraA, tetraA, -tetraA], [-tetraA, -tetraA, tetraA]
+                            );
+                            
+                            // 정팔면체
+                            const octaA = radius * 1.1;
+                            vertices.push(
+                                [octaA, 0, 0], [-octaA, 0, 0],
+                                [0, octaA, 0], [0, -octaA, 0],
+                                [0, 0, octaA], [0, 0, -octaA]
+                            );
+                            
+                            // 중간점들
+                            for (let i = 0; i < 20; i++) {
+                                const angle1 = (i / 20) * Math.PI * 2;
+                                const angle2 = Math.sin(i * 0.5) * Math.PI;
+                                vertices.push([
+                                    Math.cos(angle1) * Math.cos(angle2) * radius * 0.8,
+                                    Math.sin(angle1) * Math.cos(angle2) * radius * 0.8,
+                                    Math.sin(angle2) * radius * 0.8
+                                ]);
+                            }
+                            break;
+
+                        case 'stella_octangula':
+                            // 스텔라 옥탄굴라 (8방향 별)
+                            const starA = radius;
+                            
+                            // 기본 8방향
+                            vertices.push(
+                                [starA, 0, 0], [-starA, 0, 0],
+                                [0, starA, 0], [0, -starA, 0],
+                                [0, 0, starA], [0, 0, -starA]
+                            );
+                            
+                            // 대각선 방향
+                            const diag = starA * 0.7;
+                            vertices.push(
+                                [diag, diag, 0], [diag, -diag, 0], 
+                                [-diag, diag, 0], [-diag, -diag, 0],
+                                [diag, 0, diag], [diag, 0, -diag],
+                                [-diag, 0, diag], [-diag, 0, -diag],
+                                [0, diag, diag], [0, diag, -diag],
+                                [0, -diag, diag], [0, -diag, -diag]
+                            );
+                            
+                            // 삼중 대각선
+                            const triDiag = starA * 0.5;
+                            vertices.push(
+                                [triDiag, triDiag, triDiag], [triDiag, triDiag, -triDiag],
+                                [triDiag, -triDiag, triDiag], [triDiag, -triDiag, -triDiag],
+                                [-triDiag, triDiag, triDiag], [-triDiag, triDiag, -triDiag],
+                                [-triDiag, -triDiag, triDiag], [-triDiag, -triDiag, -triDiag]
+                            );
+                            break;
+                    }
+
+                    return vertices;
+                }
+
+                // 고급 3D 투영 및 변환
+                function advancedProject3D(point, rotX, rotY, rotZ, wobX, wobY, wobZ) {
+                    let [x, y, z] = point;
+                    
+                    // 6축 회전 적용
+                    // 메인 회전
+                    let newY = y * Math.cos(rotX) - z * Math.sin(rotX);
+                    let newZ = y * Math.sin(rotX) + z * Math.cos(rotX);
+                    y = newY; z = newZ;
+                    
+                    let newX = x * Math.cos(rotY) + z * Math.sin(rotY);
+                    newZ = -x * Math.sin(rotY) + z * Math.cos(rotY);
+                    x = newX; z = newZ;
+                    
+                    newX = x * Math.cos(rotZ) - y * Math.sin(rotZ);
+                    newY = x * Math.sin(rotZ) + y * Math.cos(rotZ);
+                    x = newX; y = newY;
+                    
+                    // 워블링 (미세 진동)
+                    x += Math.sin(wobX) * 2;
+                    y += Math.sin(wobY) * 2;
+                    z += Math.sin(wobZ) * 2;
+                    
+                    // 원근 투영
+                    const distance = 400;
+                    const scale = distance / (distance + z + 50);
+                    
+                    return {
+                        x: x * scale,
+                        y: y * scale,
+                        z: z,
+                        scale: scale,
+                        distance: Math.sqrt(x*x + y*y + z*z)
+                    };
+                }
+
+                // 다면체 생성
+                const vertices3D = generateAdvancedPolyhedron(config.type, baseRadius);
+                
+                const faces = vertices3D.map((vertex, i) => ({
+                    vertex: vertex,
+                    colorIndex: i % config.colors.length,
+                    originalIndex: i,
+                    size: 5 + Math.random() * 10,
+                    pulsePhase: Math.random() * Math.PI * 2
+                }));
+
+                // 고급 렌더링
+                function render3D() {
+                    particle3D.selectAll('.face3d').remove();
+                    
+                    const currentBreathing = Math.sin(breathingPhase) * 0.2 + 1;
+                    const energyPulse = Math.sin(energyPhase) * 0.3 + 0.7;
+                    
+                    const projectedFaces = faces.map(face => {
+                        const projected = advancedProject3D(
+                            face.vertex.map(v => v * currentBreathing), 
+                            rotationX, rotationY, rotationZ,
+                            wobbleX, wobbleY, wobbleZ
+                        );
+                        return {
+                            ...face,
+                            projected: projected,
+                            depth: projected.z
+                        };
+                    }).sort((a, b) => a.depth - b.depth);
+                    
+                    // 렌더링
+                    projectedFaces.forEach((face, i) => {
+                        const p = face.projected;
+                        const colorIndex = face.colorIndex;
+                        const baseSize = face.size * p.scale * energyPulse;
+                        const opacity = Math.max(0.2, 0.4 + p.scale * 0.6);
+                        
+                        // 다중 레이어 렌더링
+                        for (let layer = 0; layer < 4; layer++) {
+                            const layerSize = baseSize * (1 + layer * 0.3);
+                            const layerOpacity = opacity * (0.8 - layer * 0.2);
+                            
+                            const element = particle3D.append('circle')
+                                .attr('class', 'face3d')
+                                .attr('cx', p.x)
+                                .attr('cy', p.y)
+                                .attr('r', layerSize)
+                                .attr('opacity', layerOpacity);
+                            
+                            if (layer === 0) {
+                                element.attr('fill', `url(#gradient3d-${config.id}-${colorIndex})`)
+                                       .attr('filter', `url(#glow-${config.id})`);
+                            } else if (layer === 1) {
+                                element.attr('fill', `url(#metal-${config.id}-${colorIndex})`);
+                            } else {
+                                element.attr('fill', config.colors[colorIndex])
+                                       .attr('opacity', layerOpacity * 0.5);
+                            }
+                            
+                            element.style('mix-blend-mode', layer < 2 ? 'screen' : 'overlay');
+                        }
+                        
+                        // 스파클 효과
+                        if (p.scale > 0.7 && Math.random() > 0.8) {
+                            particle3D.append('circle')
+                                .attr('class', 'face3d sparkle')
+                                .attr('cx', p.x + (Math.random() - 0.5) * 15)
+                                .attr('cy', p.y + (Math.random() - 0.5) * 15)
+                                .attr('r', Math.random() * 2 + 1)
+                                .attr('fill', d3.color(config.colors[colorIndex]).brighter(2))
+                                .attr('opacity', Math.random() * 0.9 + 0.1)
+                                .style('mix-blend-mode', 'screen');
+                        }
+                    });
+                    
+                    // 중앙 에너지 코어
+                    const coreSize = 15 + Math.sin(energyPhase * 2) * 5;
+                    particle3D.append('circle')
+                        .attr('class', 'face3d core')
+                        .attr('cx', 0)
+                        .attr('cy', 0)
+                        .attr('r', coreSize)
+                        .attr('fill', config.colors[0])
+                        .attr('opacity', 0.9)
+                        .attr('filter', `url(#glow-${config.id})`)
+                        .style('mix-blend-mode', 'screen');
+                        
+                    // 외부 링
+                    for (let ring = 1; ring <= 3; ring++) {
+                        particle3D.append('circle')
+                            .attr('class', 'face3d ring')
+                            .attr('cx', 0)
+                            .attr('cy', 0)
+                            .attr('r', coreSize + ring * 15)
+                            .attr('fill', 'none')
+                            .attr('stroke', config.colors[ring % config.colors.length])
+                            .attr('stroke-width', 1)
+                            .attr('stroke-opacity', (0.4 - ring * 0.1) * energyPulse)
+                            .attr('stroke-dasharray', `${ring * 3},${ring * 2}`)
+                            .style('mix-blend-mode', 'screen');
                     }
                 }
 
-                // Add central nucleus
-                particleGroup.append('circle')
-                    .attr('r', 22)
-                    .attr('fill', config.color)
-                    .attr('opacity', 0.8);
-
-                particleGroup.append('circle')
-                    .attr('r', 35)
-                    .attr('fill', 'none')
-                    .attr('stroke', config.color)
-                    .attr('stroke-width', 2)
-                    .attr('stroke-opacity', 0.5)
-                    .attr('stroke-dasharray', '5,5');
+                // 고급 애니메이션 루프
+                function animate3D() {
+                    const time = Date.now() * 0.001;
                     
-                // Add outer ring for dramatic effect
-                particleGroup.append('circle')
-                    .attr('r', 50)
-                    .attr('fill', 'none')
-                    .attr('stroke', config.color)
-                    .attr('stroke-width', 1)
-                    .attr('stroke-opacity', 0.3)
-                    .attr('stroke-dasharray', '8,8');
-
-                // Rotation animation
-                function animateRotation() {
-                    particleGroup
-                        .transition()
-                        .duration(15000 + Math.random() * 10000)
-                        .ease(d3.easeLinear)
-                        .attr('transform', `translate(${centerX}, ${centerY}) rotate(360)`)
-                        .on('end', function() {
-                            d3.select(this).attr('transform', `translate(${centerX}, ${centerY}) rotate(0)`);
-                            animateRotation();
-                        });
+                    // 6축 회전 업데이트
+                    rotationX += config.rotationSpeed.x;
+                    rotationY += config.rotationSpeed.y;
+                    rotationZ += config.rotationSpeed.z;
+                    
+                    wobbleX += config.rotationSpeed.wobbleX;
+                    wobbleY += config.rotationSpeed.wobbleY;
+                    wobbleZ += config.rotationSpeed.wobbleZ;
+                    
+                    // 호흡 효과
+                    breathingPhase += 0.02;
+                    energyPhase += 0.04;
+                    
+                    render3D();
+                    requestAnimationFrame(animate3D);
                 }
 
-                // Quark orbital animation
-                function animateQuarks() {
-                    particleGroup.selectAll('.quark')
-                        .each(function(d, i) {
-                            const quark = d3.select(this);
-                            const baseX = quarkPositions[i].x;
-                            const baseY = quarkPositions[i].y;
-                            
-                            function oscillate() {
-                                const time = Date.now() * 0.0008;
-                                const angle = time + i * Math.PI * 2 / 3;
-                                const orbitalRadius = 6 + Math.sin(time * 1.5) * 4;
-                                const x = baseX + Math.cos(angle) * orbitalRadius;
-                                const y = baseY + Math.sin(angle) * orbitalRadius;
-                                
-                                quark.transition()
-                                    .duration(150)
-                                    .attr('transform', `translate(${x}, ${y})`)
-                                    .on('end', oscillate);
-                            }
-                            
-                            setTimeout(oscillate, i * 500);
-                        });
-                }
-
-                // Start animations
+                // 스태거드 시작
                 setTimeout(() => {
-                    animateRotation();
-                    animateQuarks();
-                }, Math.random() * 2000);
+                    animate3D();
+                }, index * 300);
             });
         }
 
