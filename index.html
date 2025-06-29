@@ -1535,7 +1535,7 @@
         });
 
         // D3.js Advanced Neural Network Background
-        function createD3Background(svgId, containerSelector, nodeCount = 20) {
+        function createD3Background(svgId, containerSelector, nodeCount = 15, nodeSize = 3) {
             const svg = d3.select(svgId);
             const containerSection = document.querySelector(containerSelector);
             
@@ -1556,7 +1556,7 @@
                 y: Math.random() * height,
                 vx: (Math.random() - 0.5) * 0.8,
                 vy: (Math.random() - 0.5) * 0.8,
-                radius: Math.random() * 4 + 1,
+                radius: (Math.random() * 4 + 1) * nodeSize,
                 energy: Math.random(),
                 layer: Math.floor(Math.random() * 4) + 1,
                 cluster: Math.floor(Math.random() * 5),
@@ -1600,15 +1600,17 @@
             const dataFlows = [];
             
             function createDataFlow(source, target) {
+                const colors = ['#06B6D4', '#3B82F6', '#8B5CF6', '#10B981', '#F59E0B'];
                 return {
                     x: source.x,
                     y: source.y,
                     targetX: target.x,
                     targetY: target.y,
                     progress: 0,
-                    speed: 0.02 + Math.random() * 0.03,
-                    size: Math.random() * 2 + 1,
-                    life: 1.0
+                    speed: 0.025 + Math.random() * 0.04,
+                    size: (Math.random() * 2 + 1) * nodeSize,
+                    life: 1.0,
+                    color: colors[Math.floor(Math.random() * colors.length)]
                 };
             }
             
@@ -1716,8 +1718,20 @@
                                 strength: connectionStrength
                             });
                             
-                            // Occasionally create data flows (reduced frequency)
-                            if (Math.random() < 0.002 && connectionStrength > 0.5) {
+                            // Create data flows more frequently for enhanced communication
+                            let flowProbability = 0.025;
+                            
+                            // Increase flow probability for same cluster nodes
+                            if (nodes[i].cluster === nodes[j].cluster) {
+                                flowProbability = 0.045;
+                            }
+                            
+                            // Increase flow probability for hub connections
+                            if (nodes[i].importance > 0.7 || nodes[j].importance > 0.7) {
+                                flowProbability *= 1.5;
+                            }
+                            
+                            if (Math.random() < flowProbability && connectionStrength > 0.3) {
                                 dataFlows.push(createDataFlow(nodes[i], nodes[j]));
                             }
                         }
@@ -1727,7 +1741,7 @@
                 // Update data flows
                 dataFlows.forEach((flow, index) => {
                     flow.progress += flow.speed;
-                    flow.life -= 0.01;
+                    flow.life -= 0.015;
                     
                     if (flow.progress >= 1 || flow.life <= 0) {
                         dataFlows.splice(index, 1);
@@ -1747,8 +1761,8 @@
                     .attr('cx', d => d.x)
                     .attr('cy', d => d.y)
                     .attr('r', d => d.size)
-                    .attr('fill', '#F59E0B')
-                    .attr('opacity', d => d.life * 0.8)
+                    .attr('fill', d => d.color)
+                    .attr('opacity', d => d.life * 0.9)
                     .attr('filter', 'url(#glow)');
                 
                 trails.exit().remove();
@@ -1764,9 +1778,9 @@
                     .attr('x2', d => d.target.x)
                     .attr('y2', d => d.target.y)
                     .attr('stroke', d => d.strength > 0.6 ? '#06B6D4' : '#3B82F6')
-                    .attr('stroke-width', d => d.opacity * (1 + d.strength))
+                    .attr('stroke-width', d => d.opacity * (1 + d.strength) * nodeSize)
                     .attr('stroke-opacity', d => d.opacity * 0.4)
-                    .attr('stroke-dasharray', d => d.strength > 0.7 ? '5,5' : 'none');
+                    .attr('stroke-dasharray', d => d.strength > 0.7 ? `${5 * nodeSize},${5 * nodeSize}` : 'none');
                 
                 links.exit().remove();
                 
@@ -1779,8 +1793,8 @@
                     .attr('cx', d => d.x)
                     .attr('cy', d => d.y)
                     .attr('r', d => {
-                        const baseSiz = d.radius + Math.sin(d.pulsePhase) * 0.5;
-                        return d.importance > 0.7 ? baseSiz * 1.5 : baseSiz;
+                        const baseSize = d.radius + Math.sin(d.pulsePhase) * (0.5 * nodeSize);
+                        return d.importance > 0.7 ? baseSize * 1.5 : baseSize;
                     })
                     .attr('fill', d => `url(#gradient${d.layer})`)
                     .attr('opacity', d => 0.3 + Math.sin(d.energy * Math.PI * 2) * 0.4 + d.importance * 0.3)
@@ -1796,10 +1810,10 @@
                     .merge(hubElements)
                     .attr('cx', d => d.x)
                     .attr('cy', d => d.y)
-                    .attr('r', d => d.radius * 2 + Math.sin(time * 2 + d.pulsePhase) * 2)
+                    .attr('r', d => d.radius * 2 + Math.sin(time * 2 + d.pulsePhase) * (2 * nodeSize))
                     .attr('fill', 'none')
                     .attr('stroke', '#06B6D4')
-                    .attr('stroke-width', 2)
+                    .attr('stroke-width', 2 * nodeSize)
                     .attr('stroke-opacity', d => 0.3 + Math.sin(time + d.pulsePhase) * 0.2)
                     .attr('filter', 'url(#glow)');
                 
@@ -2053,8 +2067,8 @@
             });
 
             // Initialize D3.js Neural Network Backgrounds
-            const heroBackground = createD3Background('#d3-background', '.hero', 20); // Hero background with 20 nodes
-            const philosophyBackground = createD3Background('#d3-philosophy-background', '.philosophy', 60); // Philosophy background with 60 nodes (3x)
+            const heroBackground = createD3Background('#d3-background', '.hero', 23, 4); // Hero background with 20 nodes, normal size
+            const philosophyBackground = createD3Background('#d3-philosophy-background', '.philosophy', 18, 3); // Philosophy background with 18 nodes (30% of 60), 3x size
             
             // Global scroll handler for both backgrounds
             window.addEventListener('scroll', () => {
