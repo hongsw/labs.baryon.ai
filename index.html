@@ -840,18 +840,24 @@
         /* Baryon Particle Background */
         .baryon-background {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: -20px;
+            left: -20px;
+            width: calc(100% + 40px);
+            height: calc(100% + 40px);
             z-index: 1;
             pointer-events: none;
-            opacity: 0.15;
+            opacity: 0.35;
+            overflow: visible;
         }
 
-        .team-member > * {
+        .team-member > *:not(.baryon-background) {
             position: relative;
-            z-index: 2;
+            z-index: 3;
+        }
+
+        .member-avatar {
+            position: relative;
+            z-index: 4;
         }
 
         footer {
@@ -1736,12 +1742,12 @@
                 
                 svg.attr('width', '100%')
                    .attr('height', '100%')
-                   .attr('viewBox', '0 0 200 200');
+                   .attr('viewBox', '0 0 300 300');
 
                 // Create baryon particle structure (bacteriophage head-like)
-                const centerX = 100;
-                const centerY = 100;
-                const radius = 60;
+                const centerX = 150;
+                const centerY = 150;
+                const radius = 95;
 
                 // Create gradients for each particle
                 const defs = svg.append('defs');
@@ -1766,22 +1772,22 @@
 
                 // Create hexagonal capsid structure (bacteriophage head)
                 const hexagon = particleGroup.append('polygon')
-                    .attr('points', generateHexagonPoints(0, 0, radius * 0.7))
+                    .attr('points', generateHexagonPoints(0, 0, radius * 0.75))
                     .attr('fill', `url(#gradient-${config.id})`)
                     .attr('stroke', config.color)
-                    .attr('stroke-width', 1.5)
-                    .attr('stroke-opacity', 0.6);
+                    .attr('stroke-width', 2.5)
+                    .attr('stroke-opacity', 0.7);
 
                 // Create three quarks positioned at vertices
                 const quarkPositions = [
-                    { x: 0, y: -radius * 0.8, type: 'up' },
-                    { x: radius * 0.7, y: radius * 0.4, type: 'down' },
-                    { x: -radius * 0.7, y: radius * 0.4, type: 'strange' }
+                    { x: 0, y: -radius * 0.85, type: 'up' },
+                    { x: radius * 0.75, y: radius * 0.45, type: 'down' },
+                    { x: -radius * 0.75, y: radius * 0.45, type: 'strange' }
                 ];
 
                 const quarkColors = {
                     'up': '#FF6B6B',
-                    'down': '#4ECDC4',
+                    'down': '#4ECDC4', 
                     'strange': '#45B7D1'
                 };
 
@@ -1792,17 +1798,26 @@
 
                     // Quark core
                     quarkGroup.append('circle')
-                        .attr('r', 8)
+                        .attr('r', 12)
                         .attr('fill', quarkColors[quark.type])
-                        .attr('opacity', 0.8);
+                        .attr('opacity', 0.9);
 
                     // Quark glow
                     quarkGroup.append('circle')
-                        .attr('r', 12)
+                        .attr('r', 18)
+                        .attr('fill', 'none')
+                        .attr('stroke', quarkColors[quark.type])
+                        .attr('stroke-width', 2)
+                        .attr('stroke-opacity', 0.6);
+                        
+                    // Quark outer ring
+                    quarkGroup.append('circle')
+                        .attr('r', 25)
                         .attr('fill', 'none')
                         .attr('stroke', quarkColors[quark.type])
                         .attr('stroke-width', 1)
-                        .attr('stroke-opacity', 0.4);
+                        .attr('stroke-opacity', 0.3)
+                        .attr('stroke-dasharray', '3,3');
                 });
 
                 // Add connecting lines between quarks (gluon field)
@@ -1814,31 +1829,40 @@
                             .attr('x2', quarkPositions[j].x)
                             .attr('y2', quarkPositions[j].y)
                             .attr('stroke', config.color)
-                            .attr('stroke-width', 0.8)
-                            .attr('stroke-opacity', 0.3)
-                            .attr('stroke-dasharray', '2,3');
+                            .attr('stroke-width', 2)
+                            .attr('stroke-opacity', 0.5)
+                            .attr('stroke-dasharray', '4,4');
                     }
                 }
 
                 // Add central nucleus
                 particleGroup.append('circle')
-                    .attr('r', 15)
+                    .attr('r', 22)
                     .attr('fill', config.color)
-                    .attr('opacity', 0.6);
+                    .attr('opacity', 0.8);
 
                 particleGroup.append('circle')
-                    .attr('r', 25)
+                    .attr('r', 35)
+                    .attr('fill', 'none')
+                    .attr('stroke', config.color)
+                    .attr('stroke-width', 2)
+                    .attr('stroke-opacity', 0.5)
+                    .attr('stroke-dasharray', '5,5');
+                    
+                // Add outer ring for dramatic effect
+                particleGroup.append('circle')
+                    .attr('r', 50)
                     .attr('fill', 'none')
                     .attr('stroke', config.color)
                     .attr('stroke-width', 1)
                     .attr('stroke-opacity', 0.3)
-                    .attr('stroke-dasharray', '3,3');
+                    .attr('stroke-dasharray', '8,8');
 
                 // Rotation animation
                 function animateRotation() {
                     particleGroup
                         .transition()
-                        .duration(8000 + Math.random() * 4000)
+                        .duration(15000 + Math.random() * 10000)
                         .ease(d3.easeLinear)
                         .attr('transform', `translate(${centerX}, ${centerY}) rotate(360)`)
                         .on('end', function() {
@@ -1856,14 +1880,14 @@
                             const baseY = quarkPositions[i].y;
                             
                             function oscillate() {
-                                const time = Date.now() * 0.001;
+                                const time = Date.now() * 0.0008;
                                 const angle = time + i * Math.PI * 2 / 3;
-                                const orbitalRadius = 3 + Math.sin(time * 2) * 2;
+                                const orbitalRadius = 6 + Math.sin(time * 1.5) * 4;
                                 const x = baseX + Math.cos(angle) * orbitalRadius;
                                 const y = baseY + Math.sin(angle) * orbitalRadius;
                                 
                                 quark.transition()
-                                    .duration(100)
+                                    .duration(150)
                                     .attr('transform', `translate(${x}, ${y})`)
                                     .on('end', oscillate);
                             }
