@@ -1,0 +1,123 @@
+<section id="contact" class="contact-section">
+    <div class="contact-container">
+        <h2 class="section-title" data-i18n="contact.title">Contact Us</h2>
+        
+        <form class="contact-form" id="contactForm">
+            <!-- Required Fields -->
+            <div class="form-grid required">
+                <div class="form-group">
+                    <label class="form-label" for="name" data-i18n="contact.name">Name *</label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        class="form-input required-field" 
+                        data-i18n-placeholder="contact.namePlaceholder"
+                        placeholder="Your name"
+                        required
+                    >
+                    <div class="form-error" id="nameError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="email" data-i18n="contact.workEmail">Work Email *</label>
+                    <input 
+                        type="email" 
+                        id="work_email" 
+                        name="work_email" 
+                        class="form-input required-field" 
+                        data-i18n-placeholder="contact.emailPlaceholder"
+                        placeholder="your@company.com"
+                        required
+                    >
+                    <div class="form-error" id="work_emailError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="inquiry-type" data-i18n="contact.inquiryType">Inquiry Type *</label>
+                    <select id="inquiry-type" name="inquiry_type" class="form-select required-field" required>
+                        <option value="" data-i18n="contact.selectInquiry">Select inquiry type</option>
+                        <option value="partnership" data-i18n="contact.partnership">Partnership</option>
+                        <option value="investment" data-i18n="contact.investment">Investment</option>
+                        <option value="collaboration" data-i18n="contact.collaboration">Collaboration</option>
+                        <option value="consulting" data-i18n="contact.consulting">Consulting</option>
+                        <option value="general" data-i18n="contact.general">General Inquiry</option>
+                        <option value="support" data-i18n="contact.support">Technical Support</option>
+                    </select>
+                    <div class="form-error" id="inquiryTypeError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="subject" data-i18n="contact.subject">Subject *</label>
+                    <select id="subject" name="subject" class="form-select required-field" required>
+                        <option value="" data-i18n="contact.selectSubject">Select subject</option>
+                        <option value="ai-consultation" data-i18n="contact.aiConsultation">AI Strategy Consultation</option>
+                        <option value="partnership-proposal" data-i18n="contact.partnershipProposal">Partnership Proposal</option>
+                        <option value="investment-discussion" data-i18n="contact.investmentDiscussion">Investment Discussion</option>
+                        <option value="technical-collaboration" data-i18n="contact.technicalCollaboration">Technical Collaboration</option>
+                        <option value="product-development" data-i18n="contact.productDevelopment">Product Development</option>
+                        <option value="research-partnership" data-i18n="contact.researchPartnership">Research Partnership</option>
+                        <option value="business-inquiry" data-i18n="contact.businessInquiry">Business Inquiry</option>
+                        <option value="other" data-i18n="contact.other">Other</option>
+                    </select>
+                    <div class="form-error" id="subjectError"></div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label class="form-label" for="message" data-i18n="contact.message">Message *</label>
+                    <textarea 
+                        id="message" 
+                        name="message" 
+                        class="form-textarea required-field" 
+                        data-i18n-placeholder="contact.messagePlaceholder"
+                        placeholder="Tell us about your project or inquiry..."
+                        required
+                    ></textarea>
+                    <div class="form-error" id="messageError"></div>
+                </div>
+            </div>
+
+            <!-- Optional Toggle Button -->
+            <div class="optional-toggle">
+                <button type="button" class="toggle-btn" id="toggleOptional" data-i18n="contact.addOptional">
+                    + Add Optional Details
+                </button>
+            </div>
+
+            <!-- Optional Fields (Initially Hidden) -->
+            <div class="form-grid optional" id="optionalFields">
+                <div class="form-group">
+                    <label class="form-label" for="phone" data-i18n="contact.phone">Phone</label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        class="form-input" 
+                        data-i18n-placeholder="contact.phonePlaceholder"
+                        placeholder="+1 (555) 123-4567"
+                    >
+                    <div class="form-error" id="phoneError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="company" data-i18n="contact.company">Company</label>
+                    <input 
+                        type="text" 
+                        id="company" 
+                        name="company" 
+                        class="form-input" 
+                        data-i18n-placeholder="contact.companyPlaceholder"
+                        placeholder="Your company"
+                    >
+                </div>
+            </div>
+            
+            <button type="submit" class="form-submit" id="submitBtn">
+                <span class="loading-spinner"></span>
+                <span data-i18n="contact.sendMessage">Send Message</span>
+            </button>
+            
+            <div class="form-message" id="formMessage"></div>
+        </form>
+    </div>
+</section>

@@ -58,6 +58,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- HTMX for dynamic loading -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     
     <!-- Google Analytics (Replace GA_MEASUREMENT_ID with actual ID) -->
@@ -145,1049 +147,299 @@
         ]
     }
     </script>
-    <style>
-        :root {
-            /* Primary Colors (60%) - Deep Navy Dominance */
-            --primary-deep: #0A0E27;
-            --primary-mid: #1B2B44;
-            --primary-light: #2E4A6B;
-            --primary-gradient: linear-gradient(135deg, #0A0E27 0%, #1B2B44 50%, #2E4A6B 100%);
-            
-            /* Secondary Colors (30%) - Sophisticated Support */
-            --secondary-deep: #0F1419;
-            --secondary-mid: #1A2332;
-            --secondary-light: #243447;
-            
-            /* Accent Colors (10%) - Strategic Highlights */
-            --accent-blue: #3B82F6;
-            --accent-cyan: #06B6D4;
-            --accent-white: #F8FAFC;
-            --accent-gradient: linear-gradient(90deg, #3B82F6, #06B6D4);
-            
-            /* Typography - Reduced Sizes */
-            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-            
-            /* Spacing */
-            --section-padding: 120px;
-            --container-padding: 24px;
-        }
+    
+    
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-primary);
-            background: var(--primary-gradient);
-            color: var(--accent-white);
-            overflow-x: hidden;
-            line-height: 1.5;
-            font-size: 14px; /* Reduced from default */
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 var(--container-padding);
-        }
-
-        header {
-            padding: 20px 0;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            backdrop-filter: blur(20px) saturate(180%);
-            background: rgba(10, 14, 39, 0.85);
-            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
-            z-index: 1000;
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-family: var(--font-display);
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--accent-white);
-            letter-spacing: -0.02em;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 40px;
-        }
-
-        .nav-links a {
-            font-family: var(--font-primary);
-            font-weight: 500;
-            font-size: 14px; /* Reduced */
-            color: rgba(248, 250, 252, 0.8);
-            text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-
-        .nav-links a:hover {
-            color: var(--accent-white);
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--accent-gradient);
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        /* Language Switcher */
-        .language-switcher {
-            display: flex;
-            gap: 8px;
-            margin-left: 20px;
-        }
-
-        .lang-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 12px;
-            background: rgba(248, 250, 252, 0.05);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            border-radius: 8px;
-            color: rgba(248, 250, 252, 0.7);
-            font-family: var(--font-primary);
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-        }
-
-        .lang-btn:hover {
-            background: rgba(59, 130, 246, 0.1);
-            border-color: rgba(59, 130, 246, 0.3);
-            color: var(--accent-white);
-            transform: translateY(-1px);
-        }
-
-        .lang-btn.active {
-            background: rgba(59, 130, 246, 0.15);
-            border-color: var(--accent-cyan);
-            color: var(--accent-white);
-            box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
-        }
-
-        .flag-icon {
-            font-size: 14px;
-            line-height: 1;
-        }
-
-        .lang-text {
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .hero {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            perspective: 1200px;
-            perspective-origin: center center;
-        }
-
-        .hero-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        /* D3.js Background Canvas */
-        #d3-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            opacity: 0.8;
-        }
-
-        .hero-content {
-            z-index: 10;
-            position: relative;
-        }
-
-        .hero h1 {
-            font-family: var(--font-display);
-            font-size: clamp(2.8rem, 8vw, 5.2rem); /* Slightly reduced */
-            font-weight: 700;
-            margin-bottom: 28px;
-            letter-spacing: -0.04em;
-            background: linear-gradient(135deg, var(--accent-white) 0%, var(--accent-cyan) 50%, var(--accent-blue) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1.1;
-        }
-
-        .hero .subtitle {
-            font-family: var(--font-primary);
-            font-size: clamp(1.1rem, 3vw, 1.5rem); /* Reduced */
-            font-weight: 400;
-            margin-bottom: 32px;
-            color: rgba(248, 250, 252, 0.8);
-            letter-spacing: -0.01em;
-        }
-
-        .hero .description {
-            font-family: var(--font-primary);
-            font-size: clamp(0.95rem, 2.5vw, 1.2rem); /* Reduced */
-            font-weight: 400;
-            max-width: 700px; /* Reduced */
-            margin: 0 auto 40px;
-            line-height: 1.6;
-            color: rgba(248, 250, 252, 0.7);
-        }
-
-        .cta-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 28px; /* Slightly smaller */
-            background: var(--accent-gradient);
-            color: var(--accent-white);
-            text-decoration: none;
-            border-radius: 12px;
-            font-family: var(--font-primary);
-            font-weight: 600;
-            font-size: 15px; /* Reduced */
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 24px rgba(59, 130, 246, 0.2);
-        }
-
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 40px rgba(59, 130, 246, 0.4);
-        }
-
-        .section {
-            padding: var(--section-padding) 0;
-        }
-
-        .section-title {
-            font-family: var(--font-display);
-            text-align: center;
-            font-size: clamp(2.2rem, 5vw, 3.2rem); /* Reduced */
-            font-weight: 600;
-            margin-bottom: 60px; /* Reduced */
-            color: var(--accent-white);
-            letter-spacing: -0.02em;
-        }
-
-        .concept-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Slightly smaller */
-            gap: 40px; /* Reduced */
-            margin-top: 60px; /* Reduced */
-        }
-
-        .concept-card {
-            background: rgba(248, 250, 252, 0.03);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(59, 130, 246, 0.1);
-            border-radius: 20px;
-            padding: 40px 32px; /* Reduced */
-            text-align: center;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .concept-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(59, 130, 246, 0.3);
-            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.1);
-        }
-
-        .concept-icon {
-            font-size: 3rem; /* Reduced */
-            margin: 0 auto 24px auto; /* Reduced - centered with auto margins */
-            display: block;
-            text-align: center;
-            width: fit-content;
-        }
-
-        .concept-card h3 {
-            font-family: var(--font-display);
-            font-size: 1.35rem; /* Reduced */
-            font-weight: 600;
-            margin-bottom: 16px; /* Reduced */
-            color: var(--accent-white);
-            letter-spacing: -0.01em;
-        }
-
-        .concept-card p {
-            font-family: var(--font-primary);
-            font-size: 14px; /* Reduced */
-            line-height: 1.6;
-            color: rgba(248, 250, 252, 0.7);
-        }
-
-        .philosophy {
-            background: rgba(59, 130, 246, 0.03);
-            border: 1px solid rgba(59, 130, 246, 0.1);
-            border-radius: 24px;
-            padding: 60px 48px; /* Reduced */
-            text-align: center;
-            margin: 60px 0; /* Reduced */
-            position: relative;
-            overflow: hidden;
-        }
-
-        .philosophy-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        #d3-philosophy-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            opacity: 0.4;
-        }
-
-        .philosophy-content {
-            position: relative;
-            z-index: 10;
-        }
-
-        .philosophy h2 {
-            font-family: var(--font-display);
-            font-size: 2rem; /* Reduced */
-            font-weight: 600;
-            margin-bottom: 32px; /* Reduced */
-            color: var(--accent-white);
-            letter-spacing: -0.02em;
-        }
-
-        .philosophy p {
-            font-family: var(--font-primary);
-            font-size: 1.1rem; /* Reduced */
-            line-height: 1.7;
-            max-width: 800px; /* Reduced */
-            margin: 0 auto;
-            color: rgba(248, 250, 252, 0.8);
-            font-style: italic;
-        }
-
-        .vision-section {
-            background: rgba(248, 250, 252, 0.02);
-            border-radius: 24px;
-            padding: 60px 48px; /* Reduced */
-            margin: 60px 0; /* Reduced */
-        }
-
-        .vision-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* Smaller */
-            gap: 32px; /* Reduced */
-            margin-top: 48px; /* Reduced */
-        }
-
-        .vision-item {
-            text-align: center;
-            padding: 28px 20px; /* Reduced */
-        }
-
-        .vision-item h4 {
-            font-family: var(--font-display);
-            color: var(--accent-cyan);
-            margin-bottom: 16px; /* Reduced */
-            font-size: 1.15rem; /* Reduced */
-            font-weight: 600;
-            letter-spacing: -0.01em;
-        }
-
-        .vision-item p {
-            font-family: var(--font-primary);
-            color: rgba(248, 250, 252, 0.7);
-            line-height: 1.5;
-            font-size: 14px; /* Reduced */
-        }
-
-        /* Contact Section */
-        .contact-section {
-            background: rgba(59, 130, 246, 0.03);
-            border: 1px solid rgba(59, 130, 246, 0.1);
-            border-radius: 24px;
-            padding: 60px 0; /* Reduced */
-            margin: 60px 0; /* Reduced */
-        }
-
-        .contact-container {
-            max-width: 700px; /* Reduced */
-            margin: 0 auto;
-            padding: 0 var(--container-padding);
-        }
-
-        .contact-form {
-            background: rgba(248, 250, 252, 0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            border-radius: 20px;
-            padding: 32px; /* Reduced */
-            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .contact-form:hover {
-            border-color: rgba(59, 130, 246, 0.3);
-            box-shadow: 0 25px 80px rgba(59, 130, 246, 0.15);
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px; /* Reduced */
-            margin-bottom: 16px; /* Reduced */
-        }
-
-        .form-grid.required {
-            margin-bottom: 20px;
-        }
-
-        .form-grid.optional {
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-bottom: 0;
-        }
-
-        .form-grid.optional.expanded {
-            max-height: 200px;
-            opacity: 1;
-            margin-bottom: 16px;
-        }
-
-        .optional-toggle {
-            text-align: center;
-            margin: 16px 0;
-        }
-
-        .toggle-btn {
-            background: none;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            color: var(--accent-cyan);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-family: var(--font-primary);
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            opacity: 0.7;
-        }
-
-        .toggle-btn:hover {
-            border-color: var(--accent-cyan);
-            background: rgba(6, 182, 212, 0.1);
-            opacity: 1;
-        }
-
-        .toggle-btn.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .form-label {
-            font-family: var(--font-primary);
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--accent-white);
-            margin-bottom: 8px;
-            letter-spacing: -0.01em;
-        }
-
-        .form-input,
-        .form-select,
-        .form-textarea {
-            font-family: var(--font-primary);
-            font-size: 14px;
-            padding: 12px 16px; /* Reduced */
-            background: rgba(248, 250, 252, 0.05);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            border-radius: 12px;
-            color: var(--accent-white);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(10px);
-        }
-
-        .form-input:focus,
-        .form-select:focus,
-        .form-textarea:focus {
-            outline: none;
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
-            background: rgba(248, 250, 252, 0.08);
-        }
-
-        .form-input::placeholder,
-        .form-textarea::placeholder {
-            color: rgba(248, 250, 252, 0.4);
-        }
-
-        .form-select {
-            cursor: pointer;
-        }
-
-        .form-select option {
-            background: var(--primary-deep);
-            color: var(--accent-white);
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 120px;
-            line-height: 1.6;
-        }
-
-        .form-submit {
-            width: 100%;
-            padding: 18px 32px;
-            background: var(--accent-gradient);
-            color: var(--accent-white);
-            border: none;
-            border-radius: 12px;
-            font-family: var(--font-primary);
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 24px rgba(59, 130, 246, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .form-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 40px rgba(59, 130, 246, 0.4);
-        }
-
-        .form-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .form-submit.loading {
-            color: transparent;
-        }
-
-        .loading-spinner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top: 2px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            opacity: 0;
-        }
-
-        .form-submit.loading .loading-spinner {
-            opacity: 1;
-        }
-
-        @keyframes spin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        .form-message {
-            margin-top: 16px;
-            padding: 16px 20px;
-            border-radius: 12px;
-            font-family: var(--font-primary);
-            font-size: 14px;
-            font-weight: 500;
-            text-align: center;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .form-message.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .form-message.success {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #10B981;
-        }
-
-        .form-message.error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #EF4444;
-        }
-
-        .form-error {
-            font-size: 12px;
-            color: #EF4444;
-            margin-top: 4px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .form-error.show {
-            opacity: 1;
-        }
-
-        /* Team Section */
-        .team-section {
-            background: rgba(248, 250, 252, 0.02);
-            border-radius: 24px;
-            padding: 60px 48px;
-            margin: 60px 0;
-        }
-
-        .team-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 32px;
-            margin-top: 48px;
-        }
-
-        .team-member {
-            text-align: center;
-            padding: 24px 16px;
-            background: rgba(248, 250, 252, 0.03);
-            border: 1px solid rgba(59, 130, 246, 0.1);
-            border-radius: 16px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .team-member:hover {
-            transform: translateY(-4px);
-            border-color: rgba(59, 130, 246, 0.2);
-            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.1);
-        }
-
-        .member-avatar {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 16px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: var(--accent-white);
-            font-weight: 600;
-            position: relative;
-            overflow: hidden;
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .member-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-        .member-avatar.placeholder {
-            background: rgba(248, 250, 252, 0.05);
-            border: 2px dashed rgba(59, 130, 246, 0.3);
-            color: rgba(248, 250, 252, 0.4);
-            font-size: 14px;
-            font-weight: 400;
-        }
-
-        .member-avatar.placeholder::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="rgba(248,250,252,0.3)" stroke-width="1"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>') center/contain no-repeat;
-        }
-
-        .member-name {
-            font-family: var(--font-display);
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--accent-white);
-            margin-bottom: 8px;
-            letter-spacing: -0.01em;
-        }
-
-        .member-role {
-            font-family: var(--font-primary);
-            font-size: 12px;
-            color: rgba(248, 250, 252, 0.7);
-            line-height: 1.4;
-        }
-
-        .member-social {
-            margin-top: 12px;
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .member-social-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            color: rgba(248, 250, 252, 0.7);
-            text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .member-social-link:hover {
-            background: rgba(59, 130, 246, 0.2);
-            border-color: rgba(59, 130, 246, 0.4);
-            color: var(--accent-white);
-            transform: translateY(-2px);
-        }
-
-        .member-social-link svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        /* Baryon Particle Background */
-        .baryon-background {
-            position: absolute;
-            top: -20px;
-            left: -20px;
-            width: calc(100% + 40px);
-            height: calc(100% + 40px);
-            z-index: 1;
-            pointer-events: none;
-            opacity: 0.35;
-            overflow: visible;
-        }
-
-        .team-member > *:not(.baryon-background) {
-            position: relative;
-            z-index: 3;
-        }
-
-        .member-avatar {
-            position: relative;
-            z-index: 4;
-        }
-
-        footer {
-            background: rgba(15, 20, 25, 0.6);
-            padding: 48px 0; /* Reduced */
-            text-align: center;
-            border-top: 1px solid rgba(59, 130, 246, 0.1);
-        }
-
-        footer p {
-            font-family: var(--font-primary);
-            color: rgba(248, 250, 252, 0.6);
-            font-size: 13px; /* Reduced */
-        }
-
-        footer p:first-child {
-            margin-bottom: 20px; /* Increased for spacing */
-            font-weight: 500;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 24px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .footer-link {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: rgba(248, 250, 252, 0.7);
-            text-decoration: none;
-            font-family: var(--font-primary);
-            font-size: 12px;
-            font-weight: 500;
-            padding: 8px 12px;
-            border-radius: 8px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(59, 130, 246, 0.1);
-            background: rgba(248, 250, 252, 0.02);
-        }
-
-        .footer-link:hover {
-            color: var(--accent-white);
-            border-color: rgba(59, 130, 246, 0.3);
-            background: rgba(59, 130, 246, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .footer-link svg {
-            width: 14px;
-            height: 14px;
-            opacity: 0.8;
-        }
-
-        .footer-contact {
-            margin-top: 16px;
-        }
-
-        @media (max-width: 1024px) {
-            :root {
-                --section-padding: 80px;
-                --container-padding: 20px;
-            }
-            
-            .concept-grid {
-                grid-template-columns: 1fr;
-                gap: 28px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .language-switcher {
-                margin-left: 0;
-                gap: 6px;
-            }
-            
-            .lang-btn {
-                padding: 6px 8px;
-                font-size: 11px;
-                gap: 4px;
-            }
-            
-            .flag-icon {
-                font-size: 12px;
-            }
-            
-            nav {
-                justify-content: space-between;
-            }
-            
-            .philosophy, .vision-section, .contact-section, .team-section {
-                padding: 48px 32px;
-            }
-            
-            .hero .description {
-                font-size: 1rem;
-            }
-            
-            .concept-card {
-                padding: 32px 24px;
-            }
-
-            .contact-form {
-                padding: 24px 20px;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-                gap: 14px;
-            }
-
-            .team-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 24px;
-            }
-
-            .member-avatar {
-                width: 70px;
-                height: 70px;
-            }
-
-            .member-social-link {
-                width: 24px;
-                height: 24px;
-            }
-
-            .member-social-link svg {
-                width: 12px;
-                height: 12px;
-            }
-
-            .footer-links {
-                gap: 16px;
-            }
-
-            .footer-link {
-                font-size: 11px;
-                padding: 6px 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .philosophy, .vision-section, .contact-section, .team-section {
-                padding: 32px 20px;
-            }
-
-            .contact-form {
-                padding: 20px 16px;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .form-input,
-            .form-select,
-            .form-textarea {
-                padding: 12px 14px;
-            }
-
-            .team-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .member-avatar {
-                width: 60px;
-                height: 60px;
-                font-size: 24px;
-            }
-
-            .member-name {
-                font-size: 1rem;
-            }
-
-            .member-social-link {
-                width: 22px;
-                height: 22px;
-            }
-
-            .member-social-link svg {
-                width: 10px;
-                height: 10px;
-            }
-
-            .footer-links {
-                gap: 12px;
-                flex-wrap: wrap;
-            }
-
-            .footer-link {
-                font-size: 10px;
-                padding: 4px 8px;
-                gap: 4px;
-            }
-
-            .footer-link svg {
-                width: 12px;
-                height: 12px;
-            }
-        }
-    </style>
 </head>
 <body>
     <header>
         <nav class="container">
             <div class="logo">Baryon Labs</div>
-            <ul class="nav-links">
+            
+            <!-- Desktop Navigation -->
+            <ul class="nav-links desktop-nav">
                 <li><a href="#home" data-i18n="nav.home">Home</a></li>
                 <li><a href="#concept" data-i18n="nav.concept">Concept</a></li>
+                <li><a href="#philosophy" data-i18n="nav.philosophy">Philosophy</a></li>
                 <li><a href="#team" data-i18n="nav.team">Team</a></li>
                 <li><a href="#careers" data-i18n="nav.careers">Careers</a></li>
                 <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
             </ul>
-            <div class="language-switcher">
-                <button class="lang-btn active" data-lang="en" title="English">
-                    <span class="flag-icon">🇺🇸</span>
-                    <span class="lang-text">EN</span>
-                </button>
-                <button class="lang-btn" data-lang="ko" title="한국어">
-                    <span class="flag-icon">🇰🇷</span>
-                    <span class="lang-text">KO</span>
-                </button>
+            
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            
+            <!-- Mobile Navigation -->
+            <div class="mobile-nav" id="mobileNav">
+                <div class="mobile-nav-content">
+                    <ul class="mobile-nav-links">
+                        <li><a href="#home" data-i18n="nav.home">Home</a></li>
+                        <li><a href="#concept" data-i18n="nav.concept">Concept</a></li>
+                        <li><a href="#philosophy" data-i18n="nav.philosophy">Philosophy</a></li>
+                        <li><a href="#team" data-i18n="nav.team">Team</a></li>
+                        <li><a href="#careers" data-i18n="nav.careers">Careers</a></li>
+                        <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
+                    </ul>
+                </div>
             </div>
         </nav>
     </header>
 
-    <!-- Home Section - Loads immediately -->
-    <div hx-get="sections/home.html" hx-trigger="load" hx-swap="innerHTML"></div>
+    <!-- Home Section -->
+    <div hx-get="sections/home.html" hx-trigger="load" hx-swap="innerHTML">
+        <div class="section-container">Loading home...</div>
+    </div>
 
-    <!-- Concept Section - Loads on demand -->
-    <div id="concept-container" hx-get="sections/concept.html" hx-trigger="revealed" hx-swap="innerHTML" style="display: none;"></div>
+    <!-- Concept Section -->
+    <div id="concept-container" hx-get="sections/concept.html" hx-trigger="revealed" hx-swap="innerHTML" style="display: none;">
+        <div class="section-container">Loading concept...</div>
+    </div>
 
-    <!-- Team Section - Loads on demand -->
-    <div id="team-container" hx-get="sections/team.html" hx-trigger="revealed" hx-swap="innerHTML" style="display: none;"></div>
+    <!-- Team Section -->
+    <div id="team-container" hx-get="sections/team.html" hx-trigger="revealed" hx-swap="innerHTML" style="display: none;">
+        <div class="section-container">Loading team...</div>
+    </div>
 
-    <!-- Careers Section - Loads on demand -->
-    <div id="careers-container" hx-get="sections/careers.html" hx-trigger="revealed" hx-swap="innerHTML" style="display: none;"></div>
+    <!-- Careers Section -->
+    <div id="careers-container" hx-get="sections/careers.html" hx-trigger="revealed" hx-swap="innerHTML" style="display: none;">
+        <div class="section-container">Loading careers...</div>
+    </div>
 
-    <!-- Contact Section - Loads on demand -->
-    <div id="contact-container" hx-get="sections/contact.html" hx-trigger="revealed" hx-swap="innerHTML" style="display: none;"></div>
+        <!-- Job Detail Modal -->
+        <div class="job-modal" id="jobModal">
+            <div class="job-modal-content">
+                <div class="job-modal-header">
+                    <div>
+                        <h3 class="job-modal-title" id="modalJobTitle"></h3>
+                        <div class="job-department" id="modalJobDepartment"></div>
+                        <div class="job-type" id="modalJobType"></div>
+                    </div>
+                    <button class="close-modal" id="closeModal">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="job-modal-section">
+                    <h4 data-i18n="careers.modal.description">Job Description</h4>
+                    <p id="modalJobDescription"></p>
+                </div>
+
+                <div class="job-modal-section">
+                    <h4 data-i18n="careers.modal.responsibilities">Key Responsibilities</h4>
+                    <ul id="modalJobResponsibilities"></ul>
+                </div>
+
+                <div class="job-modal-section">
+                    <h4 data-i18n="careers.modal.requirements">Requirements</h4>
+                    <ul id="modalJobRequirements"></ul>
+                </div>
+
+                <div class="job-modal-section">
+                    <h4 data-i18n="careers.modal.benefits">What We Offer</h4>
+                    <ul id="modalJobBenefits"></ul>
+                </div>
+
+                <div class="application-form">
+                    <h4 data-i18n="careers.apply.title">Apply for this Position</h4>
+                    
+                    <form id="applicationForm">
+                        <input type="hidden" id="appliedPosition" name="position">
+                        
+                        <div class="app-form-grid">
+                            <div class="app-form-group">
+                                <label class="app-form-label" for="app-name">
+                                    <span data-i18n="careers.apply.name">이름</span> <span class="required">*</span>
+                                </label>
+                                <input type="text" id="app-name" name="name" class="app-form-input" data-i18n-placeholder="careers.apply.namePlaceholder" placeholder="홍길동" required>
+                            </div>
+                            
+                            <div class="app-form-group">
+                                <label class="app-form-label" for="app-email">
+                                    <span data-i18n="careers.apply.email">이메일</span> <span class="required">*</span>
+                                </label>
+                                <input type="email" id="app-email" name="email" class="app-form-input" data-i18n-placeholder="careers.apply.emailPlaceholder" placeholder="your@email.com" required>
+                            </div>
+                            
+                            <div class="app-form-group">
+                                <label class="app-form-label" for="app-phone">
+                                    <span data-i18n="careers.apply.phone">전화번호</span> <span class="required">*</span>
+                                </label>
+                                <input type="tel" id="app-phone" name="phone" class="app-form-input" data-i18n-placeholder="careers.apply.phonePlaceholder" placeholder="010-1234-5678" required>
+                            </div>
+                            
+                            <div class="app-form-group">
+                                <label class="app-form-label" for="app-experience">
+                                    <span data-i18n="careers.apply.experience">경력</span>
+                                </label>
+                                <select id="app-experience" name="experience" class="app-form-select">
+                                    <option value="" data-i18n="careers.apply.selectExperience">경력을 선택하세요</option>
+                                    <option value="0-1" data-i18n="careers.apply.experience01">신입 - 1년</option>
+                                    <option value="2-3" data-i18n="careers.apply.experience23">2-3년</option>
+                                    <option value="4-6" data-i18n="careers.apply.experience46">4-6년</option>
+                                    <option value="7+" data-i18n="careers.apply.experience7plus">7년 이상</option>
+                                </select>
+                            </div>
+                            
+                            <div class="app-form-group full-width">
+                                <label class="app-form-label" for="app-resume">
+                                    <span data-i18n="careers.apply.resume">이력서/포트폴리오 링크</span> <span class="required">*</span>
+                                </label>
+                                <input type="url" id="app-resume" name="resume_link" class="app-form-input" data-i18n-placeholder="careers.apply.resumePlaceholder" placeholder="구글 드라이브, GitHub 등의 링크를 입력해주세요" required>
+                            </div>
+                            
+                            <div class="app-form-group full-width">
+                                <label class="app-form-label" for="app-cover-letter">
+                                    <span data-i18n="careers.apply.coverLetter">자기소개 및 지원동기</span> <span class="required">*</span>
+                                </label>
+                                <textarea id="app-cover-letter" name="cover_letter" class="app-form-textarea" data-i18n-placeholder="careers.apply.coverLetterPlaceholder" placeholder="본인을 소개하고 지원동기를 작성해주세요..." required></textarea>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="app-form-submit" id="applicationSubmitBtn">
+                            <span data-i18n="careers.apply.submit">지원하기</span>
+                        </button>
+                        
+                        <div class="app-form-message" id="applicationMessage"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <div id="contact-container" hx-get="sections/contact.html" hx-trigger="revealed" hx-swap="innerHTML" style="display: none;">
+        <div class="section-container">Loading contact...</div>
+    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="email" data-i18n="contact.workEmail">Work Email *</label>
+                        <input 
+                            type="email" 
+                            id="work_email" 
+                            name="work_email" 
+                            class="form-input required-field" 
+                            data-i18n-placeholder="contact.emailPlaceholder"
+                            placeholder="your@company.com"
+                            required
+                        >
+                        <div class="form-error" id="work_emailError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="inquiry-type" data-i18n="contact.inquiryType">Inquiry Type *</label>
+                        <select id="inquiry-type" name="inquiry_type" class="form-select required-field" required>
+                            <option value="" data-i18n="contact.selectInquiry">Select inquiry type</option>
+                            <option value="partnership" data-i18n="contact.partnership">Partnership</option>
+                            <option value="investment" data-i18n="contact.investment">Investment</option>
+                            <option value="collaboration" data-i18n="contact.collaboration">Collaboration</option>
+                            <option value="consulting" data-i18n="contact.consulting">Consulting</option>
+                            <option value="general" data-i18n="contact.general">General Inquiry</option>
+                            <option value="support" data-i18n="contact.support">Technical Support</option>
+                        </select>
+                        <div class="form-error" id="inquiryTypeError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="subject" data-i18n="contact.subject">Subject *</label>
+                        <select id="subject" name="subject" class="form-select required-field" required>
+                            <option value="" data-i18n="contact.selectSubject">Select subject</option>
+                            <option value="ai-consultation" data-i18n="contact.aiConsultation">AI Strategy Consultation</option>
+                            <option value="partnership-proposal" data-i18n="contact.partnershipProposal">Partnership Proposal</option>
+                            <option value="investment-discussion" data-i18n="contact.investmentDiscussion">Investment Discussion</option>
+                            <option value="technical-collaboration" data-i18n="contact.technicalCollaboration">Technical Collaboration</option>
+                            <option value="product-development" data-i18n="contact.productDevelopment">Product Development</option>
+                            <option value="research-partnership" data-i18n="contact.researchPartnership">Research Partnership</option>
+                            <option value="business-inquiry" data-i18n="contact.businessInquiry">Business Inquiry</option>
+                            <option value="other" data-i18n="contact.other">Other</option>
+                        </select>
+                        <div class="form-error" id="subjectError"></div>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label class="form-label" for="message" data-i18n="contact.message">Message *</label>
+                        <textarea 
+                            id="message" 
+                            name="message" 
+                            class="form-textarea required-field" 
+                            data-i18n-placeholder="contact.messagePlaceholder"
+                            placeholder="Tell us about your project or inquiry..."
+                            required
+                        ></textarea>
+                        <div class="form-error" id="messageError"></div>
+                    </div>
+                </div>
+
+                <!-- Optional Toggle Button -->
+                <div class="optional-toggle">
+                    <button type="button" class="toggle-btn" id="toggleOptional" data-i18n="contact.addOptional">
+                        + Add Optional Details
+                    </button>
+                </div>
+
+                <!-- Optional Fields (Initially Hidden) -->
+                <div class="form-grid optional" id="optionalFields">
+                    <div class="form-group">
+                        <label class="form-label" for="phone" data-i18n="contact.phone">Phone</label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone" 
+                            class="form-input" 
+                            data-i18n-placeholder="contact.phonePlaceholder"
+                            placeholder="+1 (555) 123-4567"
+                        >
+                        <div class="form-error" id="phoneError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="company" data-i18n="contact.company">Company</label>
+                        <input 
+                            type="text" 
+                            id="company" 
+                            name="company" 
+                            class="form-input" 
+                            data-i18n-placeholder="contact.companyPlaceholder"
+                            placeholder="Your company"
+                        >
+                    </div>
+                </div>
+                
+                <button type="submit" class="form-submit" id="submitBtn">
+                    <span class="loading-spinner"></span>
+                    <span data-i18n="contact.sendMessage">Send Message</span>
+                </button>
+                
+                <div class="form-message" id="formMessage"></div>
+            </form>
+        </div>
+    </section>
+
+
 
     <footer>
         <div class="container">
-            <p data-i18n="footer.copyright">&copy; 2025 Baryon Labs. AI Innovation from the Ground Up.</p>
+            <div class="footer-top">
+                <p data-i18n="footer.copyright">&copy; 2025 Baryon Labs. AI Innovation from the Ground Up.</p>
+                
+                <!-- Language Switcher moved to footer -->
+                <div class="footer-language-switcher">
+                    <button class="lang-btn active" data-lang="en" title="English">
+                        <span class="flag-icon">🇺🇸</span>
+                        <span class="lang-text">EN</span>
+                    </button>
+                    <button class="lang-btn" data-lang="ko" title="한국어">
+                        <span class="flag-icon">🇰🇷</span>
+                        <span class="lang-text">KO</span>
+                    </button>
+                </div>
+            </div>
             
             <div class="footer-links">
                 <a href="https://github.com/baryonlabs" class="footer-link" target="_blank" rel="noopener noreferrer">
@@ -1256,21 +508,133 @@
     </footer>
 
     <script>
-        // Smooth scrolling for navigation
+        // ============= ENHANCED NAVIGATION SYSTEM =============
+        
+        // Mobile Menu Toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileNav = document.getElementById('mobileNav');
+        
+        if (mobileMenuToggle && mobileNav) {
+            mobileMenuToggle.addEventListener('click', () => {
+                mobileMenuToggle.classList.toggle('active');
+                mobileNav.classList.toggle('active');
+                
+                // Prevent body scroll when mobile menu is open
+                document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : 'auto';
+            });
+            
+            // Close mobile menu when clicking a link
+            mobileNav.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenuToggle.classList.remove('active');
+                    mobileNav.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                });
+            });
+            
+            // Close mobile menu when clicking outside
+            mobileNav.addEventListener('click', (e) => {
+                if (e.target === mobileNav) {
+                    mobileMenuToggle.classList.remove('active');
+                    mobileNav.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+
+        // Enhanced Hash Navigation with HTMX Loading
+        function loadSectionFromHash() {
+            const hash = window.location.hash.substring(1); // Remove #
+            console.log('🔗 Hash detected:', hash);
+            
+            if (hash && hash !== 'home') {
+                // Load section via HTMX if container exists
+                const container = document.getElementById(`${hash}-container`);
+                if (container && !container.innerHTML.trim()) {
+                    console.log(`🔄 Loading ${hash} section...`);
+                    // Trigger HTMX load
+                    htmx.trigger(container, 'revealed');
+                }
+                
+                // Scroll to section after a short delay to ensure content is loaded
+                setTimeout(() => {
+                    const targetElement = document.getElementById(hash) || document.getElementById(`${hash}-container`);
+                    if (targetElement) {
+                        console.log(`📍 Scrolling to ${hash}`);
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }, 300);
+            }
+        }
+
+        // Enhanced smooth scrolling for navigation
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+                const href = this.getAttribute('href');
+                const targetId = href.substring(1);
+                
+                console.log('🖱️ Navigation click:', targetId);
+                
+                // Update URL hash
+                if (targetId && targetId !== window.location.hash.substring(1)) {
+                    history.pushState(null, null, href);
                 }
+                
+                // Load section if needed
+                if (targetId !== 'home') {
+                    const container = document.getElementById(`${targetId}-container`);
+                    if (container && !container.innerHTML.trim()) {
+                        console.log(`🔄 Loading ${targetId} section...`);
+                        htmx.trigger(container, 'revealed');
+                    }
+                }
+                
+                // Scroll to target
+                setTimeout(() => {
+                    const target = document.getElementById(targetId) || document.getElementById(`${targetId}-container`);
+                    if (target) {
+                        console.log(`📍 Scrolling to ${targetId}`);
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }, 200);
             });
         });
 
-        // Enhanced header scroll effects and section loading
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', loadSectionFromHash);
+        
+        // Handle page load with hash
+        window.addEventListener('load', () => {
+            console.log('🚀 Page loaded, checking hash...');
+            if (window.location.hash) {
+                loadSectionFromHash();
+            }
+        });
+
+        // Load sections on page ready
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📄 DOM ready, initializing...');
+            
+            // Load home section immediately
+            const homeContainer = document.getElementById('home-container');
+            if (homeContainer && !homeContainer.innerHTML.trim()) {
+                htmx.trigger(homeContainer, 'load');
+            }
+            
+            // Check for hash in URL
+            if (window.location.hash) {
+                setTimeout(loadSectionFromHash, 500);
+            }
+        });
+
+        // Enhanced header scroll effects
         window.addEventListener('scroll', () => {
             const header = document.querySelector('header');
             const scrolled = window.pageYOffset;
@@ -1281,32 +645,6 @@
             } else {
                 header.style.background = 'rgba(10, 14, 39, 0.85)';
                 header.style.borderBottom = '1px solid rgba(59, 130, 246, 0.1)';
-            }
-
-            // Progressive section loading based on scroll position
-            const windowHeight = window.innerHeight;
-            const documentHeight = document.documentElement.scrollHeight;
-            const scrollPercent = scrolled / (documentHeight - windowHeight);
-
-            // Load sections progressively
-            if (scrollPercent > 0.1 && !document.querySelector('#concept-container').hasChildNodes()) {
-                document.querySelector('#concept-container').style.display = 'block';
-                htmx.trigger('#concept-container', 'revealed');
-            }
-            
-            if (scrollPercent > 0.3 && !document.querySelector('#team-container').hasChildNodes()) {
-                document.querySelector('#team-container').style.display = 'block';
-                htmx.trigger('#team-container', 'revealed');
-            }
-            
-            if (scrollPercent > 0.5 && !document.querySelector('#careers-container').hasChildNodes()) {
-                document.querySelector('#careers-container').style.display = 'block';
-                htmx.trigger('#careers-container', 'revealed');
-            }
-            
-            if (scrollPercent > 0.7 && !document.querySelector('#contact-container').hasChildNodes()) {
-                document.querySelector('#contact-container').style.display = 'block';
-                htmx.trigger('#contact-container', 'revealed');
             }
         });
 
@@ -1832,31 +1170,8 @@
             });
         }, observerOptions);
 
-        // Initialize D3 backgrounds when sections are loaded
-        let heroBackground = null;
-        let philosophyBackground = null;
-
-        function initializeD3Backgrounds() {
-            // Initialize Hero background when home section is loaded
-            if (document.querySelector('.hero') && !heroBackground) {
-                heroBackground = createD3Background('#d3-background', '.hero', 23, 4);
-            }
-            
-            // Initialize Philosophy background when concept section is loaded
-            if (document.querySelector('.philosophy') && !philosophyBackground) {
-                philosophyBackground = createD3Background('#d3-philosophy-background', '.philosophy', 18, 3);
-            }
-        }
-
-        function initializeBaryonParticles() {
-            // Initialize Baryon Particles when team section is loaded
-            if (document.querySelector('.team-section')) {
-                initBaryonParticles();
-            }
-        }
-
-        function initializeConceptCards() {
-            // Initialize concept card animations when concept section is loaded
+        // Observe elements for staggered animation
+        document.addEventListener('DOMContentLoaded', () => {
             const cards = document.querySelectorAll('.concept-card');
             cards.forEach((card, index) => {
                 card.style.opacity = '0';
@@ -1864,37 +1179,21 @@
                 card.style.transition = `opacity 0.6s ease ${index * 0.2}s, transform 0.6s ease ${index * 0.2}s`;
                 observer.observe(card);
             });
-        }
 
-        // Listen for HTMX events to initialize components when sections load
-        document.addEventListener('htmx:afterSettle', function(event) {
-            initializeD3Backgrounds();
-            initializeBaryonParticles();
-            initializeConceptCards();
-            initializeContactForm();
-        });
-
-        // Initial setup for home section (loads immediately)
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeD3Backgrounds();
+            // Initialize D3.js Neural Network Backgrounds
+            const heroBackground = createD3Background('#d3-background', '.hero', 23, 4); // Hero background with 20 nodes, normal size
+            const philosophyBackground = createD3Background('#d3-philosophy-background', '.philosophy', 18, 3); // Philosophy background with 18 nodes (30% of 60), 3x size
             
             // Global scroll handler for both backgrounds
             window.addEventListener('scroll', () => {
                 const scrolled = window.pageYOffset;
-                if (heroBackground && heroBackground.updateFromScroll) {
-                    heroBackground.updateFromScroll(scrolled);
-                }
-                if (philosophyBackground && philosophyBackground.updateFromScroll) {
-                    philosophyBackground.updateFromScroll(scrolled);
-                }
+                heroBackground.updateFromScroll(scrolled);
+                philosophyBackground.updateFromScroll(scrolled);
             });
+            
+            // Initialize Baryon Particles for Team Cards
+            initBaryonParticles();
         });
-
-        // Contact Form Handling with safe initialization
-        function initializeContactForm() {
-            const contactForm = document.getElementById('contactForm');
-            if (!contactForm) return; // Exit if contact form is not loaded yet
-        }
 
         // Contact Form Handling
         const contactForm = document.getElementById('contactForm');
@@ -2029,35 +1328,29 @@
             }
         }
 
-        // Real-time validation (with null checks)
-        const workEmailField = document.getElementById('work_email');
-        if (workEmailField) {
-            workEmailField.addEventListener('blur', function() {
-                if (this.value) {
-                    const validation = validateWorkEmail(this.value);
-                    if (!validation.valid) {
-                        showError('work_email', validation.message);
-                    } else {
-                        clearError('work_email');
-                    }
+        // Real-time validation
+        document.getElementById('work_email').addEventListener('blur', function() {
+            if (this.value) {
+                const validation = validateWorkEmail(this.value);
+                if (!validation.valid) {
+                    showError('work_email', validation.message);
                 } else {
                     clearError('work_email');
                 }
-            });
-        }
+            } else {
+                clearError('work_email');
+            }
+        });
 
-        const phoneField = document.getElementById('phone');
-        if (phoneField) {
-            phoneField.addEventListener('blur', function() {
-                if (this.value && !validatePhone(this.value)) {
-                    showError('phone', 'Please enter a valid phone number');
-                } else {
-                    clearError('phone');
-                }
-            });
-        }
+        document.getElementById('phone').addEventListener('blur', function() {
+            if (this.value && !validatePhone(this.value)) {
+                showError('phone', 'Please enter a valid phone number');
+            } else {
+                clearError('phone');
+            }
+        });
 
-        // Clear errors on input and check required fields (with null checks)
+        // Clear errors on input and check required fields
         const formInputs = document.querySelectorAll('.form-input, .form-select, .form-textarea');
         formInputs.forEach(input => {
             input.addEventListener('input', function() {
@@ -2066,14 +1359,11 @@
             });
         });
 
-        // Toggle button event listener (with null check)
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', toggleOptionalFields);
-        }
+        // Toggle button event listener
+        toggleBtn.addEventListener('click', toggleOptionalFields);
 
-        // Form submission (with null check)
-        if (contactForm) {
-            contactForm.addEventListener('submit', async function(e) {
+        // Form submission
+        contactForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             clearAllErrors();
@@ -2164,6 +1454,325 @@
                 setLoadingState(false);
             }
         });
+
+        // Job Data
+        const jobData = [
+            {
+                id: 1,
+                title: 'AI Research Engineer',
+                department: 'Research',
+                type: 'Full Time',
+                location: 'Remote / Seoul',
+                description: 'Join our research team to develop cutting-edge AI algorithms and architectures. Work on fundamental research in neural networks, transformers, and attention mechanisms.',
+                shortDescription: 'Develop cutting-edge AI algorithms and architectures for next-generation AI systems.',
+                responsibilities: [
+                    'Research and develop novel AI architectures',
+                    'Implement and optimize transformer models',
+                    'Collaborate with team on research publications',
+                    'Contribute to open-source AI projects'
+                ],
+                requirements: [
+                    'PhD or MS in Computer Science, AI, or related field',
+                    'Strong background in deep learning and neural networks', 
+                    'Experience with PyTorch or TensorFlow',
+                    'Publications in top-tier conferences (NeurIPS, ICML, ICLR)',
+                    'Strong programming skills in Python'
+                ],
+                benefits: [
+                    'Competitive salary and equity package',
+                    'Flexible working hours and remote work',
+                    'Access to high-performance computing resources',
+                    'Conference attendance and publication support',
+                    'Health insurance and wellness benefits'
+                ]
+            },
+            {
+                id: 2,
+                title: 'Full Stack Engineer',
+                department: 'Engineering',
+                type: 'Full Time',
+                location: 'Remote / Seoul',
+                description: 'Build and scale AI-powered applications and platforms. Work on both frontend and backend systems that serve our AI models to users worldwide.',
+                shortDescription: 'Build and scale AI-powered applications with modern web technologies.',
+                responsibilities: [
+                    'Develop full-stack web applications',
+                    'Build APIs for AI model deployment',
+                    'Design responsive user interfaces',
+                    'Optimize application performance and scalability'
+                ],
+                requirements: [
+                    'BS/MS in Computer Science or equivalent experience',
+                    'Proficiency in React, Node.js, Python',
+                    'Experience with cloud platforms (AWS, GCP, Azure)',
+                    'Knowledge of database systems (SQL/NoSQL)',
+                    'Understanding of ML model deployment'
+                ],
+                benefits: [
+                    'Competitive salary and equity',
+                    'Flexible work arrangements',
+                    'Learning and development budget',
+                    'Modern tech stack and tools',
+                    'Health and wellness benefits'
+                ]
+            },
+            {
+                id: 3,
+                title: 'AI Operations Engineer',
+                department: 'Operations',
+                type: 'Full Time',
+                location: 'Remote / Seoul',
+                description: 'Manage and optimize AI infrastructure and deployment pipelines. Work with cutting-edge MLOps tools and automation systems.',
+                shortDescription: 'Manage AI infrastructure and deployment pipelines with modern MLOps practices.',
+                responsibilities: [
+                    'Design and maintain ML deployment pipelines',
+                    'Implement monitoring and logging systems',
+                    'Automate model training and deployment',
+                    'Optimize infrastructure costs and performance'
+                ],
+                requirements: [
+                    'Experience with Kubernetes and Docker',
+                    'Knowledge of CI/CD pipelines and automation',
+                    'Familiarity with ML frameworks and deployment',
+                    'Strong scripting skills (Python, Bash)',
+                    'Cloud platform experience'
+                ],
+                benefits: [
+                    'Competitive compensation package',
+                    'Remote-first culture',
+                    'Professional development opportunities',
+                    'Cutting-edge technology stack',
+                    'Comprehensive benefits package'
+                ]
+            }
+        ];
+
+        // Job Modal Functions
+        function openJobModal(jobId) {
+            // Safety checks
+            if (typeof jobData === 'undefined' || !Array.isArray(jobData)) {
+                console.error('jobData is not available');
+                return;
+            }
+
+            const job = jobData.find(j => j && j.id === jobId);
+            if (!job) {
+                console.error('Job not found with ID:', jobId);
+                return;
+            }
+
+            // Fill modal content with safe access
+            const modalJobTitle = document.getElementById('modalJobTitle');
+            const modalJobDepartment = document.getElementById('modalJobDepartment');
+            const modalJobType = document.getElementById('modalJobType');
+            const modalJobDescription = document.getElementById('modalJobDescription');
+            const appliedPosition = document.getElementById('appliedPosition');
+
+            if (modalJobTitle) modalJobTitle.textContent = job.title || 'Untitled Position';
+            if (modalJobDepartment) modalJobDepartment.textContent = job.department || 'General';
+            if (modalJobType) modalJobType.textContent = `${job.type || 'Full Time'} • ${job.location || 'Remote'}`;
+            if (modalJobDescription) modalJobDescription.textContent = job.description || 'No description available';
+            if (appliedPosition) appliedPosition.value = job.title || 'Untitled Position';
+
+            // Fill responsibilities
+            const responsibilitiesList = document.getElementById('modalJobResponsibilities');
+            if (responsibilitiesList) {
+                responsibilitiesList.innerHTML = '';
+                const responsibilities = Array.isArray(job.responsibilities) ? job.responsibilities : [];
+                responsibilities.forEach(item => {
+                    if (item) {
+                        const li = document.createElement('li');
+                        li.textContent = item;
+                        responsibilitiesList.appendChild(li);
+                    }
+                });
+            }
+
+            // Fill requirements
+            const requirementsList = document.getElementById('modalJobRequirements');
+            if (requirementsList) {
+                requirementsList.innerHTML = '';
+                const requirements = Array.isArray(job.requirements) ? job.requirements : [];
+                requirements.forEach(item => {
+                    if (item) {
+                        const li = document.createElement('li');
+                        li.textContent = item;
+                        requirementsList.appendChild(li);
+                    }
+                });
+            }
+
+            // Fill benefits
+            const benefitsList = document.getElementById('modalJobBenefits');
+            if (benefitsList) {
+                benefitsList.innerHTML = '';
+                const benefits = Array.isArray(job.benefits) ? job.benefits : [];
+                benefits.forEach(item => {
+                    if (item) {
+                        const li = document.createElement('li');
+                        li.textContent = item;
+                        benefitsList.appendChild(li);
+                    }
+                });
+            }
+
+            // Show modal
+            const jobModal = document.getElementById('jobModal');
+            if (jobModal) {
+                jobModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeJobModal() {
+            const jobModal = document.getElementById('jobModal');
+            if (jobModal) {
+                jobModal.classList.remove('active');
+            }
+            document.body.style.overflow = 'auto';
+            
+            // Reset form safely
+            const applicationForm = document.getElementById('applicationForm');
+            if (applicationForm) {
+                applicationForm.reset();
+            }
+            
+            const applicationMessage = document.getElementById('applicationMessage');
+            if (applicationMessage) {
+                applicationMessage.classList.remove('show');
+            }
+        }
+
+        // Generate Job Cards
+        function generateJobCards() {
+            const jobsGrid = document.getElementById('jobsGrid');
+            if (!jobsGrid) return;
+
+            // Check if jobData exists
+            if (typeof jobData === 'undefined' || !Array.isArray(jobData)) {
+                console.error('jobData is not defined or not an array');
+                return;
+            }
+
+            jobsGrid.innerHTML = '';
+
+            jobData.forEach(job => {
+                // Safety checks for job properties
+                if (!job || typeof job !== 'object') return;
+
+                const jobCard = document.createElement('div');
+                jobCard.className = 'job-card';
+                jobCard.onclick = () => openJobModal(job.id);
+
+                // Safe access to job properties
+                const title = job.title || 'Untitled Position';
+                const department = job.department || 'General';
+                const type = job.type || 'Full Time';
+                const location = job.location || 'Remote';
+                const shortDescription = job.shortDescription || 'No description available';
+                const requirements = Array.isArray(job.requirements) ? job.requirements : [];
+
+                jobCard.innerHTML = `
+                    <div class="job-header">
+                        <div>
+                            <h3 class="job-title">${title}</h3>
+                            <div class="job-department">${department}</div>
+                        </div>
+                    </div>
+                    <div class="job-type">${type} • ${location}</div>
+                    <div class="job-description">${shortDescription}</div>
+                    <div class="job-requirements">
+                        <h5>Key Requirements:</h5>
+                        <ul>
+                            ${requirements.slice(0, 3).map(req => `<li>${req || 'Requirement not specified'}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="job-meta">
+                        <span class="job-location">${location}</span>
+                        <button class="apply-btn" onclick="event.stopPropagation(); openJobModal(${job.id || 0})">
+                            View Details
+                        </button>
+                    </div>
+                `;
+
+                jobsGrid.appendChild(jobCard);
+            });
+        }
+
+        // Application Form Handling
+        async function handleApplicationSubmit(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('applicationSubmitBtn');
+            const messageDiv = document.getElementById('applicationMessage');
+            
+            // Get form data
+            const formData = new FormData(event.target);
+            const data = {
+                position: formData.get('position'),
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                experience: formData.get('experience'),
+                resume_link: formData.get('resume_link'),
+                cover_letter: formData.get('cover_letter')
+            };
+
+            // Validation
+            if (!data.name || !data.email || !data.phone || !data.resume_link || !data.cover_letter) {
+                showApplicationMessage('필수 정보를 모두 입력해주세요.', 'error');
+                return;
+            }
+
+            // Set loading state
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+
+            try {
+                // Submit to Form2AI2Email service with a new form ID for careers
+                const response = await fetch('https://form2ai2email-worker.kilos-network.workers.dev/api/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        form_id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef', // Fixed UUID for job applications
+                        data: data
+                    })
+                });
+
+                if (response.ok) {
+                    showApplicationMessage('지원서가 성공적으로 제출되었습니다! 빠른 시일 내에 연락드리겠습니다.', 'success');
+                    event.target.reset();
+                    setTimeout(() => {
+                        closeJobModal();
+                    }, 2000);
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Application submission error:', error);
+                showApplicationMessage('지원서 제출에 실패했습니다. 다시 시도해주세요.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+            }
+        }
+
+        function showApplicationMessage(message, type) {
+            const messageDiv = document.getElementById('applicationMessage');
+            if (!messageDiv) {
+                console.error('Application message element not found');
+                return;
+            }
+            
+            messageDiv.textContent = message || 'Unknown message';
+            messageDiv.className = `app-form-message show ${type || 'info'}`;
+            
+            setTimeout(() => {
+                if (messageDiv) {
+                    messageDiv.classList.remove('show');
+                }
+            }, 5000);
         }
 
         // 다국어 처리 시스템
@@ -2174,7 +1783,38 @@
                     concept: 'Concept',
                     philosophy: 'Philosophy',
                     team: 'Team',
+                    careers: 'Careers',
                     contact: 'Contact'
+                },
+                careers: {
+                    title: 'Join Our Team',
+                    intro: 'Like fundamental particles coming together to create matter, exceptional individuals join us to build transformative AI technologies. We seek first-principle thinkers who can architect the future of artificial intelligence.',
+                    modal: {
+                        description: 'Job Description',
+                        responsibilities: 'Key Responsibilities',
+                        requirements: 'Requirements',
+                        benefits: 'What We Offer'
+                    },
+                    apply: {
+                        title: 'Apply for this Position',
+                        name: 'Name',
+                        namePlaceholder: 'Your full name',
+                        email: 'Email',
+                        emailPlaceholder: 'your@email.com',
+                        phone: 'Phone',
+                        phonePlaceholder: '+82 10-1234-5678',
+                        experience: 'Experience',
+                        selectExperience: 'Select your experience level',
+                        experience01: 'Entry Level - 1 year',
+                        experience23: '2-3 years',
+                        experience46: '4-6 years',
+                        experience7plus: '7+ years',
+                        resume: 'Resume/Portfolio Link',
+                        resumePlaceholder: 'Google Drive, GitHub, or portfolio link',
+                        coverLetter: 'Cover Letter',
+                        coverLetterPlaceholder: 'Tell us about yourself and why you want to join us...',
+                        submit: 'Submit Application'
+                    }
                 },
                 hero: {
                     subtitle: 'AI from First Principles',
@@ -2262,7 +1902,38 @@
                     concept: '컨셉트',
                     philosophy: '철학',
                     team: '팀',
+                    careers: '채용',
                     contact: '연락처'
+                },
+                careers: {
+                    title: '함께 할 팀원을 찾습니다',
+                    intro: '기본 입자들이 모여 물질을 만들듯, 뛰어난 개인들이 모여 혁신적인 AI 기술을 구축합니다. 인공지능의 미래를 설계할 수 있는 첫 번째 원리 사고자를 찾습니다.',
+                    modal: {
+                        description: '업무 설명',
+                        responsibilities: '주요 업무',
+                        requirements: '지원 자격',
+                        benefits: '복리후생'
+                    },
+                    apply: {
+                        title: '이 포지션에 지원하기',
+                        name: '이름',
+                        namePlaceholder: '성함을 입력해주세요',
+                        email: '이메일',
+                        emailPlaceholder: 'your@email.com',
+                        phone: '전화번호',
+                        phonePlaceholder: '010-1234-5678',
+                        experience: '경력',
+                        selectExperience: '경력을 선택하세요',
+                        experience01: '신입 - 1년',
+                        experience23: '2-3년',
+                        experience46: '4-6년',
+                        experience7plus: '7년 이상',
+                        resume: '이력서/포트폴리오 링크',
+                        resumePlaceholder: '구글 드라이브, GitHub 등의 링크를 입력해주세요',
+                        coverLetter: '자기소개 및 지원동기',
+                        coverLetterPlaceholder: '본인을 소개하고 지원동기를 작성해주세요...',
+                        submit: '지원하기'
+                    }
                 },
                 hero: {
                     subtitle: '첫 번째 원리에서 시작하는 AI',
@@ -2409,16 +2080,62 @@
                     switchLanguage(btn.dataset.lang);
                 });
             });
+
+            // Initialize careers functionality safely
+            try {
+                generateJobCards();
+            } catch (error) {
+                console.error('Error generating job cards:', error);
+            }
+
+            // Add modal event listeners
+            const closeModalBtn = document.getElementById('closeModal');
+            const jobModal = document.getElementById('jobModal');
+            const applicationForm = document.getElementById('applicationForm');
+
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', closeJobModal);
+            }
+
+            if (jobModal) {
+                jobModal.addEventListener('click', function(e) {
+                    if (e.target === jobModal) {
+                        closeJobModal();
+                    }
+                });
+            }
+
+            if (applicationForm) {
+                applicationForm.addEventListener('submit', handleApplicationSubmit);
+            }
+
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && jobModal && jobModal.classList.contains('active')) {
+                    closeJobModal();
+                }
+            });
         });
 
         // Update toggle button text when toggled
-        const originalToggleFunction = toggleOptionalFields;
-        toggleOptionalFields = function() {
-            originalToggleFunction();
-            const isExpanded = optionalFields.classList.contains('expanded');
-            const key = isExpanded ? 'contact.hideOptional' : 'contact.addOptional';
-            translateElement(toggleBtn, key);
-        };
+        if (typeof toggleOptionalFields === 'function') {
+            const originalToggleFunction = toggleOptionalFields;
+            toggleOptionalFields = function() {
+                try {
+                    originalToggleFunction();
+                    const optionalFields = document.getElementById('optionalFields');
+                    const toggleBtn = document.getElementById('toggleOptional');
+                    
+                    if (optionalFields && toggleBtn) {
+                        const isExpanded = optionalFields.classList.contains('expanded');
+                        const key = isExpanded ? 'contact.hideOptional' : 'contact.addOptional';
+                        translateElement(toggleBtn, key);
+                    }
+                } catch (error) {
+                    console.error('Error in toggleOptionalFields:', error);
+                }
+            };
+        }
     </script>
 </body>
 </html>

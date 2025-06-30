@@ -1,0 +1,89 @@
+<section id="careers" class="careers-section">
+    <div class="container">
+        <h2 class="section-title" data-i18n="careers.title">Join Our Team</h2>
+        <p class="section-subtitle" data-i18n="careers.subtitle">Building the future of AI from first principles</p>
+        
+        <div class="careers-grid">
+            <div class="job-card">
+                <h3>AI Research Engineer</h3>
+                <div class="job-type">Full-time</div>
+                <p>Lead research in foundational AI architectures and neural network optimization.</p>
+                <ul class="job-requirements">
+                    <li>PhD in AI/ML or related field</li>
+                    <li>5+ years experience in deep learning</li>
+                    <li>Strong mathematics background</li>
+                </ul>
+                <button class="apply-btn" onclick="openJobModal('ai-research')">Apply Now</button>
+            </div>
+            
+            <div class="job-card">
+                <h3>Full Stack Developer</h3>
+                <div class="job-type">Full-time</div>
+                <p>Build scalable web applications for AI model deployment and monitoring.</p>
+                <ul class="job-requirements">
+                    <li>React/Node.js expertise</li>
+                    <li>Python/Docker experience</li>
+                    <li>3+ years web development</li>
+                </ul>
+                <button class="apply-btn" onclick="openJobModal('fullstack')">Apply Now</button>
+            </div>
+            
+            <div class="job-card">
+                <h3>AI Operations Engineer</h3>
+                <div class="job-type">Full-time</div>
+                <p>Design and maintain ML infrastructure and automation pipelines.</p>
+                <ul class="job-requirements">
+                    <li>MLOps/DevOps experience</li>
+                    <li>Kubernetes/Cloud platforms</li>
+                    <li>CI/CD and automation tools</li>
+                </ul>
+                <button class="apply-btn" onclick="openJobModal('ai-ops')">Apply Now</button>
+            </div>
+        </div>
+        
+        <div class="careers-cta">
+            <h3>Don't see a perfect fit?</h3>
+            <p>We're always looking for exceptional talent. Send us your resume!</p>
+            <a href="#contact" class="cta-button">Get in Touch</a>
+        </div>
+    </div>
+</section>
+
+<!-- Job Application Modal -->
+<div id="jobModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeJobModal()">&times;</span>
+        <h2 id="modalJobTitle">Apply for Position</h2>
+        
+        <form id="jobApplicationForm" class="job-form">
+            <input type="hidden" id="jobPosition" name="position">
+            
+            <div class="form-group">
+                <label for="applicantName">Full Name *</label>
+                <input type="text" id="applicantName" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="applicantEmail">Email *</label>
+                <input type="email" id="applicantEmail" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="applicantPhone">Phone</label>
+                <input type="tel" id="applicantPhone" name="phone">
+            </div>
+            
+            <div class="form-group">
+                <label for="applicantResume">Resume/CV *</label>
+                <input type="file" id="applicantResume" name="resume" accept=".pdf,.doc,.docx" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="coverLetter">Cover Letter</label>
+                <textarea id="coverLetter" name="cover_letter" rows="6" placeholder="Tell us why you're interested in this position..."></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">Submit Application</button>
+        </form>
+    </div>
+</div>
