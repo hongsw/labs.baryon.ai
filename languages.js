@@ -3,6 +3,11 @@
 // =============================================================================
 
 // =============================================================================
+// LANGUAGE STATE
+// =============================================================================
+let currentLanguage = localStorage.getItem('language') || 'en';
+
+// =============================================================================
 // TRANSLATIONS DATA
 // =============================================================================
 const translations = {
@@ -258,6 +263,23 @@ function initializeLanguageSystem() {
         });
     });
 }
+
+// =============================================================================
+// HTMX INTEGRATION
+// =============================================================================
+// Apply translations when new content is loaded via HTMX
+document.addEventListener('htmx:afterSettle', function(event) {
+    // Re-apply translations to newly loaded content
+    event.detail.elt.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        translateElement(element, key);
+    });
+    
+    event.detail.elt.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        translateElement(element, key);
+    });
+});
 
 // =============================================================================
 // EXPORTS

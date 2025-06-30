@@ -2,28 +2,198 @@
 // BARYON LABS - MAIN JAVASCRIPT
 // =============================================================================
 
+console.log('🚀 Main.js loaded at:', new Date().toISOString());
+
 // =============================================================================
 // GLOBAL VARIABLES AND CONFIGURATION
 // =============================================================================
-let currentLanguage = localStorage.getItem('language') || 'en';
 let heroBackground = null;
 let philosophyBackground = null;
+let isInitialized = false;
 
 // =============================================================================
-// SMOOTH SCROLLING AND NAVIGATION
+// SMOOTH SCROLLING AND NAVIGATION WITH DYNAMIC SECTION LOADING
 // =============================================================================
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
+function loadSectionIfNeeded(sectionId) {
+    console.log(`🔍 Checking if section ${sectionId} needs loading...`);
+    
+    const sectionMap = {
+        '#concept': '#concept-container',
+        '#team': '#team-container', 
+        '#careers': '#careers-container',
+        '#contact': '#contact-container'
+    };
+    
+    const containerId = sectionMap[sectionId];
+    console.log(`📍 Mapped ${sectionId} to ${containerId}`);
+    
+    if (containerId) {
+        const container = document.querySelector(containerId);
+        console.log(`📦 Container ${containerId} found:`, container);
+        console.log(`📦 Container has children:`, container ? container.hasChildNodes() : 'null');
+        console.log(`📦 Container innerHTML length:`, container ? container.innerHTML.length : 'null');
+        
+        if (container && !container.hasChildNodes()) {
+            console.log(`🚀 Triggering HTMX load for ${containerId}`);
+            container.style.display = 'block';
+            htmx.trigger(containerId, 'revealed');
+            console.log(`✅ HTMX trigger sent for ${containerId}`);
+            return true; // Section needs to be loaded
+        } else {
+            console.log(`📄 Section ${sectionId} already loaded or container has content`);
+        }
+    } else {
+        console.log(`❓ No container mapping found for ${sectionId}`);
+    }
+    return false; // Section already loaded or doesn't need loading
+}
+
+// Enhanced scroll to element with retry mechanism
+function scrollToElementWithRetry(targetId, maxRetries = 10, retryDelay = 200) {
+    let attempts = 0;
+    
+    function isElementReady(element) {
+        if (!element) return false;
+        
+        // Check if element has dimensions
+        const hasSize = element.offsetHeight > 0 && element.offsetWidth > 0;
+        
+        // Check if element is not hidden
+        const computedStyle = window.getComputedStyle(element);
+        const isVisible = computedStyle.display !== 'none' && 
+                         computedStyle.visibility !== 'hidden' && 
+                         computedStyle.opacity !== '0';
+        
+        return hasSize && isVisible;
+    }
+    
+    function tryScroll() {
+        attempts++;
+        const target = document.querySelector(targetId);
+        
+        if (isElementReady(target)) {
+            console.log(`✅ Found element ${targetId} after ${attempts} attempt(s)`);
+            
+            // Use IntersectionObserver to ensure smooth scrolling
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        console.log(`👁️ Element ${targetId} is in viewport`);
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            observer.observe(target);
+            
+            // Perform the scroll
             target.scrollIntoView({
                 behavior: 'smooth',
                 block: 'start'
             });
+            
+            // Clean up observer after 3 seconds
+            setTimeout(() => observer.disconnect(), 3000);
+            
+            return true;
         }
+        
+        if (attempts >= maxRetries) {
+            console.warn(`❌ Failed to find visible element ${targetId} after ${maxRetries} attempts`);
+            // Last attempt: try to scroll to any element with the ID, even if not fully ready
+            const fallbackTarget = document.querySelector(targetId);
+            if (fallbackTarget) {
+                console.log(`🔧 Fallback scroll to ${targetId}`);
+                fallbackTarget.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+            return false;
+        }
+        
+        console.log(`🔄 Retry ${attempts}/${maxRetries} for element ${targetId} (not ready yet)`);
+        setTimeout(tryScroll, retryDelay);
+        return false;
+    }
+    
+    tryScroll();
+}
+
+function setupNavigationListeners() {
+    console.log('🔧 Setting up navigation listeners...');
+    
+    const navLinks = document.querySelectorAll('a[href^="#"]');
+    console.log(`📋 Found ${navLinks.length} navigation links:`, Array.from(navLinks).map(link => link.getAttribute('href')));
+    
+    navLinks.forEach((anchor, index) => {
+        console.log(`🔗 Setting up listener ${index + 1} for:`, anchor.getAttribute('href'));
+        
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            console.log(`🎯 Navigation clicked: ${targetId}`);
+            
+            // Load section if needed
+            const needsLoading = loadSectionIfNeeded(targetId);
+            console.log(`📦 Section ${targetId} needs loading:`, needsLoading);
+            
+            if (needsLoading) {
+                console.log(`🚀 Loading section for ${targetId}`);
+                
+                // Use both MutationObserver and timer for reliability
+                let scrolled = false;
+                
+                // Primary method: MutationObserver
+                const observer = new MutationObserver((mutations) => {
+                    console.log(`👀 MutationObserver triggered for ${targetId}, mutations:`, mutations.length);
+                    
+                    if (!scrolled) {
+                        const target = document.querySelector(targetId);
+                        console.log(`🔍 Looking for element ${targetId}:`, target);
+                        
+                        if (target && target.offsetHeight > 0) {
+                            scrolled = true;
+                            observer.disconnect();
+                            console.log(`📍 MutationObserver found ${targetId} with height:`, target.offsetHeight);
+                            scrollToElementWithRetry(targetId, 5, 100);
+                        } else {
+                            console.log(`⏳ Element ${targetId} not ready yet, height:`, target ? target.offsetHeight : 'null');
+                        }
+                    }
+                });
+                
+                const containerId = targetId + '-container';
+                const container = document.querySelector(containerId);
+                console.log(`📦 Container ${containerId}:`, container);
+                
+                if (container) {
+                    observer.observe(container, {
+                        childList: true,
+                        subtree: true
+                    });
+                    console.log(`👁️ MutationObserver started for ${containerId}`);
+                } else {
+                    console.warn(`❌ Container not found: ${containerId}`);
+                }
+                
+                // Fallback method: Timer-based retry
+                setTimeout(() => {
+                    if (!scrolled) {
+                        console.log(`⏰ Timer fallback activated for ${targetId}`);
+                        observer.disconnect();
+                        scrollToElementWithRetry(targetId, 15, 300);
+                    }
+                }, 1000);
+                
+            } else {
+                // Section already loaded, try immediate scroll with retry
+                console.log(`📄 Section already loaded for ${targetId}`);
+                scrollToElementWithRetry(targetId, 3, 50);
+            }
+        });
     });
-});
+}
 
 // =============================================================================
 // ENHANCED HEADER SCROLL EFFECTS AND SECTION LOADING
@@ -929,16 +1099,78 @@ function closeJobModal() {
 
 // Listen for HTMX events to initialize components when sections load
 document.addEventListener('htmx:afterSettle', function(event) {
+    console.log('🔄 HTMX afterSettle event fired!');
+    console.log('  - Event target:', event.target);
+    console.log('  - Event detail:', event.detail);
+    console.log('  - Loaded content length:', event.target ? event.target.innerHTML.length : 'null');
+    
+    console.log('🔧 Initializing components after HTMX load...');
+    
+    console.log('🎨 Initializing D3 backgrounds...');
     initializeD3Backgrounds();
+    
+    console.log('⚛️ Initializing Baryon particles...');
     initializeBaryonParticles();
+    
+    console.log('🃏 Initializing concept cards...');
     initializeConceptCards();
+    
+    console.log('📧 Initializing contact form...');
     initializeContactForm();
+    
+    console.log('✅ HTMX afterSettle initialization complete!');
+});
+
+// Additional HTMX debugging
+document.addEventListener('htmx:beforeRequest', function(event) {
+    console.log('📤 HTMX before request:', event.detail.requestConfig.path);
+});
+
+document.addEventListener('htmx:afterRequest', function(event) {
+    console.log('📥 HTMX after request:', event.detail.requestConfig.path);
+    console.log('  - Status:', event.detail.xhr.status);
+    console.log('  - Response length:', event.detail.xhr.responseText.length);
+});
+
+document.addEventListener('htmx:responseError', function(event) {
+    console.error('❌ HTMX response error:', event.detail);
+});
+
+document.addEventListener('htmx:sendError', function(event) {
+    console.error('❌ HTMX send error:', event.detail);
 });
 
 // Initial setup for home section (loads immediately)
 document.addEventListener('DOMContentLoaded', () => {
-    initializeD3Backgrounds();
-    initializeLanguageSystem();
+    console.log('🌟 DOMContentLoaded fired! Starting initialization...');
+    console.log('📊 Current DOM state:');
+    console.log('  - document.readyState:', document.readyState);
+    console.log('  - body children:', document.body ? document.body.children.length : 'null');
+    console.log('  - nav links available:', document.querySelectorAll('a[href^="#"]').length);
+    
+    if (!isInitialized) {
+        isInitialized = true;
+        console.log('🔧 First time initialization...');
+        
+        // Setup navigation listeners
+        setupNavigationListeners();
+        
+        // Initialize language system
+        if (typeof initializeLanguageSystem === 'function') {
+            console.log('🌐 Initializing language system...');
+            initializeLanguageSystem();
+        } else {
+            console.warn('❌ initializeLanguageSystem not available');
+        }
+        
+        // Initialize D3 backgrounds for home section
+        console.log('🎨 Initializing D3 backgrounds...');
+        initializeD3Backgrounds();
+        
+        console.log('✅ Initial setup complete!');
+    } else {
+        console.log('⚠️ Already initialized, skipping...');
+    }
 });
 
 // Close modal when clicking outside
