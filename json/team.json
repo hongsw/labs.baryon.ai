@@ -1,0 +1,60 @@
+{
+  "title": {
+    "en": "Our Team",
+    "ko": "우리 팀"
+  },
+  "members": [
+    {
+      "id": "jean-paul",
+      "name": "Jean Paul",
+      "role": {
+        "en": "AI Master & First Learner",
+        "ko": "AI 마스터 & 퍼스트 러너"
+      },
+      "avatar": "101.png",
+      "fallback": "JP",
+      "social": {
+        "linkedin": "https://www.linkedin.com/in/martin-hong-sw/?ref=nostudyanymore.com"
+      },
+      "baryonId": "baryon-1"
+    },
+    {
+      "id": "h-jeung",
+      "name": "H. Jeung",
+      "role": {
+        "en": "CMO and Offline Master",
+        "ko": "CMO 및 오프라인 마스터"
+      },
+      "avatar": "2.jpeg",
+      "fallback": "HJ",
+      "social": {},
+      "baryonId": "baryon-2"
+    },
+    {
+      "id": "tba-fullstack",
+      "name": "TBA",
+      "role": {
+        "en": "Full Stack and Mobile<br>First Learner",
+        "ko": "풀스택 및 모바일<br>퍼스트 러너"
+      },
+      "avatar": null,
+      "fallback": "Coming Soon",
+      "social": {},
+      "baryonId": "baryon-3",
+      "comingSoon": true
+    },
+    {
+      "id": "tba-aiops",
+      "name": "TBA",
+      "role": {
+        "en": "N8N Master & AI Ops<br>First Learner",
+        "ko": "N8N 마스터 & AI Ops<br>퍼스트 러너"
+      },
+      "avatar": null,
+      "fallback": "Coming Soon",
+      "social": {},
+      "baryonId": "baryon-4",
+      "comingSoon": true
+    }
+  ]
+} 

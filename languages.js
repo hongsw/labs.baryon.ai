@@ -250,6 +250,12 @@ function switchLanguage(lang) {
         const key = isExpanded ? 'contact.hideOptional' : 'contact.addOptional';
         translateElement(toggleBtn, key);
     }
+    
+    // 새로운 JSON 기반 시스템에 언어 변경 이벤트 전송
+    const languageChangedEvent = new CustomEvent('languageChanged', {
+        detail: { language: lang }
+    });
+    document.dispatchEvent(languageChangedEvent);
 }
 
 function initializeLanguageSystem() {
@@ -279,6 +285,12 @@ document.addEventListener('htmx:afterSettle', function(event) {
         const key = element.getAttribute('data-i18n-placeholder');
         translateElement(element, key);
     });
+    
+    // JSON 기반 섹션들이 로드될 때 언어 변경 이벤트 재전송
+    const languageChangedEvent = new CustomEvent('languageChanged', {
+        detail: { language: currentLanguage }
+    });
+    document.dispatchEvent(languageChangedEvent);
 });
 
 // =============================================================================

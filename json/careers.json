@@ -1,0 +1,147 @@
+{
+  "title": {
+    "en": "Join Our Team",
+    "ko": "우리 팀에 합류하세요"
+  },
+  "subtitle": {
+    "en": "Building the future of AI from first principles",
+    "ko": "기본 원리부터 시작하는 AI의 미래 구축"
+  },
+  "jobs": [
+    {
+      "id": "ai-research",
+      "title": {
+        "en": "AI Research Engineer",
+        "ko": "AI 연구 엔지니어"
+      },
+      "type": {
+        "en": "Full-time",
+        "ko": "정규직"
+      },
+      "description": {
+        "en": "Lead research in foundational AI architectures and neural network optimization.",
+        "ko": "기초 AI 아키텍처 및 신경망 최적화 연구를 주도합니다."
+      },
+      "requirements": {
+        "en": [
+          "PhD in AI/ML or related field",
+          "5+ years experience in deep learning",
+          "Strong mathematics background"
+        ],
+        "ko": [
+          "AI/ML 또는 관련 분야 박사 학위",
+          "딥러닝 5년 이상 경험",
+          "강한 수학적 배경"
+        ]
+      }
+    },
+    {
+      "id": "fullstack",
+      "title": {
+        "en": "Full Stack Developer",
+        "ko": "풀스택 개발자"
+      },
+      "type": {
+        "en": "Full-time",
+        "ko": "정규직"
+      },
+      "description": {
+        "en": "Build scalable web applications for AI model deployment and monitoring.",
+        "ko": "AI 모델 배포 및 모니터링을 위한 확장 가능한 웹 애플리케이션을 구축합니다."
+      },
+      "requirements": {
+        "en": [
+          "React/Node.js expertise",
+          "Python/Docker experience",
+          "3+ years web development"
+        ],
+        "ko": [
+          "React/Node.js 전문 지식",
+          "Python/Docker 경험",
+          "웹 개발 3년 이상"
+        ]
+      }
+    },
+    {
+      "id": "ai-ops",
+      "title": {
+        "en": "AI Operations Engineer",
+        "ko": "AI 운영 엔지니어"
+      },
+      "type": {
+        "en": "Full-time",
+        "ko": "정규직"
+      },
+      "description": {
+        "en": "Design and maintain ML infrastructure and automation pipelines.",
+        "ko": "ML 인프라 및 자동화 파이프라인을 설계하고 유지보수합니다."
+      },
+      "requirements": {
+        "en": [
+          "MLOps/DevOps experience",
+          "Kubernetes/Cloud platforms",
+          "CI/CD and automation tools"
+        ],
+        "ko": [
+          "MLOps/DevOps 경험",
+          "Kubernetes/클라우드 플랫폼",
+          "CI/CD 및 자동화 도구"
+        ]
+      }
+    }
+  ],
+  "cta": {
+    "title": {
+      "en": "Don't see a perfect fit?",
+      "ko": "적합한 포지션이 없나요?"
+    },
+    "description": {
+      "en": "We're always looking for exceptional talent. Send us your resume!",
+      "ko": "우리는 항상 뛰어난 인재를 찾고 있습니다. 이력서를 보내주세요!"
+    },
+    "buttonText": {
+      "en": "Get in Touch",
+      "ko": "연락하기"
+    }
+  },
+  "modal": {
+    "title": {
+      "en": "Apply for Position",
+      "ko": "포지션 지원하기"
+    },
+    "form": {
+      "fullName": {
+        "en": "Full Name *",
+        "ko": "성명 *"
+      },
+      "email": {
+        "en": "Email *",
+        "ko": "이메일 *"
+      },
+      "phone": {
+        "en": "Phone",
+        "ko": "전화번호"
+      },
+      "resume": {
+        "en": "Resume/CV *",
+        "ko": "이력서 *"
+      },
+      "coverLetter": {
+        "en": "Cover Letter",
+        "ko": "자기소개서"
+      },
+      "coverLetterPlaceholder": {
+        "en": "Tell us why you're interested in this position...",
+        "ko": "이 포지션에 관심을 갖게 된 이유를 알려주세요..."
+      },
+      "submitButton": {
+        "en": "Submit Application",
+        "ko": "지원서 제출"
+      },
+      "applyNowButton": {
+        "en": "Apply Now",
+        "ko": "지금 지원하기"
+      }
+    }
+  }
+} 

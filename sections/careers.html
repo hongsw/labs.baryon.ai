@@ -1,50 +1,14 @@
 <section id="careers" class="careers-section">
     <div class="container">
-        <h2 class="section-title" data-i18n="careers.title">Join Our Team</h2>
-        <p class="section-subtitle" data-i18n="careers.subtitle">Building the future of AI from first principles</p>
+        <h2 class="section-title" id="careers-title">Join Our Team</h2>
+        <p class="section-subtitle" id="careers-subtitle">Building the future of AI from first principles</p>
         
-        <div class="careers-grid">
-            <div class="job-card">
-                <h3>AI Research Engineer</h3>
-                <div class="job-type">Full-time</div>
-                <p>Lead research in foundational AI architectures and neural network optimization.</p>
-                <ul class="job-requirements">
-                    <li>PhD in AI/ML or related field</li>
-                    <li>5+ years experience in deep learning</li>
-                    <li>Strong mathematics background</li>
-                </ul>
-                <button class="apply-btn" onclick="openJobModal('ai-research')">Apply Now</button>
-            </div>
-            
-            <div class="job-card">
-                <h3>Full Stack Developer</h3>
-                <div class="job-type">Full-time</div>
-                <p>Build scalable web applications for AI model deployment and monitoring.</p>
-                <ul class="job-requirements">
-                    <li>React/Node.js expertise</li>
-                    <li>Python/Docker experience</li>
-                    <li>3+ years web development</li>
-                </ul>
-                <button class="apply-btn" onclick="openJobModal('fullstack')">Apply Now</button>
-            </div>
-            
-            <div class="job-card">
-                <h3>AI Operations Engineer</h3>
-                <div class="job-type">Full-time</div>
-                <p>Design and maintain ML infrastructure and automation pipelines.</p>
-                <ul class="job-requirements">
-                    <li>MLOps/DevOps experience</li>
-                    <li>Kubernetes/Cloud platforms</li>
-                    <li>CI/CD and automation tools</li>
-                </ul>
-                <button class="apply-btn" onclick="openJobModal('ai-ops')">Apply Now</button>
-            </div>
+        <div class="careers-grid" id="careers-grid">
+            <!-- 채용 공고들이 JavaScript로 동적 생성됩니다 -->
         </div>
         
-        <div class="careers-cta">
-            <h3>Don't see a perfect fit?</h3>
-            <p>We're always looking for exceptional talent. Send us your resume!</p>
-            <a href="#contact" class="cta-button">Get in Touch</a>
+        <div class="careers-cta" id="careers-cta">
+            <!-- CTA 섹션이 JavaScript로 동적 생성됩니다 -->
         </div>
     </div>
 </section>
@@ -59,31 +23,311 @@
             <input type="hidden" id="jobPosition" name="position">
             
             <div class="form-group">
-                <label for="applicantName">Full Name *</label>
+                <label for="applicantName" id="label-fullName">Full Name *</label>
                 <input type="text" id="applicantName" name="name" required>
             </div>
             
             <div class="form-group">
-                <label for="applicantEmail">Email *</label>
+                <label for="applicantEmail" id="label-email">Email *</label>
                 <input type="email" id="applicantEmail" name="email" required>
             </div>
             
             <div class="form-group">
-                <label for="applicantPhone">Phone</label>
+                <label for="applicantPhone" id="label-phone">Phone</label>
                 <input type="tel" id="applicantPhone" name="phone">
             </div>
             
             <div class="form-group">
-                <label for="applicantResume">Resume/CV *</label>
+                <label for="applicantResume" id="label-resume">Resume/CV *</label>
                 <input type="file" id="applicantResume" name="resume" accept=".pdf,.doc,.docx" required>
             </div>
             
             <div class="form-group">
-                <label for="coverLetter">Cover Letter</label>
+                <label for="coverLetter" id="label-coverLetter">Cover Letter</label>
                 <textarea id="coverLetter" name="cover_letter" rows="6" placeholder="Tell us why you're interested in this position..."></textarea>
             </div>
             
-            <button type="submit" class="submit-btn">Submit Application</button>
+            <button type="submit" class="submit-btn" id="submit-btn">Submit Application</button>
         </form>
     </div>
 </div>
+
+<script>
+let careersData = null;
+let currentLanguage = localStorage.getItem('language') || 'en';
+
+// JSON 데이터 로드
+async function loadCareersData() {
+    try {
+        const response = await fetch('./json/careers.json');
+        careersData = await response.json();
+        renderCareers();
+        updateCareersLanguage();
+    } catch (error) {
+        console.error('채용 데이터 로드 실패:', error);
+        // 폴백으로 기본 채용 구조 생성
+        createFallbackCareers();
+    }
+}
+
+// 채용 섹션 렌더링
+function renderCareers() {
+    if (!careersData) return;
+    
+    renderJobCards();
+    renderCTA();
+}
+
+// 채용 공고 카드 렌더링
+function renderJobCards() {
+    const careersGrid = document.getElementById('careers-grid');
+    careersGrid.innerHTML = '';
+    
+    careersData.jobs.forEach(job => {
+        const jobElement = createJobCardElement(job);
+        careersGrid.appendChild(jobElement);
+    });
+}
+
+// 채용 공고 카드 요소 생성
+function createJobCardElement(job) {
+    const jobDiv = document.createElement('div');
+    jobDiv.className = 'job-card';
+    
+    const requirementsList = job.requirements[currentLanguage]
+        .map(req => `<li>${req}</li>`)
+        .join('');
+    
+    jobDiv.innerHTML = `
+        <h3 data-title-en="${job.title.en}" data-title-ko="${job.title.ko}">${job.title[currentLanguage]}</h3>
+        <div class="job-type" data-type-en="${job.type.en}" data-type-ko="${job.type.ko}">${job.type[currentLanguage]}</div>
+        <p data-desc-en="${job.description.en}" data-desc-ko="${job.description.ko}">${job.description[currentLanguage]}</p>
+        <ul class="job-requirements" data-job-id="${job.id}">
+            ${requirementsList}
+        </ul>
+        <button class="apply-btn" onclick="openJobModal('${job.id}')" 
+                data-apply-en="${careersData.modal.form.applyNowButton.en}" 
+                data-apply-ko="${careersData.modal.form.applyNowButton.ko}">
+            ${careersData.modal.form.applyNowButton[currentLanguage]}
+        </button>
+    `;
+    
+    return jobDiv;
+}
+
+// CTA 섹션 렌더링
+function renderCTA() {
+    const ctaElement = document.getElementById('careers-cta');
+    ctaElement.innerHTML = `
+        <h3 data-cta-title-en="${careersData.cta.title.en}" data-cta-title-ko="${careersData.cta.title.ko}">
+            ${careersData.cta.title[currentLanguage]}
+        </h3>
+        <p data-cta-desc-en="${careersData.cta.description.en}" data-cta-desc-ko="${careersData.cta.description.ko}">
+            ${careersData.cta.description[currentLanguage]}
+        </p>
+        <a href="#contact" class="cta-button" 
+           data-cta-btn-en="${careersData.cta.buttonText.en}" 
+           data-cta-btn-ko="${careersData.cta.buttonText.ko}">
+            ${careersData.cta.buttonText[currentLanguage]}
+        </a>
+    `;
+}
+
+// 채용 언어 업데이트
+function updateCareersLanguage() {
+    if (!careersData) return;
+    
+    // 제목 및 부제목 업데이트
+    const titleElement = document.getElementById('careers-title');
+    const subtitleElement = document.getElementById('careers-subtitle');
+    
+    if (titleElement) {
+        titleElement.textContent = careersData.title[currentLanguage];
+    }
+    if (subtitleElement) {
+        subtitleElement.textContent = careersData.subtitle[currentLanguage];
+    }
+    
+    // 채용 공고 카드 업데이트
+    updateJobCards();
+    
+    // CTA 섹션 업데이트
+    updateCTA();
+    
+    // 모달 폼 라벨 업데이트
+    updateModalLabels();
+}
+
+// 채용 공고 카드 언어 업데이트
+function updateJobCards() {
+    // 제목 업데이트
+    document.querySelectorAll('[data-title-en]').forEach(element => {
+        const titleEn = element.getAttribute('data-title-en');
+        const titleKo = element.getAttribute('data-title-ko');
+        if (titleEn && titleKo) {
+            element.textContent = currentLanguage === 'ko' ? titleKo : titleEn;
+        }
+    });
+    
+    // 타입 업데이트
+    document.querySelectorAll('[data-type-en]').forEach(element => {
+        const typeEn = element.getAttribute('data-type-en');
+        const typeKo = element.getAttribute('data-type-ko');
+        if (typeEn && typeKo) {
+            element.textContent = currentLanguage === 'ko' ? typeKo : typeEn;
+        }
+    });
+    
+    // 설명 업데이트
+    document.querySelectorAll('[data-desc-en]').forEach(element => {
+        const descEn = element.getAttribute('data-desc-en');
+        const descKo = element.getAttribute('data-desc-ko');
+        if (descEn && descKo) {
+            element.textContent = currentLanguage === 'ko' ? descKo : descEn;
+        }
+    });
+    
+    // 요구사항 업데이트
+    document.querySelectorAll('.job-requirements[data-job-id]').forEach(element => {
+        const jobId = element.getAttribute('data-job-id');
+        const job = careersData.jobs.find(j => j.id === jobId);
+        if (job) {
+            const requirementsList = job.requirements[currentLanguage]
+                .map(req => `<li>${req}</li>`)
+                .join('');
+            element.innerHTML = requirementsList;
+        }
+    });
+    
+    // 지원 버튼 업데이트
+    document.querySelectorAll('[data-apply-en]').forEach(element => {
+        const applyEn = element.getAttribute('data-apply-en');
+        const applyKo = element.getAttribute('data-apply-ko');
+        if (applyEn && applyKo) {
+            element.textContent = currentLanguage === 'ko' ? applyKo : applyEn;
+        }
+    });
+}
+
+// CTA 섹션 언어 업데이트
+function updateCTA() {
+    document.querySelectorAll('[data-cta-title-en]').forEach(element => {
+        const titleEn = element.getAttribute('data-cta-title-en');
+        const titleKo = element.getAttribute('data-cta-title-ko');
+        if (titleEn && titleKo) {
+            element.textContent = currentLanguage === 'ko' ? titleKo : titleEn;
+        }
+    });
+    
+    document.querySelectorAll('[data-cta-desc-en]').forEach(element => {
+        const descEn = element.getAttribute('data-cta-desc-en');
+        const descKo = element.getAttribute('data-cta-desc-ko');
+        if (descEn && descKo) {
+            element.textContent = currentLanguage === 'ko' ? descKo : descEn;
+        }
+    });
+    
+    document.querySelectorAll('[data-cta-btn-en]').forEach(element => {
+        const btnEn = element.getAttribute('data-cta-btn-en');
+        const btnKo = element.getAttribute('data-cta-btn-ko');
+        if (btnEn && btnKo) {
+            element.textContent = currentLanguage === 'ko' ? btnKo : btnEn;
+        }
+    });
+}
+
+// 모달 라벨 언어 업데이트
+function updateModalLabels() {
+    if (!careersData) return;
+    
+    const modalTitle = document.getElementById('modalJobTitle');
+    const labelFullName = document.getElementById('label-fullName');
+    const labelEmail = document.getElementById('label-email');
+    const labelPhone = document.getElementById('label-phone');
+    const labelResume = document.getElementById('label-resume');
+    const labelCoverLetter = document.getElementById('label-coverLetter');
+    const coverLetterTextarea = document.getElementById('coverLetter');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    if (modalTitle) modalTitle.textContent = careersData.modal.title[currentLanguage];
+    if (labelFullName) labelFullName.textContent = careersData.modal.form.fullName[currentLanguage];
+    if (labelEmail) labelEmail.textContent = careersData.modal.form.email[currentLanguage];
+    if (labelPhone) labelPhone.textContent = careersData.modal.form.phone[currentLanguage];
+    if (labelResume) labelResume.textContent = careersData.modal.form.resume[currentLanguage];
+    if (labelCoverLetter) labelCoverLetter.textContent = careersData.modal.form.coverLetter[currentLanguage];
+    if (coverLetterTextarea) coverLetterTextarea.placeholder = careersData.modal.form.coverLetterPlaceholder[currentLanguage];
+    if (submitBtn) submitBtn.textContent = careersData.modal.form.submitButton[currentLanguage];
+}
+
+// 폴백 채용 섹션 생성 (JSON 로드 실패 시)
+function createFallbackCareers() {
+    const careersGrid = document.getElementById('careers-grid');
+    careersGrid.innerHTML = `
+        <div class="job-card">
+            <h3>AI Research Engineer</h3>
+            <div class="job-type">Full-time</div>
+            <p>Lead research in foundational AI architectures and neural network optimization.</p>
+            <ul class="job-requirements">
+                <li>PhD in AI/ML or related field</li>
+                <li>5+ years experience in deep learning</li>
+                <li>Strong mathematics background</li>
+            </ul>
+            <button class="apply-btn" onclick="openJobModal('ai-research')">Apply Now</button>
+        </div>
+    `;
+    
+    const ctaElement = document.getElementById('careers-cta');
+    ctaElement.innerHTML = `
+        <h3>Don't see a perfect fit?</h3>
+        <p>We're always looking for exceptional talent. Send us your resume!</p>
+        <a href="#contact" class="cta-button">Get in Touch</a>
+    `;
+}
+
+// 채용 공고 모달 열기
+function openJobModal(jobId) {
+    const modal = document.getElementById('jobModal');
+    const jobPosition = document.getElementById('jobPosition');
+    const modalTitle = document.getElementById('modalJobTitle');
+    
+    if (careersData) {
+        const job = careersData.jobs.find(j => j.id === jobId);
+        if (job) {
+            modalTitle.textContent = `${careersData.modal.title[currentLanguage]} - ${job.title[currentLanguage]}`;
+        }
+    }
+    
+    jobPosition.value = jobId;
+    modal.style.display = 'block';
+}
+
+// 채용 공고 모달 닫기
+function closeJobModal() {
+    const modal = document.getElementById('jobModal');
+    modal.style.display = 'none';
+}
+
+// 모달 외부 클릭 시 닫기
+window.onclick = function(event) {
+    const modal = document.getElementById('jobModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// 언어 변경 이벤트 리스너
+document.addEventListener('languageChanged', function(event) {
+    currentLanguage = event.detail.language;
+    updateCareersLanguage();
+});
+
+// 페이지 로드 시 실행
+document.addEventListener('DOMContentLoaded', loadCareersData);
+
+// 만약 이미 DOM이 로드되었다면 즉시 실행
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadCareersData);
+} else {
+    loadCareersData();
+}
+</script>
