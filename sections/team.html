@@ -10,7 +10,6 @@
 
 <script>
 let teamData = null;
-let currentLanguage = localStorage.getItem('language') || 'en';
 
 // JSON 데이터 로드
 async function loadTeamData() {
@@ -85,7 +84,7 @@ function createTeamMemberElement(member) {
         <svg class="baryon-background" id="${member.baryonId}"></svg>
         ${avatarContent}
         <h3 class="member-name">${member.name}</h3>
-        <p class="member-role" data-role-en="${member.role.en}" data-role-ko="${member.role.ko}">${member.role[currentLanguage]}</p>
+        <p class="member-role" data-role-en="${member.role.en}" data-role-ko="${member.role.ko}">${member.role[window.currentLanguage || 'en']}</p>
         ${socialLinks}
     `;
     
@@ -99,7 +98,7 @@ function updateTeamLanguage() {
     // 제목 업데이트
     const titleElement = document.getElementById('team-title');
     if (titleElement) {
-        titleElement.textContent = teamData.title[currentLanguage];
+        titleElement.textContent = teamData.title[window.currentLanguage || 'en'];
     }
     
     // 멤버 역할 업데이트
@@ -108,7 +107,7 @@ function updateTeamLanguage() {
         const roleEn = roleElement.getAttribute('data-role-en');
         const roleKo = roleElement.getAttribute('data-role-ko');
         if (roleEn && roleKo) {
-            roleElement.innerHTML = currentLanguage === 'ko' ? roleKo : roleEn;
+            roleElement.innerHTML = (window.currentLanguage || 'en') === 'ko' ? roleKo : roleEn;
         }
     });
 }
@@ -140,7 +139,6 @@ function createFallbackTeam() {
 
 // 언어 변경 이벤트 리스너
 document.addEventListener('languageChanged', function(event) {
-    currentLanguage = event.detail.language;
     updateTeamLanguage();
 });
 
