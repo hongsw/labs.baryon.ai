@@ -120,14 +120,21 @@ function loadSectionIfNeeded(sectionId) {
         console.log(`📦 Container has children:`, container ? container.hasChildNodes() : 'null');
         console.log(`📦 Container innerHTML length:`, container ? container.innerHTML.length : 'null');
         
-        if (container && !container.hasChildNodes()) {
-            console.log(`🚀 Triggering HTMX load for ${containerId}`);
-            container.style.display = 'block';
-            htmx.trigger(containerId, 'revealed');
+        // Check if container is empty or has minimal content (improved detection)
+        const needsLoading = !container || 
+                            !container.hasChildNodes() || 
+                            container.innerHTML.trim().length < 100;
+        
+        if (needsLoading) {
+            console.log(`🚀 Triggering HTMX load for ${containerId} (forced navigation load)`);
+            if (container) {
+                container.style.display = 'block';
+                htmx.trigger(containerId, 'revealed');
+            }
             console.log(`✅ HTMX trigger sent for ${containerId}`);
             return true; // Section needs to be loaded
         } else {
-            console.log(`📄 Section ${sectionId} already loaded or container has content`);
+            console.log(`📄 Section ${sectionId} already loaded with content length:`, container.innerHTML.length);
         }
     } else {
         console.log(`❓ No container mapping found for ${sectionId}`);
@@ -308,28 +315,36 @@ const scrollHandler = () => {
         header.style.borderBottom = '1px solid rgba(59, 130, 246, 0.1)';
     }
 
-    // Progressive section loading based on scroll position
+    // Progressive section loading based on scroll position (fixed for PC)
     const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-    const scrollPercent = scrolled / (documentHeight - windowHeight);
+    
+    // Use absolute scroll positions instead of percentages for better control
+    const conceptTrigger = windowHeight * 0.5;  // Load when scrolled 50% of viewport height
+    const teamTrigger = windowHeight * 1.2;     // Load when scrolled 120% of viewport height
+    const careersTrigger = windowHeight * 1.8;  // Load when scrolled 180% of viewport height
+    const contactTrigger = windowHeight * 2.5;  // Load when scrolled 250% of viewport height
 
-    // Load sections progressively
-    if (scrollPercent > 0.1 && !document.querySelector('#concept-container').hasChildNodes()) {
+    // Load sections progressively based on absolute scroll position
+    if (scrolled > conceptTrigger && !document.querySelector('#concept-container').hasChildNodes()) {
+        console.log('🚀 Loading Concept section at scroll:', scrolled);
         document.querySelector('#concept-container').style.display = 'block';
         htmx.trigger('#concept-container', 'revealed');
     }
     
-    if (scrollPercent > 0.3 && !document.querySelector('#team-container').hasChildNodes()) {
+    if (scrolled > teamTrigger && !document.querySelector('#team-container').hasChildNodes()) {
+        console.log('🚀 Loading Team section at scroll:', scrolled);
         document.querySelector('#team-container').style.display = 'block';
         htmx.trigger('#team-container', 'revealed');
     }
     
-    if (scrollPercent > 0.5 && !document.querySelector('#careers-container').hasChildNodes()) {
+    if (scrolled > careersTrigger && !document.querySelector('#careers-container').hasChildNodes()) {
+        console.log('🚀 Loading Careers section at scroll:', scrolled);
         document.querySelector('#careers-container').style.display = 'block';
         htmx.trigger('#careers-container', 'revealed');
     }
     
-    if (scrollPercent > 0.7 && !document.querySelector('#contact-container').hasChildNodes()) {
+    if (scrolled > contactTrigger && !document.querySelector('#contact-container').hasChildNodes()) {
+        console.log('🚀 Loading Contact section at scroll:', scrolled);
         document.querySelector('#contact-container').style.display = 'block';
         htmx.trigger('#contact-container', 'revealed');
     }
@@ -911,6 +926,42 @@ const observer = new IntersectionObserver((entries) => {
 addActiveObserver(observer);
 
 // =============================================================================
+// PRE-LOADING FUNCTIONS FOR BETTER UX
+// =============================================================================
+function preloadSections() {
+    // Detect if user is likely on desktop (wider screen)
+    const isDesktop = window.innerWidth >= 1024;
+    
+    if (isDesktop) {
+        console.log('🖥️ Desktop detected, pre-loading key sections...');
+        
+        // Pre-load concept section after a short delay
+        const conceptTimeoutId = setTimeout(() => {
+            const conceptContainer = document.querySelector('#concept-container');
+            if (conceptContainer && !conceptContainer.hasChildNodes()) {
+                console.log('🚀 Pre-loading Concept section for desktop');
+                conceptContainer.style.display = 'block';
+                htmx.trigger('#concept-container', 'revealed');
+            }
+        }, 1000);
+        addActiveTimeout(conceptTimeoutId);
+        
+        // Pre-load team section after a longer delay
+        const teamTimeoutId = setTimeout(() => {
+            const teamContainer = document.querySelector('#team-container');
+            if (teamContainer && !teamContainer.hasChildNodes()) {
+                console.log('🚀 Pre-loading Team section for desktop');
+                teamContainer.style.display = 'block';
+                htmx.trigger('#team-container', 'revealed');
+            }
+        }, 2000);
+        addActiveTimeout(teamTimeoutId);
+    } else {
+        console.log('📱 Mobile detected, keeping lazy loading');
+    }
+}
+
+// =============================================================================
 // INITIALIZATION FUNCTIONS
 // =============================================================================
 function initializeD3Backgrounds() {
@@ -1314,6 +1365,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize D3 backgrounds for home section
         console.log('🎨 Initializing D3 backgrounds...');
         initializeD3Backgrounds();
+        
+        // Pre-load sections for better PC experience
+        console.log('📦 Pre-loading sections for better UX...');
+        preloadSections();
         
         console.log('✅ Initial setup complete!');
     } else {
