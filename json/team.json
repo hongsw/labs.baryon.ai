@@ -31,14 +31,14 @@
       "baryonId": "baryon-2"
     },
     {
-      "id": "tba-fullstack",
-      "name": "TBA",
+      "id": "simon-hj-moon",
+      "name": "Simon (HJ MOON)",
       "role": {
-        "en": "Full Stack and Mobile<br>First Learner",
-        "ko": "풀스택 및 모바일<br>퍼스트 러너"
+        "en": "Cloud Educator ·<br>Full-Stack Developer",
+        "ko": "클라우드 교육자 ·<br>풀스택 개발자"
       },
       "avatar": "m3.jpeg",
-      "fallback": "TBA",
+      "fallback": "SM",
       "social": {},
       "baryonId": "baryon-3"
     },
