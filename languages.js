@@ -331,6 +331,7 @@ function translateElement(element, key) {
 
 function switchLanguage(lang) {
     currentLanguage = lang;
+    window.currentLanguage = lang; // 전역으로도 설정
     localStorage.setItem('language', lang);
     
     // Update body data-lang attribute for CSS styling
@@ -371,6 +372,7 @@ function switchLanguage(lang) {
 
 function initializeLanguageSystem() {
     // Set initial language and body attribute
+    window.currentLanguage = currentLanguage; // 전역으로도 설정
     document.body.setAttribute('data-lang', currentLanguage);
     switchLanguage(currentLanguage);
     

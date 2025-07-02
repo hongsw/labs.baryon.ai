@@ -8,8 +8,8 @@
       "id": "jean-paul",
       "name": "Jean Paul",
       "role": {
-        "en": "AI Master & First Learner",
-        "ko": "AI 마스터 & 퍼스트 러너"
+        "en": "AI Master & Edu Expert",
+        "ko": "AI 마스터 & 교육 전문가"
       },
       "avatar": "101.png",
       "fallback": "JP",
@@ -37,24 +37,23 @@
         "en": "Full Stack and Mobile<br>First Learner",
         "ko": "풀스택 및 모바일<br>퍼스트 러너"
       },
-      "avatar": null,
+      "avatar": "m3.png",
       "fallback": "Coming Soon",
       "social": {},
       "baryonId": "baryon-3",
       "comingSoon": true
     },
     {
-      "id": "tba-aiops",
-      "name": "TBA",
+      "id": "ben-lim",
+      "name": "Ben Lim",
       "role": {
-        "en": "N8N Master & AI Ops<br>First Learner",
-        "ko": "N8N 마스터 & AI Ops<br>퍼스트 러너"
+        "en": "AI Agent Master & n8n Expert",
+        "ko": "AI 에이전트 마스터 & n8n 전문가"
       },
-      "avatar": null,
-      "fallback": "Coming Soon",
+      "avatar": "m4.png",
+      "fallback": "BL",
       "social": {},
-      "baryonId": "baryon-4",
-      "comingSoon": true
+      "baryonId": "baryon-4"
     }
   ]
 } 

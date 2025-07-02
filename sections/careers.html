@@ -93,21 +93,22 @@ function createJobCardElement(job) {
     const jobDiv = document.createElement('div');
     jobDiv.className = 'job-card';
     
-    const requirementsList = job.requirements[window.currentLanguage || 'en']
+    const currentLang = window.currentLanguage || localStorage.getItem('language') || 'ko';
+    const requirementsList = job.requirements[currentLang]
         .map(req => `<li>${req}</li>`)
         .join('');
     
     jobDiv.innerHTML = `
-        <h3 data-title-en="${job.title.en}" data-title-ko="${job.title.ko}">${job.title[window.currentLanguage || 'en']}</h3>
-        <div class="job-type" data-type-en="${job.type.en}" data-type-ko="${job.type.ko}">${job.type[window.currentLanguage || 'en']}</div>
-        <p data-desc-en="${job.description.en}" data-desc-ko="${job.description.ko}">${job.description[window.currentLanguage || 'en']}</p>
+        <h3 data-title-en="${job.title.en}" data-title-ko="${job.title.ko}">${job.title[currentLang]}</h3>
+        <div class="job-type" data-type-en="${job.type.en}" data-type-ko="${job.type.ko}">${job.type[currentLang]}</div>
+        <p data-desc-en="${job.description.en}" data-desc-ko="${job.description.ko}">${job.description[currentLang]}</p>
         <ul class="job-requirements" data-job-id="${job.id}">
             ${requirementsList}
         </ul>
         <button class="apply-btn" onclick="openJobModal('${job.id}')" 
                 data-apply-en="${careersData.modal.form.applyNowButton.en}" 
                 data-apply-ko="${careersData.modal.form.applyNowButton.ko}">
-            ${careersData.modal.form.applyNowButton[window.currentLanguage || 'en']}
+            ${careersData.modal.form.applyNowButton[currentLang]}
         </button>
     `;
     
@@ -116,18 +117,19 @@ function createJobCardElement(job) {
 
 // CTA 섹션 렌더링
 function renderCTA() {
+    const currentLang = window.currentLanguage || localStorage.getItem('language') || 'ko';
     const ctaElement = document.getElementById('careers-cta');
     ctaElement.innerHTML = `
         <h3 data-cta-title-en="${careersData.cta.title.en}" data-cta-title-ko="${careersData.cta.title.ko}">
-            ${careersData.cta.title[window.currentLanguage || 'en']}
+            ${careersData.cta.title[currentLang]}
         </h3>
         <p data-cta-desc-en="${careersData.cta.description.en}" data-cta-desc-ko="${careersData.cta.description.ko}">
-            ${careersData.cta.description[window.currentLanguage || 'en']}
+            ${careersData.cta.description[currentLang]}
         </p>
         <a href="#contact" class="cta-button" 
            data-cta-btn-en="${careersData.cta.buttonText.en}" 
            data-cta-btn-ko="${careersData.cta.buttonText.ko}">
-            ${careersData.cta.buttonText[window.currentLanguage || 'en']}
+            ${careersData.cta.buttonText[currentLang]}
         </a>
     `;
 }
@@ -136,15 +138,17 @@ function renderCTA() {
 function updateCareersLanguage() {
     if (!careersData) return;
     
+    const currentLang = window.currentLanguage || localStorage.getItem('language') || 'ko';
+    
     // 제목 및 부제목 업데이트
     const titleElement = document.getElementById('careers-title');
     const subtitleElement = document.getElementById('careers-subtitle');
     
     if (titleElement) {
-        titleElement.textContent = careersData.title[window.currentLanguage || 'en'];
+        titleElement.textContent = careersData.title[currentLang];
     }
     if (subtitleElement) {
-        subtitleElement.textContent = careersData.subtitle[window.currentLanguage || 'en'];
+        subtitleElement.textContent = careersData.subtitle[currentLang];
     }
     
     // 채용 공고 카드 업데이트
@@ -159,12 +163,14 @@ function updateCareersLanguage() {
 
 // 채용 공고 카드 언어 업데이트
 function updateJobCards() {
+    const currentLang = window.currentLanguage || localStorage.getItem('language') || 'ko';
+    
     // 제목 업데이트
     document.querySelectorAll('[data-title-en]').forEach(element => {
         const titleEn = element.getAttribute('data-title-en');
         const titleKo = element.getAttribute('data-title-ko');
         if (titleEn && titleKo) {
-            element.textContent = (window.currentLanguage || 'en') === 'ko' ? titleKo : titleEn;
+            element.textContent = currentLang === 'ko' ? titleKo : titleEn;
         }
     });
     
@@ -173,7 +179,7 @@ function updateJobCards() {
         const typeEn = element.getAttribute('data-type-en');
         const typeKo = element.getAttribute('data-type-ko');
         if (typeEn && typeKo) {
-            element.textContent = (window.currentLanguage || 'en') === 'ko' ? typeKo : typeEn;
+            element.textContent = currentLang === 'ko' ? typeKo : typeEn;
         }
     });
     
@@ -182,7 +188,7 @@ function updateJobCards() {
         const descEn = element.getAttribute('data-desc-en');
         const descKo = element.getAttribute('data-desc-ko');
         if (descEn && descKo) {
-            element.textContent = (window.currentLanguage || 'en') === 'ko' ? descKo : descEn;
+            element.textContent = currentLang === 'ko' ? descKo : descEn;
         }
     });
     
@@ -191,7 +197,7 @@ function updateJobCards() {
         const jobId = element.getAttribute('data-job-id');
         const job = careersData.jobs.find(j => j.id === jobId);
         if (job) {
-            const requirementsList = job.requirements[window.currentLanguage || 'en']
+            const requirementsList = job.requirements[currentLang]
                 .map(req => `<li>${req}</li>`)
                 .join('');
             element.innerHTML = requirementsList;
@@ -203,18 +209,20 @@ function updateJobCards() {
         const applyEn = element.getAttribute('data-apply-en');
         const applyKo = element.getAttribute('data-apply-ko');
         if (applyEn && applyKo) {
-            element.textContent = (window.currentLanguage || 'en') === 'ko' ? applyKo : applyEn;
+            element.textContent = currentLang === 'ko' ? applyKo : applyEn;
         }
     });
 }
 
 // CTA 섹션 언어 업데이트
 function updateCTA() {
+    const currentLang = window.currentLanguage || localStorage.getItem('language') || 'ko';
+    
     document.querySelectorAll('[data-cta-title-en]').forEach(element => {
         const titleEn = element.getAttribute('data-cta-title-en');
         const titleKo = element.getAttribute('data-cta-title-ko');
         if (titleEn && titleKo) {
-            element.textContent = (window.currentLanguage || 'en') === 'ko' ? titleKo : titleEn;
+            element.textContent = currentLang === 'ko' ? titleKo : titleEn;
         }
     });
     
@@ -222,7 +230,7 @@ function updateCTA() {
         const descEn = element.getAttribute('data-cta-desc-en');
         const descKo = element.getAttribute('data-cta-desc-ko');
         if (descEn && descKo) {
-            element.textContent = (window.currentLanguage || 'en') === 'ko' ? descKo : descEn;
+            element.textContent = currentLang === 'ko' ? descKo : descEn;
         }
     });
     
@@ -230,7 +238,7 @@ function updateCTA() {
         const btnEn = element.getAttribute('data-cta-btn-en');
         const btnKo = element.getAttribute('data-cta-btn-ko');
         if (btnEn && btnKo) {
-            element.textContent = (window.currentLanguage || 'en') === 'ko' ? btnKo : btnEn;
+            element.textContent = currentLang === 'ko' ? btnKo : btnEn;
         }
     });
 }
@@ -238,6 +246,8 @@ function updateCTA() {
 // 모달 라벨 언어 업데이트
 function updateModalLabels() {
     if (!careersData) return;
+    
+    const currentLang = window.currentLanguage || localStorage.getItem('language') || 'ko';
     
     const modalTitle = document.getElementById('modalJobTitle');
     const labelFullName = document.getElementById('label-fullName');
@@ -248,14 +258,14 @@ function updateModalLabels() {
     const coverLetterTextarea = document.getElementById('coverLetter');
     const submitBtn = document.getElementById('submit-btn');
     
-    if (modalTitle) modalTitle.textContent = careersData.modal.title[window.currentLanguage || 'en'];
-    if (labelFullName) labelFullName.textContent = careersData.modal.form.fullName[window.currentLanguage || 'en'];
-    if (labelEmail) labelEmail.textContent = careersData.modal.form.email[window.currentLanguage || 'en'];
-    if (labelPhone) labelPhone.textContent = careersData.modal.form.phone[window.currentLanguage || 'en'];
-    if (labelResume) labelResume.textContent = careersData.modal.form.resume[window.currentLanguage || 'en'];
-    if (labelCoverLetter) labelCoverLetter.textContent = careersData.modal.form.coverLetter[window.currentLanguage || 'en'];
-    if (coverLetterTextarea) coverLetterTextarea.placeholder = careersData.modal.form.coverLetterPlaceholder[window.currentLanguage || 'en'];
-    if (submitBtn) submitBtn.textContent = careersData.modal.form.submitButton[window.currentLanguage || 'en'];
+    if (modalTitle) modalTitle.textContent = careersData.modal.title[currentLang];
+    if (labelFullName) labelFullName.textContent = careersData.modal.form.fullName[currentLang];
+    if (labelEmail) labelEmail.textContent = careersData.modal.form.email[currentLang];
+    if (labelPhone) labelPhone.textContent = careersData.modal.form.phone[currentLang];
+    if (labelResume) labelResume.textContent = careersData.modal.form.resume[currentLang];
+    if (labelCoverLetter) labelCoverLetter.textContent = careersData.modal.form.coverLetter[currentLang];
+    if (coverLetterTextarea) coverLetterTextarea.placeholder = careersData.modal.form.coverLetterPlaceholder[currentLang];
+    if (submitBtn) submitBtn.textContent = careersData.modal.form.submitButton[currentLang];
 }
 
 // 폴백 채용 섹션 생성 (JSON 로드 실패 시)
@@ -290,9 +300,10 @@ function openJobModal(jobId) {
     const modalTitle = document.getElementById('modalJobTitle');
     
     if (careersData) {
+        const currentLang = window.currentLanguage || localStorage.getItem('language') || 'ko';
         const job = careersData.jobs.find(j => j.id === jobId);
         if (job) {
-            modalTitle.textContent = `${careersData.modal.title[window.currentLanguage || 'en']} - ${job.title[window.currentLanguage || 'en']}`;
+            modalTitle.textContent = `${careersData.modal.title[currentLang]} - ${job.title[currentLang]}`;
         }
     }
     

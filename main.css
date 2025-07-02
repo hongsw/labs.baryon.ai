@@ -250,6 +250,16 @@ body[data-lang="en"] .nav-links a {
     word-break: keep-all;
 }
 
+body[data-lang="ko"] .hero h1 {
+    font-family: var(--font-korean-title);
+    font-size: clamp(3.4rem, 8vw, 6.2rem); /* Korean traditional font is larger */
+    letter-spacing: -0.01em; /* Korean traditional font needs less negative spacing */
+    line-height: 1.25; /* Korean traditional font needs more line height */
+    word-break: keep-all;
+    margin-bottom: 36px; /* More space for Korean traditional font */
+    font-weight: 700;
+}
+
 body[data-lang="en"] .hero h1 {
     font-family: var(--font-display-en);
     font-size: clamp(2.8rem, 8vw, 5.2rem);

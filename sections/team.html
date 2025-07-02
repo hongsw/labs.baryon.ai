@@ -179,7 +179,7 @@ function createTeamMemberElement(member) {
         <svg class="baryon-background" id="${member.baryonId}"></svg>
         ${avatarContent}
         <h3 class="member-name">${member.name}</h3>
-        <p class="member-role" data-role-en="${member.role.en}" data-role-ko="${member.role.ko}">${member.role[window.currentLanguage || 'en']}</p>
+        <p class="member-role" data-role-en="${member.role.en}" data-role-ko="${member.role.ko}">${member.role[window.currentLanguage || localStorage.getItem('language') || 'ko']}</p>
         ${socialLinks}
     `;
     
@@ -190,10 +190,12 @@ function createTeamMemberElement(member) {
 function updateTeamLanguage() {
     if (!teamData) return;
     
+    const currentLang = window.currentLanguage || localStorage.getItem('language') || 'ko';
+    
     // 제목 업데이트
     const titleElement = document.getElementById('team-title');
     if (titleElement) {
-        titleElement.textContent = teamData.title[window.currentLanguage || 'en'];
+        titleElement.textContent = teamData.title[currentLang];
     }
     
     // 멤버 역할 업데이트
@@ -202,7 +204,7 @@ function updateTeamLanguage() {
         const roleEn = roleElement.getAttribute('data-role-en');
         const roleKo = roleElement.getAttribute('data-role-ko');
         if (roleEn && roleKo) {
-            roleElement.innerHTML = (window.currentLanguage || 'en') === 'ko' ? roleKo : roleEn;
+            roleElement.innerHTML = currentLang === 'ko' ? roleKo : roleEn;
         }
     });
 }
