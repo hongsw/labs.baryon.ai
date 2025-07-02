@@ -123,8 +123,12 @@
         "ko": "전화번호"
       },
       "resume": {
-        "en": "Resume/CV *",
-        "ko": "이력서 *"
+        "en": "Resume/CV Link *",
+        "ko": "이력서 링크 *"
+      },
+      "resumePlaceholder": {
+        "en": "https://drive.google.com/file/d/your-resume-link or https://your-website.com/resume.pdf",
+        "ko": "https://drive.google.com/file/d/your-resume-link 또는 https://your-website.com/resume.pdf"
       },
       "coverLetter": {
         "en": "Cover Letter",

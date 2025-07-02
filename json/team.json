@@ -37,11 +37,10 @@
         "en": "Full Stack and Mobile<br>First Learner",
         "ko": "풀스택 및 모바일<br>퍼스트 러너"
       },
-      "avatar": "m3.png",
-      "fallback": "Coming Soon",
+      "avatar": "m3.jpeg",
+      "fallback": "TBA",
       "social": {},
-      "baryonId": "baryon-3",
-      "comingSoon": true
+      "baryonId": "baryon-3"
     },
     {
       "id": "ben-lim",

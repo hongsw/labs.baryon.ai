@@ -1478,6 +1478,39 @@ body[data-lang="en"] .services-cta p {
     box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
 }
 
+.submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.submit-btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.submit-btn.loading .loading-spinner {
+    display: inline-block;
+}
+
+.submit-btn .loading-spinner {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(248, 250, 252, 0.3);
+    border-top: 2px solid var(--accent-white);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.submit-btn .btn-text {
+    display: inline-block;
+}
+
 footer {
     background: rgba(15, 20, 25, 0.6);
     padding: 48px 0; /* Reduced */
