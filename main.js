@@ -324,56 +324,29 @@ const scrollHandler = () => {
     const careersTrigger = windowHeight * 1.8;  // Load when scrolled 180% of viewport height
     const contactTrigger = windowHeight * 2.5;  // Load when scrolled 250% of viewport height
 
-    // DEBUG: Log scroll information every 500px
-    if (scrolled % 500 < 50) {
-        console.log(`📏 DEBUG - Scroll position: ${scrolled}px, Triggers: concept=${conceptTrigger}, team=${teamTrigger}, careers=${careersTrigger}, contact=${contactTrigger}`);
-    }
-    
     // Load sections progressively based on absolute scroll position
-    const conceptContainer = document.querySelector('#concept-container');
-    const teamContainer = document.querySelector('#team-container');
-    const careersContainer = document.querySelector('#careers-container');
-    const contactContainer = document.querySelector('#contact-container');
-    
-    if (scrolled > conceptTrigger && !conceptContainer.hasChildNodes()) {
+    if (scrolled > conceptTrigger && !document.querySelector('#concept-container').hasChildNodes()) {
         console.log('🚀 Loading Concept section at scroll:', scrolled);
-        console.log('📦 DEBUG - Concept container display before:', conceptContainer.style.display);
-        conceptContainer.style.display = 'block';
-        console.log('📦 DEBUG - Concept container display after:', conceptContainer.style.display);
+        document.querySelector('#concept-container').style.display = 'block';
         htmx.trigger('#concept-container', 'revealed');
     }
     
-    if (scrolled > teamTrigger && !teamContainer.hasChildNodes()) {
+    if (scrolled > teamTrigger && !document.querySelector('#team-container').hasChildNodes()) {
         console.log('🚀 Loading Team section at scroll:', scrolled);
-        console.log('📦 DEBUG - Team container display before:', teamContainer.style.display);
-        teamContainer.style.display = 'block';
-        console.log('📦 DEBUG - Team container display after:', teamContainer.style.display);
+        document.querySelector('#team-container').style.display = 'block';
         htmx.trigger('#team-container', 'revealed');
     }
     
-    if (scrolled > careersTrigger && !careersContainer.hasChildNodes()) {
+    if (scrolled > careersTrigger && !document.querySelector('#careers-container').hasChildNodes()) {
         console.log('🚀 Loading Careers section at scroll:', scrolled);
-        console.log('📦 DEBUG - Careers container display before:', careersContainer.style.display);
-        careersContainer.style.display = 'block';
-        console.log('📦 DEBUG - Careers container display after:', careersContainer.style.display);
+        document.querySelector('#careers-container').style.display = 'block';
         htmx.trigger('#careers-container', 'revealed');
     }
     
-    if (scrolled > contactTrigger && !contactContainer.hasChildNodes()) {
+    if (scrolled > contactTrigger && !document.querySelector('#contact-container').hasChildNodes()) {
         console.log('🚀 Loading Contact section at scroll:', scrolled);
-        console.log('📦 DEBUG - Contact container display before:', contactContainer.style.display);
-        contactContainer.style.display = 'block';
-        console.log('📦 DEBUG - Contact container display after:', contactContainer.style.display);
+        document.querySelector('#contact-container').style.display = 'block';
         htmx.trigger('#contact-container', 'revealed');
-    }
-    
-    // DEBUG: Check section visibility every 1000px
-    if (scrolled % 1000 < 50) {
-        console.log('👁️ DEBUG - Section visibility check:');
-        console.log('  - Concept:', conceptContainer.style.display, 'children:', conceptContainer.children.length);
-        console.log('  - Team:', teamContainer.style.display, 'children:', teamContainer.children.length); 
-        console.log('  - Careers:', careersContainer.style.display, 'children:', careersContainer.children.length);
-        console.log('  - Contact:', contactContainer.style.display, 'children:', contactContainer.children.length);
     }
 
     // Update D3 backgrounds
@@ -737,184 +710,6 @@ function createD3Background(svgId, containerSelector, nodeCount = 15, nodeSize =
 // =============================================================================
 // OPTIMIZED 3D POLYHEDRON ANIMATION FOR TEAM CARDS
 // =============================================================================
-
-// Individual baryon animation initializer for dynamic loading
-function initBaryonAnimation(baryonId) {
-    if (!baryonId) return;
-    
-    const baryonConfigs = {
-        'baryon-1': { type: 'hexagon', color: '#3B82F6', rotation: 0.015 },
-        'baryon-2': { type: 'octahedron', color: '#06B6D4', rotation: -0.012 },
-        'baryon-3': { type: 'cube', color: '#8B5CF6', rotation: 0.018 },
-        'baryon-4': { type: 'tetrahedron', color: '#10B981', rotation: -0.020 }
-    };
-    
-    const config = baryonConfigs[baryonId];
-    if (!config) {
-        console.warn(`No baryon config found for ${baryonId}`);
-        return;
-    }
-    
-    const svg = d3.select(`#${baryonId}`);
-    if (!svg.node()) {
-        console.warn(`SVG element not found for ${baryonId}`);
-        return;
-    }
-    
-    console.log(`🔧 Initializing individual baryon: ${baryonId}`);
-    
-    svg.attr('width', '100%')
-       .attr('height', '100%')
-       .attr('viewBox', '0 0 200 200');
-
-    const centerX = 100;
-    const centerY = 100;
-    let rotation = 0;
-
-    // 간단한 그라디언트 설정
-    const defs = svg.append('defs');
-    const gradient = defs.append('radialGradient')
-        .attr('id', `gradient-${baryonId}`)
-        .attr('cx', '30%').attr('cy', '30%').attr('r', '70%');
-    
-    gradient.append('stop')
-        .attr('offset', '0%')
-        .attr('stop-color', d3.color(config.color).brighter(1))
-        .attr('stop-opacity', 0.8);
-        
-    gradient.append('stop')
-        .attr('offset', '100%')
-        .attr('stop-color', d3.color(config.color).darker(1))
-        .attr('stop-opacity', 0.3);
-
-    // 다면체 생성 함수 (간단화된 버전)
-    function createPolyhedron(type) {
-        const group = svg.append('g')
-            .attr('transform', `translate(${centerX}, ${centerY})`);
-
-        switch(type) {
-            case 'hexagon':
-                for (let i = 0; i < 6; i++) {
-                    const angle = (i * 60) * Math.PI / 180;
-                    const x = Math.cos(angle) * 30;
-                    const y = Math.sin(angle) * 30;
-                    
-                    group.append('polygon')
-                        .attr('points', `0,0 ${x},${y} ${Math.cos((i+1)*60*Math.PI/180)*30},${Math.sin((i+1)*60*Math.PI/180)*30}`)
-                        .attr('fill', `url(#gradient-${baryonId})`)
-                        .attr('stroke', config.color)
-                        .attr('stroke-width', 0.5)
-                        .attr('opacity', 0.6);
-                }
-                break;
-                
-            case 'octahedron':
-                const faces = [
-                    [[0,-40], [30,0], [0,0]],
-                    [[0,-40], [0,0], [-30,0]],
-                    [[30,0], [0,40], [0,0]],
-                    [[-30,0], [0,0], [0,40]],
-                    [[0,0], [20,-20], [20,20]],
-                    [[0,0], [-20,-20], [-20,20]],
-                    [[0,0], [20,20], [-20,20]],
-                    [[0,0], [-20,-20], [20,-20]]
-                ];
-                
-                faces.forEach((face, i) => {
-                    group.append('polygon')
-                        .attr('points', face.map(p => `${p[0]},${p[1]}`).join(' '))
-                        .attr('fill', `url(#gradient-${baryonId})`)
-                        .attr('stroke', config.color)
-                        .attr('stroke-width', 0.5)
-                        .attr('opacity', 0.5 + (i % 2) * 0.2);
-                });
-                break;
-                
-            case 'cube':
-                const size = 25;
-                const cubePoints = [
-                    [[-size,-size], [size,-size], [size,size], [-size,size]],
-                    [[-size+10,-size-10], [size+10,-size-10], [size+10,size-10], [-size+10,size-10]],
-                    [[-size,-size], [-size+10,-size-10], [size+10,-size-10], [size,-size]],
-                    [[-size,size], [-size+10,size-10], [size+10,size-10], [size,size]],
-                    [[-size,-size], [-size,size], [-size+10,size-10], [-size+10,-size-10]],
-                    [[size,-size], [size,size], [size+10,size-10], [size+10,-size-10]]
-                ];
-                
-                cubePoints.forEach((face, i) => {
-                    group.append('polygon')
-                        .attr('points', face.map(p => `${p[0]},${p[1]}`).join(' '))
-                        .attr('fill', `url(#gradient-${baryonId})`)
-                        .attr('stroke', config.color)
-                        .attr('stroke-width', 0.5)
-                        .attr('opacity', 0.4 + (i % 3) * 0.2);
-                });
-                break;
-                
-            case 'tetrahedron':
-                const tetraSize = 35;
-                const tetraFaces = [
-                    [[0,-tetraSize], [tetraSize*0.8,tetraSize*0.5], [-tetraSize*0.8,tetraSize*0.5]],
-                    [[0,-tetraSize], [tetraSize*0.8,tetraSize*0.5], [0,0]],
-                    [[0,-tetraSize], [-tetraSize*0.8,tetraSize*0.5], [0,0]],
-                    [[tetraSize*0.8,tetraSize*0.5], [-tetraSize*0.8,tetraSize*0.5], [0,0]]
-                ];
-                
-                tetraFaces.forEach((face, i) => {
-                    group.append('polygon')
-                        .attr('points', face.map(p => `${p[0]},${p[1]}`).join(' '))
-                        .attr('fill', `url(#gradient-${baryonId})`)
-                        .attr('stroke', config.color)
-                        .attr('stroke-width', 0.5)
-                        .attr('opacity', 0.6 + (i % 2) * 0.3);
-                });
-                break;
-        }
-        
-        return group;
-    }
-
-    const polyhedron = createPolyhedron(config.type);
-
-    // 애니메이션 with memory leak prevention
-    let animationId = null;
-    let isAnimating = true;
-    
-    function animate() {
-        if (!isAnimating) return;
-        
-        rotation += config.rotation;
-        const scale = 0.9 + Math.sin(Date.now() * 0.002) * 0.1;
-        
-        polyhedron.attr('transform', 
-            `translate(${centerX}, ${centerY}) 
-             rotate(${rotation * 57.3}) 
-             scale(${scale})`);
-        
-        animationId = requestAnimationFrame(animate);
-        addToActiveAnimations(animationId);
-    }
-    
-    // Cleanup function for this baryon
-    const cleanup = () => {
-        isAnimating = false;
-        if (animationId) {
-            cancelAnimationFrame(animationId);
-            removeFromActiveAnimations(animationId);
-        }
-    };
-
-    // Store cleanup function for potential future use
-    if (!window.baryonCleanupFunctions) {
-        window.baryonCleanupFunctions = [];
-    }
-    window.baryonCleanupFunctions.push(cleanup);
-    
-    // Start animation immediately
-    animate();
-}
-
-// Batch initialization for all baryons
 function initBaryonParticles() {
     const baryonConfigs = [
         { 
@@ -1622,9 +1417,219 @@ addActiveListener(document, 'visibilitychange', () => {
 });
 
 // =============================================================================
+// INDIVIDUAL BARYON ANIMATION FUNCTION (for team.html compatibility)
+// =============================================================================
+function initBaryonAnimation(baryonId) {
+    console.log(`🎯 Initializing individual baryon animation for: ${baryonId}`);
+    
+    // Find the baryon config for this ID
+    const baryonConfigs = [
+        { 
+            id: 'baryon-1', 
+            type: 'hexagon',
+            color: '#3B82F6',
+            rotation: 0.015
+        },
+        { 
+            id: 'baryon-2', 
+            type: 'octahedron',
+            color: '#06B6D4',
+            rotation: -0.012
+        },
+        { 
+            id: 'baryon-3', 
+            type: 'cube',
+            color: '#8B5CF6',
+            rotation: 0.018
+        },
+        { 
+            id: 'baryon-4', 
+            type: 'tetrahedron',
+            color: '#10B981',
+            rotation: -0.020
+        }
+    ];
+    
+    const config = baryonConfigs.find(c => c.id === baryonId);
+    if (!config) {
+        console.warn(`❌ No config found for baryon ID: ${baryonId}`);
+        return;
+    }
+    
+    const svg = d3.select(`#${config.id}`);
+    
+    if (!svg.node()) {
+        console.warn(`❌ SVG element not found for: ${config.id}`);
+        return;
+    }
+    
+    // Clear any existing content
+    svg.selectAll('*').remove();
+    
+    svg.attr('width', '100%')
+       .attr('height', '100%')
+       .attr('viewBox', '0 0 200 200');
+
+    const centerX = 100;
+    const centerY = 100;
+
+    // 간단한 그라디언트 설정
+    const defs = svg.append('defs');
+    
+    // 간단한 그라디언트
+    const gradient = defs.append('radialGradient')
+        .attr('id', `gradient-${config.id}`)
+        .attr('cx', '30%').attr('cy', '30%').attr('r', '70%');
+    
+    gradient.append('stop')
+        .attr('offset', '0%')
+        .attr('stop-color', d3.color(config.color).brighter(1))
+        .attr('stop-opacity', 0.8);
+        
+    gradient.append('stop')
+        .attr('offset', '100%')
+        .attr('stop-color', d3.color(config.color).darker(1))
+        .attr('stop-opacity', 0.3);
+
+    let rotation = 0;
+
+    // 간단한 다면체 생성
+    function createPolyhedron(type) {
+        const group = svg.append('g')
+            .attr('transform', `translate(${centerX}, ${centerY})`);
+
+        switch(type) {
+            case 'hexagon':
+                // 6각형 (6개 면)
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i * 60) * Math.PI / 180;
+                    const x = Math.cos(angle) * 30;
+                    const y = Math.sin(angle) * 30;
+                    
+                    group.append('polygon')
+                        .attr('points', `0,0 ${x},${y} ${Math.cos((i+1)*60*Math.PI/180)*30},${Math.sin((i+1)*60*Math.PI/180)*30}`)
+                        .attr('fill', `url(#gradient-${config.id})`)
+                        .attr('stroke', config.color)
+                        .attr('stroke-width', 0.5)
+                        .attr('opacity', 0.6);
+                }
+                break;
+                
+            case 'octahedron':
+                // 8면체 (8개 면)
+                const faces = [
+                    [[0,-40], [30,0], [0,0]],
+                    [[0,-40], [0,0], [-30,0]],
+                    [[30,0], [0,40], [0,0]],
+                    [[-30,0], [0,0], [0,40]],
+                    [[0,0], [20,-20], [20,20]],
+                    [[0,0], [-20,-20], [-20,20]],
+                    [[0,0], [20,20], [-20,20]],
+                    [[0,0], [-20,-20], [20,-20]]
+                ];
+                
+                faces.forEach((face, i) => {
+                    group.append('polygon')
+                        .attr('points', face.map(p => `${p[0]},${p[1]}`).join(' '))
+                        .attr('fill', `url(#gradient-${config.id})`)
+                        .attr('stroke', config.color)
+                        .attr('stroke-width', 0.5)
+                        .attr('opacity', 0.5 + (i % 2) * 0.2);
+                });
+                break;
+                
+            case 'cube':
+                // 정육면체 (6개 면)
+                const size = 25;
+                const cubePoints = [
+                    [[-size,-size], [size,-size], [size,size], [-size,size]], // 앞면
+                    [[-size+10,-size-10], [size+10,-size-10], [size+10,size-10], [-size+10,size-10]], // 뒷면
+                    [[-size,-size], [-size+10,-size-10], [size+10,-size-10], [size,-size]], // 윗면
+                    [[-size,size], [-size+10,size-10], [size+10,size-10], [size,size]], // 아랫면
+                    [[-size,-size], [-size,size], [-size+10,size-10], [-size+10,-size-10]], // 왼쪽면
+                    [[size,-size], [size,size], [size+10,size-10], [size+10,-size-10]] // 오른쪽면
+                ];
+                
+                cubePoints.forEach((face, i) => {
+                    group.append('polygon')
+                        .attr('points', face.map(p => `${p[0]},${p[1]}`).join(' '))
+                        .attr('fill', `url(#gradient-${config.id})`)
+                        .attr('stroke', config.color)
+                        .attr('stroke-width', 0.5)
+                        .attr('opacity', 0.4 + (i % 3) * 0.2);
+                });
+                break;
+                
+            case 'tetrahedron':
+                // 정사면체 (4개 면)
+                const tetraSize = 35;
+                const tetraFaces = [
+                    [[0,-tetraSize], [tetraSize*0.8,tetraSize*0.5], [-tetraSize*0.8,tetraSize*0.5]],
+                    [[0,-tetraSize], [tetraSize*0.8,tetraSize*0.5], [0,0]],
+                    [[0,-tetraSize], [-tetraSize*0.8,tetraSize*0.5], [0,0]],
+                    [[tetraSize*0.8,tetraSize*0.5], [-tetraSize*0.8,tetraSize*0.5], [0,0]]
+                ];
+                
+                tetraFaces.forEach((face, i) => {
+                    group.append('polygon')
+                        .attr('points', face.map(p => `${p[0]},${p[1]}`).join(' '))
+                        .attr('fill', `url(#gradient-${config.id})`)
+                        .attr('stroke', config.color)
+                        .attr('stroke-width', 0.5)
+                        .attr('opacity', 0.6 + (i % 2) * 0.3);
+                });
+                break;
+        }
+        
+        return group;
+    }
+
+    const polyhedron = createPolyhedron(config.type);
+
+    // 간단한 애니메이션 with memory leak prevention
+    let animationId = null;
+    let isAnimating = true;
+    
+    function animate() {
+        if (!isAnimating) return;
+        
+        rotation += config.rotation;
+        const scale = 0.9 + Math.sin(Date.now() * 0.002) * 0.1;
+        
+        polyhedron.attr('transform', 
+            `translate(${centerX}, ${centerY}) 
+             rotate(${rotation * 57.3}) 
+             scale(${scale})`);
+        
+        animationId = requestAnimationFrame(animate);
+        addToActiveAnimations(animationId);
+    }
+    
+    // Cleanup function for this baryon
+    const cleanup = () => {
+        isAnimating = false;
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            removeFromActiveAnimations(animationId);
+        }
+    };
+
+    // Start animation immediately
+    animate();
+    
+    // Store cleanup function for potential future use
+    if (!window.baryonCleanupFunctions) {
+        window.baryonCleanupFunctions = [];
+    }
+    window.baryonCleanupFunctions.push(cleanup);
+    
+    console.log(`✅ Baryon animation initialized for: ${baryonId}`);
+}
+
+// =============================================================================
 // GLOBAL FUNCTION EXPORTS
 // =============================================================================
 window.openJobModal = openJobModal;
 window.closeJobModal = closeJobModal;
 window.cleanupMemory = cleanupMemory; // Export cleanup function for manual use
-window.initBaryonAnimation = initBaryonAnimation; // Export for dynamic team loading 
+window.initBaryonAnimation = initBaryonAnimation; // Export baryon animation function 
