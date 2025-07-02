@@ -1,0 +1,975 @@
+# Section-Based HTMX Architecture
+
+@context {
+    "type": "implementation",
+    "purpose": "modular_web_architecture",
+    "format_version": "1.0.0",
+    "technologies": [
+        "htmx",
+        "vanilla_javascript",
+        "css3",
+        "json_data"
+    ],
+    "supported_patterns": [
+        "lazy_loading",
+        "dynamic_sections",
+        "internationalization",
+        "form_integration"
+    ]
+}
+
+@structure {
+    "required_sections": [
+        "section_html",
+        "json_data",
+        "javascript_logic",
+        "css_styling"
+    ],
+    "htmx_attributes": [
+        "hx-get",
+        "hx-trigger",
+        "hx-swap",
+        "hx-target"
+    ],
+    "lifecycle_events": [
+        "htmx:afterSettle",
+        "htmx:beforeRequest",
+        "htmx:responseError"
+    ]
+}
+
+## Architecture Overview
+
+@architecture {
+    "pattern": "section_based_spa",
+    "loading_strategy": "htmx_lazy_loading",
+    "asset_management": "global_shared_local_specific",
+    "state_management": "event_driven_reactive"
+}
+
+```
+baryon_labs_homepage/
+├── index.html                 # HTMX entry point with containers
+│   ├── sections/                  # Individual section files
+│   │   ├── home.html             # <script> + HTML content
+│   │   ├── team.html             # JSON loading + rendering
+│   │   ├── careers.html          # Form handling + validation
+│   │   └── contact.html          # Form2AI integration
+│   ├── json/                     # Data sources
+│   │   ├── team.json            # Team member data
+│   │   └── careers.json         # Job listings data
+│   ├── main.js                   # Global utilities + HTMX handlers
+│   ├── languages.js             # I18n system + event dispatch
+│   └── main.css                 # Global styles + section-specific
+```
+
+## HTMX Integration Patterns
+
+@htmx_patterns {
+    "immediate_loading": {
+        "trigger": "load",
+        "use_case": "above_fold_content",
+        "example": "home.html hero section"
+    },
+    "lazy_loading": {
+        "trigger": "revealed",
+        "use_case": "below_fold_sections", 
+        "example": "team.html, careers.html"
+    },
+    "conditional_loading": {
+        "trigger": "click",
+        "use_case": "user_interaction",
+        "example": "modal dialogs, forms"
+    }
+}
+
+### Main HTML Container Setup
+
+@implementation {
+    "language": "html",
+    "pattern": "htmx_containers",
+    "asset_dependencies": ["htmx.js", "main.js", "languages.js", "main.css"]
+}
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Global CSS - Loaded once, available to all sections -->
+    <link rel="stylesheet" href="main.css">
+    
+    <!-- Global JavaScript - Available to all sections -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="main.js" defer></script>
+    <script src="languages.js" defer></script>
+</head>
+<body>
+    <!-- Immediate loading for critical content -->
+    <div hx-get="sections/home.html" 
+         hx-trigger="load" 
+         hx-swap="innerHTML"></div>
+
+    <!-- Lazy loading containers -->
+    <div id="team-container" 
+         hx-get="sections/team.html" 
+         hx-trigger="revealed" 
+         hx-swap="innerHTML" 
+         style="display: none;"></div>
+         
+    <!-- Event-driven initialization after HTMX loads -->
+    <script>
+        document.addEventListener('htmx:afterSettle', function(event) {
+            // Initialize section-specific functionality
+            initializeD3Backgrounds();
+            initializeBaryonParticles();
+            initializeContactForm();
+        });
+    </script>
+</body>
+</html>
+```
+
+## Asset Dependencies and Loading Order
+
+@asset_dependencies {
+    "global_assets": {
+        "css": {
+            "main.css": {
+                "scope": "global",
+                "availability": "immediate",
+                "inheritance": "inherited_by_all_sections"
+            }
+        },
+        "javascript": {
+            "main.js": {
+                "scope": "global",
+                "exports": ["initBaryonAnimation", "cleanupMemory", "D3_utilities"],
+                "availability": "after_dom_ready"
+            },
+            "languages.js": {
+                "scope": "global", 
+                "exports": ["switchLanguage", "currentLanguage", "translations"],
+                "availability": "after_dom_ready"
+            }
+        }
+    },
+    "section_assets": {
+        "html": {
+            "loading": "htmx_triggered",
+            "script_execution": "after_html_injection"
+        },
+        "data": {
+            "json_files": {
+                "loading": "async_fetch_in_section",
+                "fallback": "required"
+            }
+        }
+    }
+}
+
+### Global to Section Asset Flow
+
+@asset_flow {
+    "loading_sequence": [
+        "1. main.css loads - Global styles available",
+        "2. main.js loads - Global functions available", 
+        "3. languages.js loads - I18n system available",
+        "4. HTMX triggers - Section HTML loads",
+        "5. Section scripts execute - Can access global assets",
+        "6. Section data loads - JSON fetched asynchronously"
+    ],
+    "dependency_resolution": {
+        "section_depends_on_global": true,
+        "global_depends_on_section": false,
+        "inter_section_dependencies": false
+    }
+}
+
+## Section File Structure
+
+@section_rules [
+    {
+        "id": "html_structure",
+        "rule": "Must contain semantic <section> with unique ID",
+        "severity": "error"
+    },
+    {
+        "id": "script_embedding",
+        "rule": "Section-specific JavaScript embedded in <script> tag",
+        "severity": "error"
+    },
+    {
+        "id": "global_access",
+        "rule": "Can access global functions from main.js and languages.js",
+        "severity": "info"
+    },
+    {
+        "id": "css_scoping",
+        "rule": "Use section ID for CSS scoping",
+        "severity": "warning"
+    },
+    {
+        "id": "dependency_check",
+        "rule": "Must check for global function availability before use",
+        "severity": "error"
+    }
+]
+
+@implementation {
+    "language": "html",
+    "pattern": "section_template",
+    "dependencies": {
+        "global_js": ["main.js", "languages.js"],
+        "global_css": ["main.css"],
+        "data_files": ["json/*.json"]
+    }
+}
+
+```html
+<!-- sections/team.html -->
+<section id="team" class="team-section">
+    <div class="container">
+        <h2 class="section-title" id="team-title">Our Team</h2>
+        <div class="team-grid" id="team-grid">
+            <!-- Dynamic content generated by JavaScript -->
+        </div>
+    </div>
+</section>
+
+<script>
+// Section-specific variables and functions
+let teamData = null;
+
+// Data loading function
+async function loadTeamData() {
+    try {
+        const response = await fetch('./json/team.json');
+        teamData = await response.json();
+        renderTeam();
+        updateTeamLanguage();
+    } catch (error) {
+        console.error('Team data loading failed:', error);
+        createFallbackTeam();
+    }
+}
+
+// Render function using global utilities
+function renderTeam() {
+    const teamGrid = document.getElementById('team-grid');
+    // Access global currentLanguage from languages.js
+    const currentLang = window.currentLanguage || 'ko';
+    
+    teamData.members.forEach(member => {
+        const memberElement = createTeamMemberElement(member);
+        teamGrid.appendChild(memberElement);
+        
+        // Use global baryon animation function from main.js with safety check
+        if (typeof window.initBaryonAnimation === 'function') {
+            window.initBaryonAnimation(member.baryonId);
+        } else {
+            console.warn('⚠️ Global initBaryonAnimation not available');
+            // Fallback animation or retry mechanism
+        }
+    });
+}
+
+// Language update event listener - listens to global events
+document.addEventListener('languageChanged', function(event) {
+    updateTeamLanguage();
+});
+
+// Auto-initialize when section loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadTeamData);
+} else {
+    loadTeamData();
+}
+</script>
+```
+
+## JavaScript Integration Patterns
+
+@javascript_patterns {
+    "global_to_section": {
+        "description": "Sections access global functions and state",
+        "mechanism": "window object properties",
+        "safety": "existence_checks_required",
+        "examples": [
+            "window.initBaryonAnimation()",
+            "window.currentLanguage",
+            "window.switchLanguage()"
+        ]
+    },
+    "section_to_global": {
+        "description": "Sections register cleanup functions globally",
+        "mechanism": "global_arrays_and_events",
+        "examples": [
+            "window.sectionCleanupFunctions.push(cleanup)",
+            "dispatchEvent(new CustomEvent('sectionLoaded'))"
+        ]
+    },
+    "inter_section": {
+        "description": "Sections communicate via global events",
+        "mechanism": "custom_events",
+        "examples": [
+            "languageChanged event",
+            "sectionLoaded event"
+        ]
+    }
+}
+
+### Global Function Access Pattern
+
+@implementation {
+    "language": "javascript",
+    "pattern": "safe_global_access",
+    "context": "section_scripts"
+}
+
+```javascript
+// Safe access pattern for global functions
+function initializeTeamAnimations() {
+    teamData.members.forEach(member => {
+        // Check existence before calling
+        if (typeof window.initBaryonAnimation === 'function') {
+            console.log('✅ Using global initBaryonAnimation');
+            window.initBaryonAnimation(member.baryonId);
+        } else {
+            console.warn('⚠️ Global function not available, using fallback');
+            // Implement fallback or retry mechanism
+            retryGlobalFunction(() => window.initBaryonAnimation(member.baryonId));
+        }
+    });
+}
+
+// Retry mechanism for global functions
+function retryGlobalFunction(callback, maxRetries = 3, delay = 100) {
+    let attempts = 0;
+    
+    function attempt() {
+        attempts++;
+        try {
+            callback();
+    } catch (error) {
+            if (attempts < maxRetries) {
+                setTimeout(attempt, delay * attempts);
+            } else {
+                console.error('Global function retry failed after', maxRetries, 'attempts');
+            }
+        }
+    }
+    
+    attempt();
+}
+```
+
+### Language System Integration
+
+@implementation {
+    "language": "javascript", 
+    "pattern": "language_integration",
+    "dependencies": ["languages.js"],
+    "global_state": "window.currentLanguage"
+}
+
+```javascript
+// Language update function in sections
+function updateSectionLanguage() {
+    // Access global language state with fallbacks
+    const currentLang = window.currentLanguage || 
+                       localStorage.getItem('language') || 'ko';
+    
+    // Update section-specific content
+    document.querySelectorAll('[data-title-en]').forEach(element => {
+        const titleEn = element.getAttribute('data-title-en');
+        const titleKo = element.getAttribute('data-title-ko');
+        element.textContent = currentLang === 'ko' ? titleKo : titleEn;
+    });
+    
+    // Update data-driven content
+    if (teamData && teamData.members) {
+        teamData.members.forEach((member, index) => {
+            const memberElement = document.querySelector(`[data-member-id="${member.id}"]`);
+            if (memberElement) {
+                const nameElement = memberElement.querySelector('.member-name');
+                const roleElement = memberElement.querySelector('.member-role');
+                
+                if (nameElement && member.name) {
+                    nameElement.textContent = member.name[currentLang] || member.name.en;
+                }
+                if (roleElement && member.role) {
+                    roleElement.textContent = member.role[currentLang] || member.role.en;
+                }
+            }
+        });
+    }
+}
+
+// Listen for global language change events
+document.addEventListener('languageChanged', function(event) {
+    console.log('🌐 Language changed to:', event.detail.language);
+    updateSectionLanguage();
+});
+```
+
+## CSS Architecture and Scoping
+
+@css_architecture {
+    "global_styles": {
+        "file": "main.css",
+        "scope": "entire_application",
+        "contents": [
+            "CSS_custom_properties",
+            "base_typography",
+            "layout_containers", 
+            "responsive_breakpoints",
+            "section_base_styles"
+        ],
+        "inheritance": "inherited_by_all_sections"
+    },
+    "section_styles": {
+        "scope": "section_id_scoped",
+        "pattern": "#{section-id} .class-name",
+        "specificity": "higher_than_global",
+        "variables": "inherits_global_css_variables"
+    }
+}
+
+### Global CSS Foundation
+
+@implementation {
+    "language": "css",
+    "pattern": "global_foundation",
+    "file": "main.css"
+}
+
+```css
+/* Global CSS Variables - Available to all sections */
+:root {
+    --primary-gradient: linear-gradient(135deg, #0A0E27 0%, #1a1f3a 100%);
+    --accent-blue: #3B82F6;
+    --accent-cyan: #06B6D4;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-primary: 'Inter', sans-serif;
+    --section-padding: 80px;
+    --container-max-width: 1200px;
+}
+
+/* Global Container Pattern - Used by all sections */
+.container {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* Section Base Styles - Inherited by all sections */
+section {
+    padding: var(--section-padding) 0;
+    position: relative;
+}
+
+.section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 600;
+    margin-bottom: 2rem;
+}
+
+/* Language-specific Typography */
+body[data-lang="ko"] {
+    font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+}
+
+body[data-lang="en"] {
+    font-family: var(--font-primary);
+}
+```
+
+### Section-Scoped CSS
+
+@implementation {
+    "language": "css",
+    "pattern": "section_scoping",
+    "file": "main.css",
+    "specificity": "section_id_prefix"
+}
+
+```css
+/* Team Section Styles - Scoped to #team */
+#team.team-section {
+    background: rgba(248, 250, 252, 0.02);
+    border-radius: 24px;
+}
+
+#team .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 32px;
+    margin-top: 48px;
+}
+
+#team .member-card {
+    background: rgba(248, 250, 252, 0.03);
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#team .member-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    position: relative;
+}
+
+/* Careers Section Styles - Scoped to #careers */
+#careers.careers-section {
+    background: rgba(248, 250, 252, 0.02);
+}
+
+#careers .job-card {
+    background: rgba(248, 250, 252, 0.03);
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#careers .job-card:hover {
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+}
+```
+
+## Form Integration and External Services
+
+@form_integration {
+    "service": "form2ai2email",
+    "endpoint": "https://form2ai2email-worker.kilos-network.workers.dev/api/submit",
+    "authentication": "form_id_based",
+    "validation": "client_side_first",
+    "feedback": "inline_messages",
+    "internationalization": "language_aware_messages"
+}
+
+@implementation {
+    "language": "javascript",
+    "pattern": "form_handling",
+    "service_integration": "form2ai2email",
+    "dependencies": ["languages.js"]
+}
+
+```javascript
+// Form submission with validation and feedback
+async function handleFormSubmission(formData, formType) {
+    // Access global language state
+    const currentLang = window.currentLanguage || 'ko';
+    
+    // Get form-specific configuration
+    const formConfig = getFormConfig(formType);
+    
+    // Client-side validation
+    const validation = validateFormData(formData, formType);
+    if (!validation.valid) {
+        showFormMessage(validation.message[currentLang], 'error');
+        return;
+    }
+    
+    // Set loading state
+    setFormLoadingState(true);
+    
+    try {
+        const response = await fetch('https://form2ai2email-worker.kilos-network.workers.dev/api/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                form_id: formConfig.id,
+                data: formData
+            })
+        });
+        
+        if (response.ok) {
+            const successMsg = getLocalizedMessage('form.success', currentLang);
+            showFormMessage(successMsg, 'success');
+            resetForm();
+        } else {
+            throw new Error(`HTTP ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Form submission error:', error);
+        const errorMsg = getLocalizedMessage('form.error', currentLang);
+        showFormMessage(errorMsg, 'error');
+    } finally {
+        setFormLoadingState(false);
+    }
+}
+
+// Localized message helper using global language system
+function getLocalizedMessage(key, lang) {
+    const messages = {
+        'form.success': {
+            ko: '성공적으로 제출되었습니다!',
+            en: 'Successfully submitted!'
+        },
+        'form.error': {
+            ko: '제출에 실패했습니다. 다시 시도해주세요.',
+            en: 'Submission failed. Please try again.'
+        }
+    };
+    
+    return messages[key] && messages[key][lang] 
+        ? messages[key][lang] 
+        : messages[key]['en'];
+}
+```
+
+## Memory Management and Cleanup
+
+@memory_management {
+    "strategy": "global_cleanup_registry",
+    "triggers": ["beforeunload", "pagehide"],
+    "cleanup_targets": [
+        "animation_frames",
+        "event_listeners", 
+        "timeouts_intervals",
+        "section_specific_resources"
+    ]
+}
+
+@implementation {
+    "language": "javascript",
+    "pattern": "memory_cleanup",
+    "integration": "global_and_section"
+}
+
+```javascript
+// Global cleanup system in main.js
+let activeAnimations = [];
+let activeListeners = new Map();
+let activeTimeouts = [];
+
+// Section cleanup registration
+function registerSectionCleanup(cleanupFn) {
+    if (!window.sectionCleanupFunctions) {
+        window.sectionCleanupFunctions = [];
+    }
+    window.sectionCleanupFunctions.push(cleanupFn);
+}
+
+// Global cleanup function
+function cleanupMemory() {
+    console.log('🧹 Starting memory cleanup');
+    
+    // Cancel active animations
+    activeAnimations.forEach(id => {
+        cancelAnimationFrame(id);
+        console.log('🎬 Cancelled animation frame:', id);
+    });
+    activeAnimations = [];
+    
+    // Clear timeouts and intervals
+    activeTimeouts.forEach(id => {
+        clearTimeout(id);
+        clearInterval(id);
+    });
+    activeTimeouts = [];
+    
+    // Remove event listeners
+    activeListeners.forEach((handler, element) => {
+        element.removeEventListener('click', handler);
+    });
+    activeListeners.clear();
+    
+    // Section-specific cleanup
+    if (window.sectionCleanupFunctions) {
+        window.sectionCleanupFunctions.forEach((cleanup, index) => {
+            try {
+                cleanup();
+                console.log(`🗑️ Executed section cleanup ${index}`);
+            } catch (error) {
+                console.error(`❌ Section cleanup ${index} failed:`, error);
+            }
+        });
+        window.sectionCleanupFunctions = [];
+    }
+}
+
+// Register cleanup on page unload
+window.addEventListener('beforeunload', cleanupMemory);
+window.addEventListener('pagehide', cleanupMemory);
+
+// Section cleanup example
+function setupSectionCleanup() {
+    const animationId = requestAnimationFrame(animate);
+    const resizeHandler = () => handleResize();
+    window.addEventListener('resize', resizeHandler);
+    
+    // Register cleanup for this section
+    registerSectionCleanup(() => {
+        cancelAnimationFrame(animationId);
+        window.removeEventListener('resize', resizeHandler);
+        console.log('Section cleanup completed');
+    });
+}
+```
+
+## Development Workflow
+
+@development_workflow {
+    "section_creation": {
+        "steps": [
+            "create_html_file_with_embedded_script",
+            "create_data_file_if_needed",
+            "add_section_scoped_css",
+            "add_htmx_container_to_main_html",
+            "test_section_independently"
+        ]
+    },
+    "dependency_management": {
+        "global_assets": "loaded_once_available_everywhere",
+        "section_assets": "loaded_on_demand_section_scoped",
+        "data_files": "fetched_asynchronously_with_fallbacks"
+    }
+}
+
+@implementation {
+    "language": "bash",
+    "pattern": "new_section_creation"
+}
+
+```bash
+#!/bin/bash
+# Create new section script
+
+SECTION_NAME="$1"
+
+if [ -z "$SECTION_NAME" ]; then
+    echo "Usage: $0 <section-name>"
+    exit 1
+fi
+
+# 1. Create section HTML file
+cat > "sections/${SECTION_NAME}.html" << EOF
+<section id="${SECTION_NAME}" class="${SECTION_NAME}-section">
+    <div class="container">
+        <h2 class="section-title" id="${SECTION_NAME}-title">${SECTION_NAME^} Section</h2>
+        <div class="${SECTION_NAME}-content" id="${SECTION_NAME}-content">
+            <!-- Content will be generated by JavaScript -->
+        </div>
+    </div>
+</section>
+
+<script>
+// Section-specific variables
+let ${SECTION_NAME}Data = null;
+
+// Data loading function
+async function load${SECTION_NAME^}Data() {
+    try {
+        const response = await fetch('./json/${SECTION_NAME}.json');
+        ${SECTION_NAME}Data = await response.json();
+        render${SECTION_NAME^}();
+        update${SECTION_NAME^}Language();
+    } catch (error) {
+        console.error('${SECTION_NAME} data loading failed:', error);
+        createFallback${SECTION_NAME^}();
+    }
+}
+
+// Render function
+function render${SECTION_NAME^}() {
+    const container = document.getElementById('${SECTION_NAME}-content');
+    const currentLang = window.currentLanguage || 'ko';
+    
+    // Implementation here
+    console.log('Rendering ${SECTION_NAME} section');
+}
+
+// Language update function
+function update${SECTION_NAME^}Language() {
+    const currentLang = window.currentLanguage || 'ko';
+    
+    // Update localized content
+    const title = document.getElementById('${SECTION_NAME}-title');
+    if (title && ${SECTION_NAME}Data?.title) {
+        title.textContent = ${SECTION_NAME}Data.title[currentLang] || ${SECTION_NAME}Data.title.en;
+    }
+}
+
+// Fallback content function
+function createFallback${SECTION_NAME^}() {
+    const container = document.getElementById('${SECTION_NAME}-content');
+    container.innerHTML = '<p>Content temporarily unavailable</p>';
+}
+
+// Event listeners
+document.addEventListener('languageChanged', function(event) {
+    update${SECTION_NAME^}Language();
+});
+
+// Cleanup registration
+registerSectionCleanup(() => {
+    console.log('${SECTION_NAME^} section cleanup');
+    // Add specific cleanup code here
+});
+
+// Initialize
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', load${SECTION_NAME^}Data);
+} else {
+    load${SECTION_NAME^}Data();
+}
+</script>
+EOF
+
+# 2. Create data file
+cat > "json/${SECTION_NAME}.json" << EOF
+{
+    "title": {
+        "en": "${SECTION_NAME^} Section",
+        "ko": "${SECTION_NAME} 섹션"
+    },
+    "content": {
+        "en": "English content for ${SECTION_NAME}",
+        "ko": "${SECTION_NAME}에 대한 한국어 콘텐츠"
+    }
+}
+EOF
+
+# 3. Add CSS to main.css
+cat >> main.css << EOF
+
+/* ${SECTION_NAME^} Section Styles */
+#${SECTION_NAME}.${SECTION_NAME}-section {
+    padding: var(--section-padding) 0;
+    background: rgba(248, 250, 252, 0.02);
+}
+
+#${SECTION_NAME} .${SECTION_NAME}-content {
+    margin-top: 2rem;
+}
+EOF
+
+echo "✅ Section '${SECTION_NAME}' created successfully!"
+echo "📝 Next steps:"
+echo "   1. Add HTMX container to index.html:"
+echo "      <div id=\"${SECTION_NAME}-container\" hx-get=\"sections/${SECTION_NAME}.html\" hx-trigger=\"revealed\" hx-swap=\"innerHTML\"></div>"
+echo "   2. Customize the section content and styling"
+echo "   3. Test the section functionality"
+```
+
+## Troubleshooting and Common Issues
+
+@debugging {
+    "tools": ["browser_dev_tools", "htmx_debug_extension", "console_logging"],
+    "common_issues": [
+        "section_not_loading",
+        "global_functions_undefined", 
+        "css_styles_not_applied",
+        "language_switching_broken",
+        "data_loading_failures"
+    ]
+}
+
+@common_issues [
+    {
+        "id": "section_not_loading",
+        "symptoms": "HTMX container remains empty, no content appears",
+        "diagnosis": [
+            "Check browser network tab for 404 errors",
+            "Verify section file path and accessibility",
+            "Check HTMX trigger conditions"
+        ],
+        "solution": [
+            "Ensure section file exists in sections/ directory",
+            "Verify file permissions",
+            "Check HTMX trigger element visibility"
+        ]
+    },
+    {
+        "id": "global_functions_undefined",
+        "symptoms": "TypeError: window.functionName is not a function",
+        "diagnosis": [
+            "Global JS files not loaded before section executes",
+            "Race condition between script loading and section initialization"
+        ],
+        "solution": [
+            "Add existence checks before calling global functions",
+            "Implement retry mechanisms",
+            "Use defer attribute on global script tags"
+        ]
+    },
+    {
+        "id": "css_styles_not_applied",
+        "symptoms": "Section appears unstyled or with incorrect styling",
+        "diagnosis": [
+            "CSS selector specificity issues",
+            "Section ID not matching CSS selectors",
+            "Global CSS not loaded before section"
+        ],
+        "solution": [
+            "Check section ID matches CSS selectors",
+            "Verify CSS loading order",
+            "Use browser inspector to debug style cascade"
+        ]
+    },
+    {
+        "id": "language_switching_broken",
+        "symptoms": "Text doesn't update when language changes",
+        "diagnosis": [
+            "languageChanged event listener not registered",
+            "Missing data-* attributes for bilingual content",
+            "Global language state not accessible"
+        ],
+        "solution": [
+            "Verify event listener registration",
+            "Check data attributes on elements",
+            "Ensure languages.js is loaded"
+        ]
+    }
+]
+
+## Validation Rules
+
+@validation {
+    "required": [
+        "Section HTML must have unique ID and semantic structure",
+        "Section scripts must handle loading states and errors",
+        "Global asset dependencies must be declared and checked",
+        "Language support must be implemented for all text content",
+        "Memory cleanup functions must be registered",
+        "HTMX integration must include error handling"
+    ],
+    "recommended": [
+        "Use consistent naming conventions across sections",
+        "Implement fallback content for data loading failures",
+        "Add performance monitoring for section loading",
+        "Include accessibility attributes and keyboard navigation",
+        "Document section-specific functions and dependencies",
+        "Test section behavior in isolation"
+    ]
+}
+
+@best_practices {
+    "asset_management": [
+        "Load global assets once, reuse across sections",
+        "Check global function availability before use",
+        "Implement graceful fallbacks for missing dependencies"
+    ],
+    "performance": [
+        "Use HTMX lazy loading for below-fold content",
+        "Batch DOM updates to avoid layout thrashing",
+        "Clean up resources when sections unload"
+    ],
+    "maintainability": [
+        "Keep section logic self-contained",
+        "Use consistent data structures across JSON files",
+        "Document section-specific behaviors and dependencies"
+    ]
+}
+
+@version "2.0.0"
+@last_updated "2025-01-19"
+@maintainer "Baryon Labs Development Team"

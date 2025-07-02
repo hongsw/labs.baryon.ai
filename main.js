@@ -1325,6 +1325,11 @@ document.addEventListener('htmx:afterSettle', function(event) {
     console.log('📧 Initializing contact form...');
     initializeContactForm();
     
+    console.log('💼 Initializing careers form...');
+    if (typeof initializeCareersForm === 'function') {
+        initializeCareersForm();
+    }
+    
     console.log('✅ HTMX afterSettle initialization complete!');
 });
 
@@ -1373,6 +1378,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize D3 backgrounds for home section
         console.log('🎨 Initializing D3 backgrounds...');
         initializeD3Backgrounds();
+        
+        // Initialize forms if available
+        console.log('📧 Initializing contact form...');
+        initializeContactForm();
+        
+        console.log('💼 Initializing careers form...');
+        if (typeof initializeCareersForm === 'function') {
+            initializeCareersForm();
+        }
         
         // Pre-load sections for better PC experience
         console.log('📦 Pre-loading sections for better UX...');

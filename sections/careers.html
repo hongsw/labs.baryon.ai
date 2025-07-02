@@ -24,27 +24,27 @@
             
             <div class="form-group">
                 <label for="applicantName" id="label-fullName">Full Name *</label>
-                <input type="text" id="applicantName" name="name" required>
+                <input type="text" id="applicantName" name="name" class="form-input" required>
             </div>
             
             <div class="form-group">
                 <label for="applicantEmail" id="label-email">Email *</label>
-                <input type="email" id="applicantEmail" name="email" required>
+                <input type="email" id="applicantEmail" name="email" class="form-input" required>
             </div>
             
             <div class="form-group">
                 <label for="applicantPhone" id="label-phone">Phone</label>
-                <input type="tel" id="applicantPhone" name="phone">
+                <input type="tel" id="applicantPhone" name="phone" class="form-input">
             </div>
             
             <div class="form-group">
                 <label for="applicantResume" id="label-resume">Resume/CV Link *</label>
-                <input type="url" id="applicantResume" name="resume" placeholder="https://drive.google.com/file/d/your-resume-link" required>
+                <input type="url" id="applicantResume" name="resume" class="form-input" placeholder="https://drive.google.com/file/d/your-resume-link" required>
             </div>
             
             <div class="form-group">
                 <label for="coverLetter" id="label-coverLetter">Cover Letter</label>
-                <textarea id="coverLetter" name="cover_letter" rows="6" placeholder="Tell us why you're interested in this position..."></textarea>
+                <textarea id="coverLetter" name="cover_letter" class="form-textarea" rows="6" placeholder="Tell us why you're interested in this position..."></textarea>
             </div>
             
             <button type="submit" class="submit-btn" id="submit-btn">
@@ -337,101 +337,155 @@ window.onclick = function(event) {
     }
 }
 
-// 폼 제출 핸들러
-document.addEventListener('DOMContentLoaded', function() {
+// 채용 폼 초기화 함수 (contact 폼 패턴 따라)
+function initializeCareersForm() {
     const jobForm = document.getElementById('jobApplicationForm');
-    if (jobForm) {
-        jobForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const currentLang = window.currentLanguage || localStorage.getItem('language') || 'ko';
-            
-            // 폼 데이터 수집
-            const formData = new FormData(jobForm);
-            const data = {
-                position: formData.get('position'),
-                name: formData.get('name').trim(),
-                email: formData.get('email').trim(),
-                phone: formData.get('phone') ? formData.get('phone').trim() : '',
-                resume: formData.get('resume').trim(),
-                cover_letter: formData.get('cover_letter') ? formData.get('cover_letter').trim() : ''
-            };
-            
-            // 이전 메시지 지우기
-            clearJobFormMessage();
-            
-            // 필수 필드 검증
-            if (!data.name || !data.email || !data.resume) {
-                const errorMsg = currentLang === 'ko' 
-                    ? '필수 항목을 모두 입력해주세요.'
-                    : 'Please fill in all required fields.';
-                showJobFormMessage(errorMsg, 'error');
-                return;
-            }
-            
-            // 이메일 유효성 검사
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(data.email)) {
-                const errorMsg = currentLang === 'ko' 
-                    ? '올바른 이메일 형식을 입력해주세요.'
-                    : 'Please enter a valid email format.';
-                showJobFormMessage(errorMsg, 'error');
-                return;
-            }
-            
-            // 링크 유효성 검사
-            if (data.resume && !isValidURL(data.resume)) {
-                const errorMsg = currentLang === 'ko' 
-                    ? '올바른 URL 형식을 입력해주세요 (https://로 시작)'
-                    : 'Please enter a valid URL format (starting with https://)';
-                showJobFormMessage(errorMsg, 'error');
-                return;
-            }
-            
-            // 제출 버튼 로딩 상태
-            setJobFormLoadingState(true);
-            
-            try {
-                // Form2AI2Email API로 제출
-                const response = await fetch('https://form2ai2email-worker.kilos-network.workers.dev/api/submit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        form_id: 'b8c3a2d1-5f9e-4c7b-8e6d-2a1b3c4d5e6f', // Careers form UUID
-                        data: data
-                    })
-                });
-                
-                if (response.ok) {
-                    const successMsg = currentLang === 'ko' 
-                        ? '지원서가 성공적으로 제출되었습니다! 빠른 시일 내에 연락드리겠습니다.'
-                        : 'Application submitted successfully! We will contact you soon.';
-                    showJobFormMessage(successMsg, 'success');
-                    
-                    // 3초 후 모달 닫기 (사용자가 메시지를 볼 시간 제공)
-                    setTimeout(() => {
-                        closeJobModal();
-                        jobForm.reset();
-                        clearJobFormMessage();
-                    }, 3000);
-                } else {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-            } catch (error) {
-                console.error('Careers form submission error:', error);
-                const errorMsg = currentLang === 'ko' 
-                    ? '지원서 제출에 실패했습니다. 다시 시도해주세요.'
-                    : 'Failed to submit application. Please try again.';
-                showJobFormMessage(errorMsg, 'error');
-            } finally {
-                // 버튼 상태 복원
-                setJobFormLoadingState(false);
+    if (!jobForm) return; // Exit if careers form is not loaded yet
+
+    // 실시간 검증 (contact 폼 패턴 따라)
+    const emailField = document.getElementById('applicantEmail');
+    if (emailField) {
+        emailField.addEventListener('blur', function() {
+            if (this.value && !validateEmail(this.value)) {
+                this.style.borderColor = '#EF4444';
+            } else {
+                this.style.borderColor = 'rgba(59, 130, 246, 0.2)';
             }
         });
     }
-});
+
+    const resumeField = document.getElementById('applicantResume');
+    if (resumeField) {
+        resumeField.addEventListener('blur', function() {
+            if (this.value && !isValidURL(this.value)) {
+                this.style.borderColor = '#EF4444';
+            } else {
+                this.style.borderColor = 'rgba(59, 130, 246, 0.2)';
+            }
+        });
+    }
+
+    // 입력 시 에러 상태 지우기
+    const formInputs = jobForm.querySelectorAll('.form-input, .form-textarea');
+    formInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            this.style.borderColor = 'rgba(59, 130, 246, 0.2)';
+            clearJobFormMessage();
+        });
+    });
+
+    // 폼 제출 핸들러
+    jobForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const currentLang = window.currentLanguage || localStorage.getItem('language') || 'ko';
+        
+        // 폼 데이터 수집
+        const formData = new FormData(jobForm);
+        const data = {
+            position: formData.get('position'),
+            name: formData.get('name').trim(),
+            email: formData.get('email').trim(),
+            phone: formData.get('phone') ? formData.get('phone').trim() : '',
+            resume: formData.get('resume').trim(),
+            cover_letter: formData.get('cover_letter') ? formData.get('cover_letter').trim() : ''
+        };
+        
+        // 이전 메시지 지우기
+        clearJobFormMessage();
+        
+        // 검증
+        let hasErrors = false;
+        
+        if (!data.name) {
+            const errorMsg = currentLang === 'ko' 
+                ? '이름을 입력해주세요.'
+                : 'Name is required.';
+            showJobFormMessage(errorMsg, 'error');
+            hasErrors = true;
+        }
+        
+        if (!data.email) {
+            const errorMsg = currentLang === 'ko' 
+                ? '이메일을 입력해주세요.'
+                : 'Email is required.';
+            showJobFormMessage(errorMsg, 'error');
+            hasErrors = true;
+        } else if (!validateEmail(data.email)) {
+            const errorMsg = currentLang === 'ko' 
+                ? '올바른 이메일 형식을 입력해주세요.'
+                : 'Please enter a valid email format.';
+            showJobFormMessage(errorMsg, 'error');
+            hasErrors = true;
+        }
+        
+        if (!data.resume) {
+            const errorMsg = currentLang === 'ko' 
+                ? '이력서 링크를 입력해주세요.'
+                : 'Resume link is required.';
+            showJobFormMessage(errorMsg, 'error');
+            hasErrors = true;
+        } else if (!isValidURL(data.resume)) {
+            const errorMsg = currentLang === 'ko' 
+                ? '올바른 URL 형식을 입력해주세요 (https://로 시작)'
+                : 'Please enter a valid URL format (starting with https://)';
+            showJobFormMessage(errorMsg, 'error');
+            hasErrors = true;
+        }
+        
+        if (hasErrors) {
+            return;
+        }
+        
+        // 제출 버튼 로딩 상태
+        setJobFormLoadingState(true);
+        
+        try {
+            // Form2AI2Email API로 제출
+            const response = await fetch('https://form2ai2email-worker.kilos-network.workers.dev/api/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    form_id: 'b8c3a2d1-5f9e-4c7b-8e6d-2a1b3c4d5e6f', // Careers form UUID
+                    data: data
+                })
+            });
+            
+            if (response.ok) {
+                const successMsg = currentLang === 'ko' 
+                    ? '지원서가 성공적으로 제출되었습니다! 빠른 시일 내에 연락드리겠습니다.'
+                    : 'Application submitted successfully! We will contact you soon.';
+                showJobFormMessage(successMsg, 'success');
+                
+                // 3초 후 모달 닫기 (사용자가 메시지를 볼 시간 제공)
+                setTimeout(() => {
+                    closeJobModal();
+                    jobForm.reset();
+                    clearJobFormMessage();
+                }, 3000);
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+        } catch (error) {
+            console.error('Careers form submission error:', error);
+            const errorMsg = currentLang === 'ko' 
+                ? '지원서 제출에 실패했습니다. 다시 시도해주세요.'
+                : 'Failed to submit application. Please try again.';
+            showJobFormMessage(errorMsg, 'error');
+        } finally {
+            // 버튼 상태 복원
+            setJobFormLoadingState(false);
+        }
+    });
+}
+
+// 이메일 검증 함수 (contact 폼과 동일)
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
 
 // URL 유효성 검사 함수
 function isValidURL(string) {
@@ -443,20 +497,17 @@ function isValidURL(string) {
     }
 }
 
-// 채용 폼 메시지 표시 함수
+// 채용 폼 메시지 표시 함수 (contact 폼 패턴 따라)
 function showJobFormMessage(message, type) {
     const messageElement = document.getElementById('jobFormMessage');
     if (messageElement) {
         messageElement.textContent = message;
-        messageElement.className = `form-message ${type}`;
-        messageElement.style.display = 'block';
+        messageElement.className = `form-message show ${type}`;
         
-        // 성공 메시지는 5초 후 자동 사라짐
-        if (type === 'success') {
-            setTimeout(() => {
-                clearJobFormMessage();
-            }, 5000);
-        }
+        // 자동 사라지기 타이머
+        setTimeout(() => {
+            messageElement.classList.remove('show');
+        }, 5000);
     }
 }
 
@@ -466,25 +517,21 @@ function clearJobFormMessage() {
     if (messageElement) {
         messageElement.textContent = '';
         messageElement.className = 'form-message';
-        messageElement.style.display = 'none';
+        messageElement.classList.remove('show');
     }
 }
 
-// 채용 폼 로딩 상태 설정 함수
+// 채용 폼 로딩 상태 설정 함수 (contact 폼 패턴 따라)
 function setJobFormLoadingState(loading) {
     const submitBtn = document.getElementById('submit-btn');
-    const spinner = submitBtn?.querySelector('.loading-spinner');
-    const btnText = submitBtn?.querySelector('.btn-text');
     
     if (submitBtn) {
-        submitBtn.disabled = loading;
-        
         if (loading) {
+            submitBtn.disabled = true;
             submitBtn.classList.add('loading');
-            if (spinner) spinner.style.display = 'inline-block';
         } else {
+            submitBtn.disabled = false;
             submitBtn.classList.remove('loading');
-            if (spinner) spinner.style.display = 'none';
         }
     }
 }
@@ -494,14 +541,18 @@ document.addEventListener('languageChanged', function(event) {
     updateCareersLanguage();
 });
 
-// 페이지 로드 시 실행
-document.addEventListener('DOMContentLoaded', loadCareersData);
-
-// 만약 이미 DOM이 로드되었다면 즉시 실행
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadCareersData);
-} else {
+// 섹션 초기화 (HTMX 동적 로딩에 적합한 패턴)
+function initializeCareersSection() {
+    console.log('🎯 Initializing careers section...');
     loadCareersData();
+    initializeCareersForm();
+}
+
+// 즉시 실행 (HTMX 로딩에 적합)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeCareersSection);
+} else {
+    initializeCareersSection();
 }
 </script>
  
