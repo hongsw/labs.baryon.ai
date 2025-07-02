@@ -324,29 +324,56 @@ const scrollHandler = () => {
     const careersTrigger = windowHeight * 1.8;  // Load when scrolled 180% of viewport height
     const contactTrigger = windowHeight * 2.5;  // Load when scrolled 250% of viewport height
 
+    // DEBUG: Log scroll information every 500px
+    if (scrolled % 500 < 50) {
+        console.log(`📏 DEBUG - Scroll position: ${scrolled}px, Triggers: concept=${conceptTrigger}, team=${teamTrigger}, careers=${careersTrigger}, contact=${contactTrigger}`);
+    }
+    
     // Load sections progressively based on absolute scroll position
-    if (scrolled > conceptTrigger && !document.querySelector('#concept-container').hasChildNodes()) {
+    const conceptContainer = document.querySelector('#concept-container');
+    const teamContainer = document.querySelector('#team-container');
+    const careersContainer = document.querySelector('#careers-container');
+    const contactContainer = document.querySelector('#contact-container');
+    
+    if (scrolled > conceptTrigger && !conceptContainer.hasChildNodes()) {
         console.log('🚀 Loading Concept section at scroll:', scrolled);
-        document.querySelector('#concept-container').style.display = 'block';
+        console.log('📦 DEBUG - Concept container display before:', conceptContainer.style.display);
+        conceptContainer.style.display = 'block';
+        console.log('📦 DEBUG - Concept container display after:', conceptContainer.style.display);
         htmx.trigger('#concept-container', 'revealed');
     }
     
-    if (scrolled > teamTrigger && !document.querySelector('#team-container').hasChildNodes()) {
+    if (scrolled > teamTrigger && !teamContainer.hasChildNodes()) {
         console.log('🚀 Loading Team section at scroll:', scrolled);
-        document.querySelector('#team-container').style.display = 'block';
+        console.log('📦 DEBUG - Team container display before:', teamContainer.style.display);
+        teamContainer.style.display = 'block';
+        console.log('📦 DEBUG - Team container display after:', teamContainer.style.display);
         htmx.trigger('#team-container', 'revealed');
     }
     
-    if (scrolled > careersTrigger && !document.querySelector('#careers-container').hasChildNodes()) {
+    if (scrolled > careersTrigger && !careersContainer.hasChildNodes()) {
         console.log('🚀 Loading Careers section at scroll:', scrolled);
-        document.querySelector('#careers-container').style.display = 'block';
+        console.log('📦 DEBUG - Careers container display before:', careersContainer.style.display);
+        careersContainer.style.display = 'block';
+        console.log('📦 DEBUG - Careers container display after:', careersContainer.style.display);
         htmx.trigger('#careers-container', 'revealed');
     }
     
-    if (scrolled > contactTrigger && !document.querySelector('#contact-container').hasChildNodes()) {
+    if (scrolled > contactTrigger && !contactContainer.hasChildNodes()) {
         console.log('🚀 Loading Contact section at scroll:', scrolled);
-        document.querySelector('#contact-container').style.display = 'block';
+        console.log('📦 DEBUG - Contact container display before:', contactContainer.style.display);
+        contactContainer.style.display = 'block';
+        console.log('📦 DEBUG - Contact container display after:', contactContainer.style.display);
         htmx.trigger('#contact-container', 'revealed');
+    }
+    
+    // DEBUG: Check section visibility every 1000px
+    if (scrolled % 1000 < 50) {
+        console.log('👁️ DEBUG - Section visibility check:');
+        console.log('  - Concept:', conceptContainer.style.display, 'children:', conceptContainer.children.length);
+        console.log('  - Team:', teamContainer.style.display, 'children:', teamContainer.children.length); 
+        console.log('  - Careers:', careersContainer.style.display, 'children:', careersContainer.children.length);
+        console.log('  - Contact:', contactContainer.style.display, 'children:', contactContainer.children.length);
     }
 
     // Update D3 backgrounds
