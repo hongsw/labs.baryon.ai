@@ -5,7 +5,7 @@
 // =============================================================================
 // LANGUAGE STATE
 // =============================================================================
-let currentLanguage = localStorage.getItem('language') || 'en';
+let currentLanguage = localStorage.getItem('language') || 'ko';
 
 // =============================================================================
 // TRANSLATIONS DATA
@@ -101,6 +101,14 @@ const translations = {
                 feature1: 'API Gateway',
                 feature2: 'Data Sync',
                 feature3: 'Backend'
+            },
+            comingSoon: {
+                title: 'New Service Coming Soon',
+                description: 'We are developing an innovative AI solution with our new team member. Stay tuned for an amazing service that will be unveiled soon.',
+                feature1: 'Teamwork',
+                feature2: 'Innovation',
+                feature3: 'In Development',
+                link: 'Interested?'
             },
             cta: {
                 title: 'Ready to Transform Your Business?',
@@ -241,6 +249,14 @@ const translations = {
                 feature2: '데이터 동기화',
                 feature3: '백엔드'
             },
+            comingSoon: {
+                title: '새로운 서비스 준비중',
+                description: '새로운 팀원과 함께 혁신적인 AI 솔루션을 개발하고 있습니다. 곧 여러분께 놀라운 서비스를 선보일 예정입니다.',
+                feature1: '팀워크',
+                feature2: '혁신',
+                feature3: '개발중',
+                link: '관심 있으신가요?'
+            },
             cta: {
                 title: '비즈니스 혁신을 준비하셨나요?',
                 description: 'AI 서비스가 어떻게 디지털 혁신을 가속화할 수 있는지 논의해보세요',
@@ -317,6 +333,9 @@ function switchLanguage(lang) {
     currentLanguage = lang;
     localStorage.setItem('language', lang);
     
+    // Update body data-lang attribute for CSS styling
+    document.body.setAttribute('data-lang', lang);
+    
     // Update language buttons
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.lang === lang);
@@ -351,7 +370,8 @@ function switchLanguage(lang) {
 }
 
 function initializeLanguageSystem() {
-    // Set initial language
+    // Set initial language and body attribute
+    document.body.setAttribute('data-lang', currentLanguage);
     switchLanguage(currentLanguage);
     
     // Add event listeners to language buttons

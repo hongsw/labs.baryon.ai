@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baryon Labs - 기능 테스트</title>
+    <style>
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0A0E27;
+            color: #F8FAFC;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            height: 100vh;
+        }
+        
+        .test-controls {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            height: fit-content;
+        }
+        
+        .test-controls h2 {
+            margin: 0 0 20px 0;
+            color: #06B6D4;
+            font-size: 1.2rem;
+        }
+        
+        .test-btn {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 8px;
+            color: #F8FAFC;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .test-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .website-frame {
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .console-output {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 400px;
+            height: 300px;
+            background: rgba(10, 14, 39, 0.95);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 12px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .console-output.show {
+            display: block;
+        }
+        
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .console-title {
+            color: #06B6D4;
+            font-weight: bold;
+        }
+        
+        .console-close {
+            background: none;
+            border: none;
+            color: #F8FAFC;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 3px 5px;
+            border-radius: 3px;
+        }
+        
+        .log-info { color: #06B6D4; }
+        .log-success { color: #10B981; background: rgba(16, 185, 129, 0.1); }
+        .log-error { color: #EF4444; background: rgba(239, 68, 68, 0.1); }
+        .log-warn { color: #F59E0B; background: rgba(245, 158, 11, 0.1); }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-controls">
+            <h2>🧪 테스트 컨트롤</h2>
+            
+            <button class="test-btn" onclick="runAllTests()">
+                🚀 전체 테스트 실행
+            </button>
+            
+            <button class="test-btn" onclick="runTest('testNavigation')">
+                🧭 네비게이션 테스트
+            </button>
+            
+            <button class="test-btn" onclick="runTest('testLanguageSwitching')">
+                🌐 언어 전환 테스트
+            </button>
+            
+            <button class="test-btn" onclick="runTest('testServicesSection')">
+                🛠️ 서비스 섹션 테스트
+            </button>
+            
+            <button class="test-btn" onclick="runTest('testContactForm')">
+                📧 컨택 폼 테스트
+            </button>
+            
+            <button class="test-btn" onclick="runTest('testCareersModal')">
+                💼 커리어 모달 테스트
+            </button>
+            
+            <button class="test-btn" onclick="runTest('testForm2AI2EmailIntegration')">
+                🔗 API 연동 테스트
+            </button>
+            
+            <hr style="margin: 20px 0; border: 1px solid rgba(59, 130, 246, 0.2);">
+            
+            <button class="test-btn" onclick="toggleConsole()">
+                📝 콘솔 토글
+            </button>
+            
+            <button class="test-btn" onclick="reloadWebsite()">
+                🔄 웹사이트 새로고침
+            </button>
+            
+            <button class="test-btn" onclick="openDevTools()">
+                🔧 개발자 도구 열기
+            </button>
+        </div>
+        
+        <div class="website-frame">
+            <iframe id="website-frame" src="../index.html"></iframe>
+        </div>
+    </div>
+    
+    <div class="console-output" id="console-output">
+        <div class="console-header">
+            <span class="console-title">테스트 콘솔</span>
+            <button class="console-close" onclick="toggleConsole()">×</button>
+        </div>
+        <div id="console-logs"></div>
+    </div>
+
+    <script>
+        let isTestRunning = false;
+        
+        // Console management
+        function toggleConsole() {
+            const console = document.getElementById('console-output');
+            console.classList.toggle('show');
+        }
+        
+        function addLogEntry(message, type = 'info') {
+            const logsContainer = document.getElementById('console-logs');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsContainer.appendChild(entry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+        
+        function clearLogs() {
+            document.getElementById('console-logs').innerHTML = '';
+        }
+        
+        // Test execution
+        async function runAllTests() {
+            if (isTestRunning) {
+                addLogEntry('테스트가 이미 실행 중입니다', 'warn');
+                return;
+            }
+            
+            isTestRunning = true;
+            clearLogs();
+            addLogEntry('전체 테스트 시작...', 'info');
+            
+            try {
+                const iframe = document.getElementById('website-frame');
+                const iframeWindow = iframe.contentWindow;
+                
+                if (!iframeWindow.BaryonLabsTest) {
+                    addLogEntry('테스트 스크립트 로딩 중...', 'info');
+                    await loadTestScript(iframeWindow);
+                }
+                
+                const results = await iframeWindow.BaryonLabsTest.runAllTests();
+                
+                results.forEach(result => {
+                    const type = result.status === 'PASS' ? 'success' : 'error';
+                    addLogEntry(`${result.name}: ${result.status} (${result.duration}ms)`, type);
+                    if (result.error) {
+                        addLogEntry(`└─ ${result.error}`, 'error');
+                    }
+                });
+                
+                const passed = results.filter(r => r.status === 'PASS').length;
+                const total = results.length;
+                addLogEntry(`테스트 완료: ${passed}/${total} 통과`, passed === total ? 'success' : 'warn');
+                
+            } catch (error) {
+                addLogEntry(`테스트 실행 오류: ${error.message}`, 'error');
+            } finally {
+                isTestRunning = false;
+            }
+        }
+        
+        async function runTest(testName) {
+            if (isTestRunning) {
+                addLogEntry('테스트가 이미 실행 중입니다', 'warn');
+                return;
+            }
+            
+            isTestRunning = true;
+            addLogEntry(`${testName} 테스트 시작...`, 'info');
+            
+            try {
+                const iframe = document.getElementById('website-frame');
+                const iframeWindow = iframe.contentWindow;
+                
+                if (!iframeWindow.BaryonLabsTest) {
+                    addLogEntry('테스트 스크립트 로딩 중...', 'info');
+                    await loadTestScript(iframeWindow);
+                }
+                
+                await iframeWindow.BaryonLabsTest[testName]();
+                addLogEntry(`${testName} 테스트 성공`, 'success');
+                
+            } catch (error) {
+                addLogEntry(`${testName} 테스트 실패: ${error.message}`, 'error');
+            } finally {
+                isTestRunning = false;
+            }
+        }
+        
+        async function loadTestScript(iframeWindow) {
+            return new Promise((resolve, reject) => {
+                const script = iframeWindow.document.createElement('script');
+                script.src = './test.js';
+                script.onload = () => {
+                    addLogEntry('테스트 스크립트 로드 완료', 'success');
+                    setTimeout(resolve, 1000); // Give time for initialization
+                };
+                script.onerror = () => {
+                    addLogEntry('테스트 스크립트 로드 실패', 'error');
+                    reject(new Error('Failed to load test script'));
+                };
+                iframeWindow.document.head.appendChild(script);
+            });
+        }
+        
+        // Website management
+        function reloadWebsite() {
+            addLogEntry('웹사이트 새로고침...', 'info');
+            document.getElementById('website-frame').src = '../index.html';
+        }
+        
+        function openDevTools() {
+            addLogEntry('개발자 도구를 수동으로 열어주세요 (F12)', 'info');
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            addLogEntry('테스트 환경 준비 완료', 'success');
+            addLogEntry('전체 테스트 실행 버튼을 클릭하여 시작하세요', 'info');
+        });
+        
+        // Handle iframe load
+        document.getElementById('website-frame').addEventListener('load', () => {
+            addLogEntry('웹사이트 로드 완료', 'success');
+        });
+    </script>
+</body>
+</html> 
