@@ -95,6 +95,13 @@ const translations = {
                 feature2: 'Education',
                 feature3: 'Personalized'
             },
+            notiondb2backendapi: {
+                title: 'notiondb2backendapi',
+                description: 'Transform your Notion databases into powerful REST APIs with real-time data synchronization and seamless backend integration',
+                feature1: 'API Gateway',
+                feature2: 'Data Sync',
+                feature3: 'Backend'
+            },
             cta: {
                 title: 'Ready to Transform Your Business?',
                 description: 'Let\'s discuss how our AI services can accelerate your digital transformation',
@@ -226,6 +233,13 @@ const translations = {
                 feature1: 'AI 학습',
                 feature2: '교육',
                 feature3: '개인화'
+            },
+            notiondb2backendapi: {
+                title: 'notiondb2backendapi',
+                description: '노션 데이터베이스를 실시간 데이터 동기화와 원활한 백엔드 통합이 가능한 강력한 REST API로 변환',
+                feature1: 'API 게이트웨이',
+                feature2: '데이터 동기화',
+                feature3: '백엔드'
             },
             cta: {
                 title: '비즈니스 혁신을 준비하셨나요?',
