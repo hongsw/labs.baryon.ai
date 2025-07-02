@@ -37,12 +37,107 @@ function renderTeam() {
         teamGrid.appendChild(memberElement);
     });
     
-    // Baryon 애니메이션 초기화
+    // Baryon 애니메이션 초기화 (함수 존재 확인 후)
     teamData.members.forEach(member => {
         if (member.baryonId) {
-            initBaryonAnimation(member.baryonId);
+            initBaryonAnimationSafe(member.baryonId);
         }
     });
+}
+
+// 안전한 Baryon 애니메이션 초기화 함수
+function initBaryonAnimationSafe(baryonId) {
+    console.log(`🎯 Team: Attempting to initialize baryon animation for: ${baryonId}`);
+    
+    // 전역 함수가 사용 가능한지 확인
+    if (typeof window.initBaryonAnimation === 'function') {
+        console.log(`✅ Team: Using global initBaryonAnimation for: ${baryonId}`);
+        window.initBaryonAnimation(baryonId);
+        return;
+    }
+    
+    // 전역 함수가 없으면 조금 기다린 후 다시 시도
+    let retryCount = 0;
+    const maxRetries = 20; // 2초 동안 100ms 간격으로 시도
+    
+    const retryInterval = setInterval(() => {
+        retryCount++;
+        
+        if (typeof window.initBaryonAnimation === 'function') {
+            console.log(`✅ Team: Global function loaded after ${retryCount * 100}ms for: ${baryonId}`);
+            clearInterval(retryInterval);
+            window.initBaryonAnimation(baryonId);
+        } else if (retryCount >= maxRetries) {
+            console.warn(`⚠️ Team: Global function not available after ${maxRetries * 100}ms, using fallback for: ${baryonId}`);
+            clearInterval(retryInterval);
+            initBaryonAnimationFallback(baryonId);
+        }
+    }, 100);
+}
+
+// 폴백 Baryon 애니메이션 (간단 버전)
+function initBaryonAnimationFallback(baryonId) {
+    console.log(`🔄 Team: Using fallback animation for: ${baryonId}`);
+    
+    const svg = d3.select(`#${baryonId}`);
+    if (!svg.node()) {
+        console.warn(`❌ Team: SVG element not found for fallback: ${baryonId}`);
+        return;
+    }
+    
+    // 간단한 색상 설정
+    const colors = {
+        'baryon-1': '#3B82F6',
+        'baryon-2': '#06B6D4', 
+        'baryon-3': '#8B5CF6',
+        'baryon-4': '#10B981'
+    };
+    
+    const color = colors[baryonId] || '#3B82F6';
+    
+    svg.attr('width', '100%')
+       .attr('height', '100%')
+       .attr('viewBox', '0 0 200 200');
+
+    const centerX = 100;
+    const centerY = 100;
+    
+    // 간단한 원형 애니메이션
+    const circle = svg.append('circle')
+        .attr('cx', centerX)
+        .attr('cy', centerY)
+        .attr('r', 30)
+        .attr('fill', 'none')
+        .attr('stroke', color)
+        .attr('stroke-width', 2)
+        .attr('opacity', 0.6);
+        
+    // 내부 점들
+    for (let i = 0; i < 6; i++) {
+        const angle = (i * 60) * Math.PI / 180;
+        const x = centerX + Math.cos(angle) * 20;
+        const y = centerY + Math.sin(angle) * 20;
+        
+        svg.append('circle')
+            .attr('cx', x)
+            .attr('cy', y)
+            .attr('r', 3)
+            .attr('fill', color)
+            .attr('opacity', 0.8);
+    }
+    
+    // 간단한 회전 애니메이션
+    let rotation = 0;
+    function animate() {
+        rotation += 1;
+        const scale = 0.9 + Math.sin(Date.now() * 0.003) * 0.1;
+        
+        svg.selectAll('*').attr('transform', `rotate(${rotation} ${centerX} ${centerY}) scale(${scale})`);
+        
+        requestAnimationFrame(animate);
+    }
+    
+    animate();
 }
 
 // 팀 멤버 요소 생성
@@ -134,7 +229,7 @@ function createFallbackTeam() {
     `;
     
     // Baryon 애니메이션 초기화
-    initBaryonAnimation('baryon-1');
+    initBaryonAnimationSafe('baryon-1');
 }
 
 // 언어 변경 이벤트 리스너
@@ -152,3 +247,4 @@ if (document.readyState === 'loading') {
     loadTeamData();
 }
 </script>
+ 

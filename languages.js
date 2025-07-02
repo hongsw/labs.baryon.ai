@@ -17,6 +17,7 @@ const translations = {
             concept: 'Concept',
             philosophy: 'Philosophy',
             team: 'Team',
+            services: 'Services',
             careers: 'Careers',
             contact: 'Contact'
         },
@@ -61,6 +62,44 @@ const translations = {
         },
         team: {
             title: 'Our Team'
+        },
+        services: {
+            title: 'Our Services',
+            subtitle: 'Innovative AI-powered tools and platforms to accelerate your digital transformation',
+            visitSite: 'Visit Site',
+            miri: {
+                title: 'miri.dev',
+                description: 'Advanced AI development platform with cutting-edge tools for machine learning researchers and developers',
+                feature1: 'AI Development',
+                feature2: 'ML Tools',
+                feature3: 'Research Platform'
+            },
+            wwwai: {
+                title: 'wwwai.site',
+                description: 'Next-generation web AI interface that revolutionizes how users interact with artificial intelligence on the web',
+                feature1: 'Web AI',
+                feature2: 'User Interface',
+                feature3: 'Interactive'
+            },
+            form2ai: {
+                title: 'form2ai2email',
+                description: 'Smart form processing service that converts web forms into AI-processed emails with intelligent data extraction',
+                feature1: 'Form Processing',
+                feature2: 'AI Email',
+                feature3: 'Automation'
+            },
+            nostudyanymore: {
+                title: 'nostudyanymore.com',
+                description: 'Revolutionary AI-powered learning platform that transforms traditional education through personalized and adaptive learning experiences',
+                feature1: 'AI Learning',
+                feature2: 'Education',
+                feature3: 'Personalized'
+            },
+            cta: {
+                title: 'Ready to Transform Your Business?',
+                description: 'Let\'s discuss how our AI services can accelerate your digital transformation',
+                button: 'Get Started'
+            }
         },
         careers: {
             title: 'Join Our Team',
@@ -110,6 +149,7 @@ const translations = {
             concept: '컨셉트',
             philosophy: '철학',
             team: '팀',
+            services: '서비스',
             careers: '채용',
             contact: '연락처'
         },
@@ -154,6 +194,44 @@ const translations = {
         },
         team: {
             title: '우리 팀'
+        },
+        services: {
+            title: '우리의 서비스',
+            subtitle: '디지털 혁신을 가속화하는 혁신적인 AI 기반 도구와 플랫폼',
+            visitSite: '사이트 방문',
+            miri: {
+                title: 'miri.dev',
+                description: '머신러닝 연구자와 개발자를 위한 최첨단 도구를 제공하는 고급 AI 개발 플랫폼',
+                feature1: 'AI 개발',
+                feature2: 'ML 도구',
+                feature3: '연구 플랫폼'
+            },
+            wwwai: {
+                title: 'wwwai.site',
+                description: '사용자가 웹에서 인공지능과 상호작용하는 방식을 혁신하는 차세대 웹 AI 인터페이스',
+                feature1: '웹 AI',
+                feature2: '사용자 인터페이스',
+                feature3: '인터랙티브'
+            },
+            form2ai: {
+                title: 'form2ai2email',
+                description: '웹 폼을 지능적 데이터 추출과 함께 AI 처리된 이메일로 변환하는 스마트 폼 처리 서비스',
+                feature1: '폼 처리',
+                feature2: 'AI 이메일',
+                feature3: '자동화'
+            },
+            nostudyanymore: {
+                title: 'nostudyanymore.com',
+                description: '개인화된 적응형 학습 경험을 통해 전통적인 교육을 변화시키는 혁신적인 AI 기반 학습 플랫폼',
+                feature1: 'AI 학습',
+                feature2: '교육',
+                feature3: '개인화'
+            },
+            cta: {
+                title: '비즈니스 혁신을 준비하셨나요?',
+                description: 'AI 서비스가 어떻게 디지털 혁신을 가속화할 수 있는지 논의해보세요',
+                button: '시작하기'
+            }
         },
         careers: {
             title: '팀에 합류하세요',

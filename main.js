@@ -95,7 +95,6 @@ function cleanupMemory() {
 // GLOBAL VARIABLES AND CONFIGURATION
 // =============================================================================
 let heroBackground = null;
-let philosophyBackground = null;
 let isInitialized = false;
 
 // =============================================================================
@@ -106,7 +105,8 @@ function loadSectionIfNeeded(sectionId) {
     
     const sectionMap = {
         '#concept': '#concept-container',
-        '#team': '#team-container', 
+        '#team': '#team-container',
+        '#services': '#services-container',
         '#careers': '#careers-container',
         '#contact': '#contact-container'
     };
@@ -319,10 +319,11 @@ const scrollHandler = () => {
     const windowHeight = window.innerHeight;
     
     // Use absolute scroll positions instead of percentages for better control
-    const conceptTrigger = windowHeight * 0.5;  // Load when scrolled 50% of viewport height
-    const teamTrigger = windowHeight * 1.2;     // Load when scrolled 120% of viewport height
-    const careersTrigger = windowHeight * 1.8;  // Load when scrolled 180% of viewport height
-    const contactTrigger = windowHeight * 2.5;  // Load when scrolled 250% of viewport height
+    const conceptTrigger = windowHeight * 0.5;   // Load when scrolled 50% of viewport height
+    const teamTrigger = windowHeight * 1.2;      // Load when scrolled 120% of viewport height
+    const servicesTrigger = windowHeight * 1.8;  // Load when scrolled 180% of viewport height
+    const careersTrigger = windowHeight * 2.4;   // Load when scrolled 240% of viewport height
+    const contactTrigger = windowHeight * 3.0;   // Load when scrolled 300% of viewport height
 
     // Load sections progressively based on absolute scroll position
     if (scrolled > conceptTrigger && !document.querySelector('#concept-container').hasChildNodes()) {
@@ -335,6 +336,12 @@ const scrollHandler = () => {
         console.log('🚀 Loading Team section at scroll:', scrolled);
         document.querySelector('#team-container').style.display = 'block';
         htmx.trigger('#team-container', 'revealed');
+    }
+    
+    if (scrolled > servicesTrigger && !document.querySelector('#services-container').hasChildNodes()) {
+        console.log('🚀 Loading Services section at scroll:', scrolled);
+        document.querySelector('#services-container').style.display = 'block';
+        htmx.trigger('#services-container', 'revealed');
     }
     
     if (scrolled > careersTrigger && !document.querySelector('#careers-container').hasChildNodes()) {
@@ -352,9 +359,6 @@ const scrollHandler = () => {
     // Update D3 backgrounds
     if (heroBackground && heroBackground.updateFromScroll) {
         heroBackground.updateFromScroll(scrolled);
-    }
-    if (philosophyBackground && philosophyBackground.updateFromScroll) {
-        philosophyBackground.updateFromScroll(scrolled);
     }
 };
 
@@ -970,10 +974,7 @@ function initializeD3Backgrounds() {
         heroBackground = createD3Background('#d3-background', '.hero', 23, 4);
     }
     
-    // Initialize Philosophy background when concept section is loaded
-    if (document.querySelector('.philosophy') && !philosophyBackground) {
-        philosophyBackground = createD3Background('#d3-philosophy-background', '.philosophy', 18, 3);
-    }
+
 }
 
 function initializeBaryonParticles() {
@@ -1403,9 +1404,7 @@ function handlePageUnload() {
     if (heroBackground && heroBackground.cleanup) {
         heroBackground.cleanup();
     }
-    if (philosophyBackground && philosophyBackground.cleanup) {
-        philosophyBackground.cleanup();
-    }
+
     
     // Clean up Baryon animations
     if (window.baryonCleanupFunctions) {
