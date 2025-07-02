@@ -1303,6 +1303,13 @@ document.addEventListener('htmx:afterSettle', function(event) {
     console.log('  - Event detail:', event.detail);
     console.log('  - Loaded content length:', event.target ? event.target.innerHTML.length : 'null');
     
+    // 🔧 CRITICAL FIX: Make sure the section is visible after loading
+    if (event.target && event.target.style.display === 'none') {
+        console.log('👁️ Section was hidden, making it visible...');
+        event.target.style.display = 'block';
+        console.log('✅ Section is now visible');
+    }
+    
     console.log('🔧 Initializing components after HTMX load...');
     
     console.log('🎨 Initializing D3 backgrounds...');
