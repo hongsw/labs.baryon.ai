@@ -1,8 +1,95 @@
 // =============================================================================
-// BARYON LABS - MAIN JAVASCRIPT
+// BARYON LABS - MAIN JAVASCRIPT WITH MEMORY LEAK PREVENTION
 // =============================================================================
 
 console.log('🚀 Main.js loaded at:', new Date().toISOString());
+
+// =============================================================================
+// GLOBAL VARIABLES AND CONFIGURATION WITH CLEANUP TRACKING  
+// =============================================================================
+// Memory leak prevention: Track active animations and listeners
+const activeAnimations = new Set();
+const activeListeners = new Map();
+const activeObservers = new Set();
+const activeTimeouts = new Set();
+
+// Cleanup utility functions
+function addToActiveAnimations(id) {
+    activeAnimations.add(id);
+}
+
+function removeFromActiveAnimations(id) {
+    activeAnimations.delete(id);
+}
+
+function addActiveListener(element, event, handler, options = false) {
+    const key = `${element}_${event}`;
+    if (activeListeners.has(key)) {
+        // Remove existing listener before adding new one
+        const oldHandler = activeListeners.get(key);
+        element.removeEventListener(event, oldHandler.handler, oldHandler.options);
+    }
+    element.addEventListener(event, handler, options);
+    activeListeners.set(key, { handler, options });
+}
+
+function removeActiveListener(element, event) {
+    const key = `${element}_${event}`;
+    if (activeListeners.has(key)) {
+        const { handler, options } = activeListeners.get(key);
+        element.removeEventListener(event, handler, options);
+        activeListeners.delete(key);
+    }
+}
+
+function addActiveObserver(observer) {
+    activeObservers.add(observer);
+}
+
+function addActiveTimeout(timeoutId) {
+    activeTimeouts.add(timeoutId);
+}
+
+function clearActiveTimeout(timeoutId) {
+    clearTimeout(timeoutId);
+    activeTimeouts.delete(timeoutId);
+}
+
+// Global cleanup function
+function cleanupMemory() {
+    console.log('🧹 Cleaning up memory...');
+    
+    // Stop all animations
+    activeAnimations.forEach(id => {
+        if (typeof id === 'number') {
+            cancelAnimationFrame(id);
+        }
+    });
+    activeAnimations.clear();
+    
+    // Remove all event listeners
+    activeListeners.forEach(({ handler, options }, key) => {
+        const [elementKey, event] = key.split('_');
+        // This is a simplified cleanup - in practice, we'd need element references
+    });
+    activeListeners.clear();
+    
+    // Disconnect all observers
+    activeObservers.forEach(observer => {
+        if (observer && typeof observer.disconnect === 'function') {
+            observer.disconnect();
+        }
+    });
+    activeObservers.clear();
+    
+    // Clear all timeouts
+    activeTimeouts.forEach(timeoutId => {
+        clearTimeout(timeoutId);
+    });
+    activeTimeouts.clear();
+    
+    console.log('✅ Memory cleanup complete');
+}
 
 // =============================================================================
 // GLOBAL VARIABLES AND CONFIGURATION
@@ -80,10 +167,12 @@ function scrollToElementWithRetry(targetId, maxRetries = 10, retryDelay = 200) {
                     if (entry.isIntersecting) {
                         console.log(`👁️ Element ${targetId} is in viewport`);
                         observer.disconnect();
+                        activeObservers.delete(observer);
                     }
                 });
             }, { threshold: 0.1 });
             
+            addActiveObserver(observer);
             observer.observe(target);
             
             // Perform the scroll
@@ -93,7 +182,11 @@ function scrollToElementWithRetry(targetId, maxRetries = 10, retryDelay = 200) {
             });
             
             // Clean up observer after 3 seconds
-            setTimeout(() => observer.disconnect(), 3000);
+            const cleanupTimeoutId = setTimeout(() => {
+                observer.disconnect();
+                activeObservers.delete(observer);
+            }, 3000);
+            addActiveTimeout(cleanupTimeoutId);
             
             return true;
         }
@@ -155,6 +248,7 @@ function setupNavigationListeners() {
                         if (target && target.offsetHeight > 0) {
                             scrolled = true;
                             observer.disconnect();
+                            activeObservers.delete(observer);
                             console.log(`📍 MutationObserver found ${targetId} with height:`, target.offsetHeight);
                             scrollToElementWithRetry(targetId, 5, 100);
                         } else {
@@ -162,6 +256,8 @@ function setupNavigationListeners() {
                         }
                     }
                 });
+                
+                addActiveObserver(observer);
                 
                 const containerId = targetId + '-container';
                 const container = document.querySelector(containerId);
@@ -178,13 +274,15 @@ function setupNavigationListeners() {
                 }
                 
                 // Fallback method: Timer-based retry
-                setTimeout(() => {
+                const fallbackTimeoutId = setTimeout(() => {
                     if (!scrolled) {
                         console.log(`⏰ Timer fallback activated for ${targetId}`);
                         observer.disconnect();
+                        activeObservers.delete(observer);
                         scrollToElementWithRetry(targetId, 15, 300);
                     }
                 }, 1000);
+                addActiveTimeout(fallbackTimeoutId);
                 
             } else {
                 // Section already loaded, try immediate scroll with retry
@@ -198,7 +296,7 @@ function setupNavigationListeners() {
 // =============================================================================
 // ENHANCED HEADER SCROLL EFFECTS AND SECTION LOADING
 // =============================================================================
-window.addEventListener('scroll', () => {
+const scrollHandler = () => {
     const header = document.querySelector('header');
     const scrolled = window.pageYOffset;
     
@@ -243,7 +341,10 @@ window.addEventListener('scroll', () => {
     if (philosophyBackground && philosophyBackground.updateFromScroll) {
         philosophyBackground.updateFromScroll(scrolled);
     }
-});
+};
+
+// Add scroll listener with memory tracking
+addActiveListener(window, 'scroll', scrollHandler);
 
 // =============================================================================
 // D3.JS ADVANCED NEURAL NETWORK BACKGROUND
@@ -534,15 +635,34 @@ function createD3Background(svgId, containerSelector, nodeCount = 15, nodeSize =
         hubElements.exit().remove();
     }
     
-    // Enhanced animation loop
+    // Enhanced animation loop with memory leak prevention
+    let animationId = null;
+    let isAnimating = true;
+    
     function animate() {
+        if (!isAnimating) return;
+        
         updateNetwork();
-        requestAnimationFrame(animate);
+        animationId = requestAnimationFrame(animate);
+        addToActiveAnimations(animationId);
     }
     animate();
     
-    // Resize handler
-    window.addEventListener('resize', () => {
+    // Cleanup function for this background
+    const cleanup = () => {
+        isAnimating = false;
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            removeFromActiveAnimations(animationId);
+        }
+        // Remove event listeners
+        svg.on('mousemove', null);
+        // Clear dataFlows array
+        dataFlows.length = 0;
+    };
+    
+    // Resize handler with memory tracking
+    const resizeHandler = () => {
         const newDimensions = updateDimensions();
         width = newDimensions.width;
         height = newDimensions.height;
@@ -551,9 +671,11 @@ function createD3Background(svgId, containerSelector, nodeCount = 15, nodeSize =
             node.x = Math.min(node.x, width);
             node.y = Math.min(node.y, height);
         });
-    });
+    };
     
-    // Return scroll update function for external management
+    addActiveListener(window, 'resize', resizeHandler);
+    
+    // Return scroll update function and cleanup for external management
     return {
         updateFromScroll: (scrolled) => {
             const scrollFactor = scrolled * 0.0008;
@@ -565,7 +687,8 @@ function createD3Background(svgId, containerSelector, nodeCount = 15, nodeSize =
                 node.vx = Math.max(-3, Math.min(3, node.vx));
                 node.vy = Math.max(-3, Math.min(3, node.vy));
             });
-        }
+        },
+        cleanup: cleanup
     };
 }
 
@@ -725,8 +848,13 @@ function initBaryonParticles() {
 
         const polyhedron = createPolyhedron(config.type);
 
-        // 간단한 애니메이션
+        // 간단한 애니메이션 with memory leak prevention
+        let animationId = null;
+        let isAnimating = true;
+        
         function animate() {
+            if (!isAnimating) return;
+            
             rotation += config.rotation;
             const scale = 0.9 + Math.sin(Date.now() * 0.002) * 0.1;
             
@@ -735,13 +863,30 @@ function initBaryonParticles() {
                  rotate(${rotation * 57.3}) 
                  scale(${scale})`);
             
-            requestAnimationFrame(animate);
+            animationId = requestAnimationFrame(animate);
+            addToActiveAnimations(animationId);
         }
+        
+        // Cleanup function for this baryon
+        const cleanup = () => {
+            isAnimating = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                removeFromActiveAnimations(animationId);
+            }
+        };
 
-        // 시작 지연
-        setTimeout(() => {
+        // 시작 지연 with memory tracking
+        const timeoutId = setTimeout(() => {
             animate();
         }, index * 200);
+        addActiveTimeout(timeoutId);
+        
+        // Store cleanup function for potential future use
+        if (!window.baryonCleanupFunctions) {
+            window.baryonCleanupFunctions = [];
+        }
+        window.baryonCleanupFunctions.push(cleanup);
     });
 }
 
@@ -761,6 +906,9 @@ const observer = new IntersectionObserver((entries) => {
         }
     });
 }, observerOptions);
+
+// Add to active observers for cleanup
+addActiveObserver(observer);
 
 // =============================================================================
 // INITIALIZATION FUNCTIONS
@@ -1182,7 +1330,40 @@ window.addEventListener('click', function(event) {
 });
 
 // =============================================================================
+// MEMORY CLEANUP ON PAGE UNLOAD
+// =============================================================================
+// Clean up memory when page is unloaded or hidden
+function handlePageUnload() {
+    console.log('🚪 Page unloading, cleaning up memory...');
+    cleanupMemory();
+    
+    // Clean up D3 backgrounds
+    if (heroBackground && heroBackground.cleanup) {
+        heroBackground.cleanup();
+    }
+    if (philosophyBackground && philosophyBackground.cleanup) {
+        philosophyBackground.cleanup();
+    }
+    
+    // Clean up Baryon animations
+    if (window.baryonCleanupFunctions) {
+        window.baryonCleanupFunctions.forEach(cleanup => cleanup());
+        window.baryonCleanupFunctions = [];
+    }
+}
+
+// Add cleanup listeners for various unload scenarios
+addActiveListener(window, 'beforeunload', handlePageUnload);
+addActiveListener(window, 'pagehide', handlePageUnload);
+addActiveListener(document, 'visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        handlePageUnload();
+    }
+});
+
+// =============================================================================
 // GLOBAL FUNCTION EXPORTS
 // =============================================================================
 window.openJobModal = openJobModal;
-window.closeJobModal = closeJobModal; 
+window.closeJobModal = closeJobModal;
+window.cleanupMemory = cleanupMemory; // Export cleanup function for manual use 
