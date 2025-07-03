@@ -130,14 +130,6 @@
         "en": "https://drive.google.com/file/d/your-resume-link or https://your-website.com/resume.pdf",
         "ko": "https://drive.google.com/file/d/your-resume-link 또는 https://your-website.com/resume.pdf"
       },
-      "coverLetter": {
-        "en": "Cover Letter",
-        "ko": "자기소개서"
-      },
-      "coverLetterPlaceholder": {
-        "en": "Tell us why you're interested in this position...",
-        "ko": "이 포지션에 관심을 갖게 된 이유를 알려주세요..."
-      },
       "submitButton": {
         "en": "Submit Application",
         "ko": "지원서 제출"

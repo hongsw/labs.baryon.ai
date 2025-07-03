@@ -42,10 +42,7 @@
                 <input type="url" id="applicantResume" name="resume" class="form-input" placeholder="https://drive.google.com/file/d/your-resume-link" required>
             </div>
             
-            <div class="form-group">
-                <label for="coverLetter" id="label-coverLetter">Cover Letter</label>
-                <textarea id="coverLetter" name="cover_letter" class="form-textarea" rows="6" placeholder="Tell us why you're interested in this position..."></textarea>
-            </div>
+
             
             <button type="submit" class="submit-btn" id="submit-btn">
                 <span class="loading-spinner"></span>
@@ -259,8 +256,6 @@ function updateModalLabels() {
     const labelEmail = document.getElementById('label-email');
     const labelPhone = document.getElementById('label-phone');
     const labelResume = document.getElementById('label-resume');
-    const labelCoverLetter = document.getElementById('label-coverLetter');
-    const coverLetterTextarea = document.getElementById('coverLetter');
     const resumeInput = document.getElementById('applicantResume');
     const submitBtn = document.getElementById('submit-btn');
     const submitBtnText = submitBtn?.querySelector('.btn-text');
@@ -270,8 +265,6 @@ function updateModalLabels() {
     if (labelEmail) labelEmail.textContent = careersData.modal.form.email[currentLang];
     if (labelPhone) labelPhone.textContent = careersData.modal.form.phone[currentLang];
     if (labelResume) labelResume.textContent = careersData.modal.form.resume[currentLang];
-    if (labelCoverLetter) labelCoverLetter.textContent = careersData.modal.form.coverLetter[currentLang];
-    if (coverLetterTextarea) coverLetterTextarea.placeholder = careersData.modal.form.coverLetterPlaceholder[currentLang];
     if (resumeInput) resumeInput.placeholder = careersData.modal.form.resumePlaceholder[currentLang];
     if (submitBtnText) submitBtnText.textContent = careersData.modal.form.submitButton[currentLang];
 }
@@ -387,8 +380,7 @@ function initializeCareersForm() {
             name: formData.get('name').trim(),
             email: formData.get('email').trim(),
             phone: formData.get('phone') ? formData.get('phone').trim() : '',
-            resume: formData.get('resume').trim(),
-            cover_letter: formData.get('cover_letter') ? formData.get('cover_letter').trim() : ''
+            resume: formData.get('resume').trim()
         };
         
         // 이전 메시지 지우기
