@@ -99,6 +99,7 @@ async function uploadToPresignedUrl(url, fileBuffer, mimetype) {
         'Content-Type': mimetype,
         'Content-Length': fileBuffer.length,
         'Host': hostname,
+        'User-Agent': 'Node.js HTTP Client',
       },
     };
     console.log('PUT request options:', options);
@@ -107,8 +108,15 @@ async function uploadToPresignedUrl(url, fileBuffer, mimetype) {
       res.on('data', (chunk) => { responseData += chunk; });
       res.on('end', () => {
         console.log('Upload 응답 status:', res.statusCode, 'body:', responseData);
-        if (res.statusCode === 200 || res.statusCode === 302) resolve();
-        else reject(new Error('Upload failed: ' + res.statusCode + ' ' + responseData));
+        if (res.statusCode === 200) {
+          resolve();
+        } else if (res.statusCode === 302) {
+          console.error('Upload failed: Received 302 redirect. Location:', res.headers.location);
+          reject(new Error('Upload failed: Received 302 redirect.'));
+        }
+        else {
+          reject(new Error('Upload failed: ' + res.statusCode + ' ' + responseData));
+        }
       });
     });
     req.on('error', reject);
