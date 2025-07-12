@@ -101,8 +101,13 @@ async function uploadToPresignedUrl(url, fileBuffer, mimetype) {
       },
     };
     const req = https.request(options, (res) => {
-      if (res.statusCode === 200) resolve();
-      else reject(new Error('Upload failed'));
+      let responseData = '';
+      res.on('data', (chunk) => { responseData += chunk; });
+      res.on('end', () => {
+        console.log('Upload 응답 status:', res.statusCode, 'body:', responseData);
+        if (res.statusCode === 200) resolve();
+        else reject(new Error('Upload failed: ' + res.statusCode + ' ' + responseData));
+      });
     });
     req.on('error', reject);
     req.write(fileBuffer);
