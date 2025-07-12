@@ -98,8 +98,6 @@ async function uploadToPresignedUrl(url, fileBuffer, mimetype) {
       headers: {
         'Content-Type': mimetype,
         'Content-Length': fileBuffer.length,
-        'Host': hostname,
-        'User-Agent': 'Node.js HTTP Client',
       },
     };
     console.log('PUT request options:', options);
