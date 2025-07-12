@@ -231,17 +231,25 @@ async function postMessageToSlack(imageBlocks, screenshotCount) {
 }
 
 async function main() {
+  const imageBlocks = [];
   let uploadedCount = 0;
   for (const att of attachments) {
     try {
-      await uploadFileToSlack(att.filePath, att.filename);
-      uploadedCount++;
+      const fileId = await uploadFileToSlack(att.filePath, att.filename);
+      if (fileId) {
+        imageBlocks.push({
+          "type": "image",
+          "image_url": `https://files.slack.com/files-pri/${SLACK_CHANNEL_ID}-${fileId}/${att.filename}`, // Construct permalink
+          "alt_text": `Screenshot for ${att.filename.replace(/\.[^/.]+$/, "")}`
+        });
+        uploadedCount++;
+      }
     } catch (e) {
       console.error(`${att.filename} 업로드 실패:`, e.message);
     }
   }
-  // 파일 업로드 후, 업로드된 파일 개수만 안내하는 메시지 전송
-  await postMessageToSlack([], attachments.length);
+  // 파일 업로드 후, 업로드된 파일 개수와 함께 이미지 블록을 포함한 메시지 전송
+  await postMessageToSlack(imageBlocks, attachments.length);
 }
 
 main();
