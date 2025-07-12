@@ -1,0 +1,12 @@
+{
+  "name": "baryon-labs-homepage",
+  "version": "1.0.0",
+  "description": "Baryon Labs Homepage",
+  "main": "main.js",
+  "scripts": {
+    "lint": "eslint . --ext .js"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  }
+}

@@ -1,0 +1,67 @@
+
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./ --project-name=www-baryon-ai
+
+      - name: Take Screenshot
+        run: |
+          npm install puppeteer
+          node -e "
+          const puppeteer = require('puppeteer');
+          (async () => {
+            const browser = await puppeteer.launch();
+            const page = await browser.newPage();
+            await page.goto('https://www-baryon-ai.pages.dev', { waitUntil: 'networkidle2' });
+            await page.screenshot({ path: 'screenshot.png' });
+            await browser.close();
+          })();
+          "
+
+      - name: Send Email
+        run: |
+          npm install resend
+          node -e "
+          const { Resend } = require('resend');
+          const fs = require('fs');
+          const resend = new Resend('${{ secrets.RESEND_API_KEY }}');
+          resend.emails.send({
+            from: 'onboarding@resend.dev',
+            to: 'ai.baryon.ai@gmail.com',
+            subject: 'Deployment Screenshot',
+            html: 'Attached is the screenshot of the latest deployment.',
+            attachments: [
+              {
+                filename: 'screenshot.png',
+                content: fs.readFileSync('screenshot.png')
+              }
+            ]
+          });
+          "

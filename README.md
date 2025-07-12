@@ -105,7 +105,7 @@ npx serve .
 ### Deployment
 ```bash
 # Deploy to Cloudflare Pages
-wrangler pages deploy ./ --project-name labs-baryon-ai
+ wrangler pages deploy ./ --project-name labs-baryon-ai
 ```
 
 ## 🔄 Development Workflow
