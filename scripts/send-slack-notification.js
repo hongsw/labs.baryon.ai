@@ -35,43 +35,103 @@ try {
 console.log('총 업로드할 파일 수:', attachments.length);
 
 /**
- * Slack SDK의 uploadV2를 사용한 파일 업로드
+ * 초기 배포 완료 메시지 전송 (메인 스레드)
  */
-async function uploadFileToSlack(filePath, fileName) {
-  console.log(`\n=== ${fileName} 업로드 시작 ===`);
+async function postInitialMessage(totalScreenshots) {
+  console.log('📤 초기 배포 완료 메시지 전송 중...');
+  
+  const messageText = `🚀 *Deployment Complete!*\n\n🌐 *Website*: ${DEPLOY_URL}\n🔧 *GitHub Actions*: ${GITHUB_RUN_URL}\n📸 *Screenshots*: ${totalScreenshots}개 업로드 예정...`;
+  
+  try {
+    const result = await slack.chat.postMessage({
+      channel: SLACK_CHANNEL_ID,
+      text: `Deployment complete! Processing ${totalScreenshots} screenshots...`,
+      blocks: [
+        {
+          type: 'header',
+          text: {
+            type: 'plain_text',
+            text: '🚀 Deployment Complete'
+          }
+        },
+        {
+          type: 'section',
+          fields: [
+            {
+              type: 'mrkdwn',
+              text: `*🌐 Website:*\n<${DEPLOY_URL}|${DEPLOY_URL}>`
+            },
+            {
+              type: 'mrkdwn',
+              text: `*🔧 GitHub Actions:*\n<${GITHUB_RUN_URL}|View Run>`
+            }
+          ]
+        },
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `📸 *Screenshots:* ${totalScreenshots}개 업로드 중... 🔄`
+          }
+        },
+        {
+          type: 'context',
+          elements: [
+            {
+              type: 'mrkdwn',
+              text: '스크린샷들이 이 스레드에 업로드됩니다 👇'
+            }
+          ]
+        }
+      ]
+    });
+    
+    if (result.ok) {
+      console.log('✅ 초기 메시지 전송 성공');
+      console.log(`📍 스레드 TS: ${result.ts}`);
+      return result.ts; // 스레드 식별자 반환
+    } else {
+      throw new Error(result.error || '초기 메시지 전송 실패');
+    }
+  } catch (error) {
+    console.error('❌ 초기 메시지 전송 실패:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * 스레드에 파일 업로드
+ */
+async function uploadFileToThread(filePath, fileName, threadTs) {
+  console.log(`\n=== ${fileName} 스레드 업로드 시작 ===`);
   
   try {
     const fileStats = fs.statSync(filePath);
     console.log(`파일 크기: ${fileStats.size} bytes`);
     
-    // Slack SDK의 uploadV2 메서드 사용 (files.getUploadURLExternal + files.completeUploadExternal 래핑)
+    // 스레드에 파일 업로드
     const result = await slack.filesUploadV2({
       // 파일 정보
       file: fs.createReadStream(filePath),
       filename: fileName,
       
-      // 업로드 설정
+      // 스레드 설정
       channels: SLACK_CHANNEL_ID,
-      initial_comment: `📸 Screenshot: ${fileName}`,
-      title: fileName.replace(/\.[^/.]+$/, ''), // 확장자 제거한 제목
-      
-      // 추가 메타데이터
-      thread_ts: undefined, // 스레드에 업로드하려면 여기에 timestamp 지정
+      thread_ts: threadTs, // 스레드 식별자
+      initial_comment: `📸 ${fileName.replace(/\.[^/.]+$/, '')}`, // 확장자 제거한 간단한 설명
+      title: fileName.replace(/\.[^/.]+$/, ''), // 파일 제목
     });
     
     if (result.ok && result.file) {
       const file = result.file;
-      console.log(`✅ ${fileName} 업로드 성공!`);
+      console.log(`✅ ${fileName} 스레드 업로드 성공!`);
       console.log(`- File ID: ${file.id}`);
-      console.log(`- Permalink: ${file.permalink || 'N/A'}`);
-      console.log(`- Private URL: ${file.url_private || 'N/A'}`);
       
       return {
         fileId: file.id,
-        permalink: file.permalink,
-        url_private: file.url_private,
         name: file.name,
         title: file.title,
+        permalink: file.permalink,
         success: true
       };
     } else {
@@ -79,7 +139,19 @@ async function uploadFileToSlack(filePath, fileName) {
     }
     
   } catch (error) {
-    console.error(`❌ ${fileName} 업로드 실패:`, error.message);
+    console.error(`❌ ${fileName} 스레드 업로드 실패:`, error.message);
+    
+    // 실패한 경우 스레드에 에러 메시지 전송
+    try {
+      await slack.chat.postMessage({
+        channel: SLACK_CHANNEL_ID,
+        thread_ts: threadTs,
+        text: `❌ ${fileName} 업로드 실패: ${error.message}`
+      });
+    } catch (msgError) {
+      console.error('에러 메시지 전송 실패:', msgError.message);
+    }
+    
     return {
       fileName: fileName,
       error: error.message,
@@ -89,141 +161,136 @@ async function uploadFileToSlack(filePath, fileName) {
 }
 
 /**
- * 요약 메시지 전송
+ * 초기 메시지 업데이트 (최종 결과 반영)
  */
-async function postSummaryMessage(uploadResults, totalCount) {
+async function updateInitialMessage(threadTs, uploadResults, totalCount) {
   const successCount = uploadResults.filter(r => r.success).length;
   const failedCount = totalCount - successCount;
   
-  const statusEmoji = successCount === totalCount ? '✅' : '⚠️';
+  const statusEmoji = successCount === totalCount ? '✅' : failedCount === 0 ? '⚠️' : '❌';
+  const statusText = successCount === totalCount ? 'Complete' : 'Partial';
   
-  // 메시지 텍스트 구성
-  let messageText = `${statusEmoji} *Deployment Complete!*\n\n`;
-  messageText += `🌐 *Website*: ${DEPLOY_URL}\n`;
-  messageText += `🔧 *GitHub Actions*: ${GITHUB_RUN_URL}\n`;
-  messageText += `📸 *Screenshots*: ${successCount}/${totalCount} uploaded successfully`;
-  
-  if (failedCount > 0) {
-    messageText += `\n⚠️ ${failedCount} files failed to upload`;
-  }
-  
-  // 성공한 파일들의 간단한 목록 추가
-  const successfulFiles = uploadResults.filter(r => r.success);
-  if (successfulFiles.length > 0 && successfulFiles.length <= 5) {
-    messageText += '\n\n📋 *Uploaded Files:*\n';
-    successfulFiles.forEach(file => {
-      messageText += `• ${file.name || file.fileName}\n`;
+  try {
+    const result = await slack.chat.update({
+      channel: SLACK_CHANNEL_ID,
+      ts: threadTs,
+      text: `Deployment ${statusText.toLowerCase()}! ${successCount}/${totalCount} screenshots uploaded.`,
+      blocks: [
+        {
+          type: 'header',
+          text: {
+            type: 'plain_text',
+            text: `${statusEmoji} Deployment ${statusText}`
+          }
+        },
+        {
+          type: 'section',
+          fields: [
+            {
+              type: 'mrkdwn',
+              text: `*🌐 Website:*\n<${DEPLOY_URL}|${DEPLOY_URL}>`
+            },
+            {
+              type: 'mrkdwn',
+              text: `*🔧 GitHub Actions:*\n<${GITHUB_RUN_URL}|View Run>`
+            }
+          ]
+        },
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `📸 *Screenshots:* ${successCount}/${totalCount} uploaded ${statusEmoji}`
+          }
+        },
+        ...(failedCount > 0 ? [{
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `⚠️ ${failedCount}개 파일 업로드 실패`
+          }
+        }] : []),
+        {
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: '🌐 Visit Website'
+              },
+              url: DEPLOY_URL,
+              style: 'primary'
+            },
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: '🔧 View Build'
+              },
+              url: GITHUB_RUN_URL
+            }
+          ]
+        },
+        {
+          type: 'context',
+          elements: [
+            {
+              type: 'mrkdwn',
+              text: successCount > 0 ? '스크린샷들을 보려면 아래 스레드를 확인하세요 👇' : '스크린샷 업로드에 실패했습니다.'
+            }
+          ]
+        }
+      ]
     });
-  } else if (successfulFiles.length > 5) {
-    messageText += `\n\n📋 *${successfulFiles.length} files uploaded*`;
+    
+    if (result.ok) {
+      console.log('✅ 초기 메시지 업데이트 성공');
+    } else {
+      console.error('❌ 초기 메시지 업데이트 실패:', result.error);
+    }
+  } catch (error) {
+    console.error('❌ 초기 메시지 업데이트 중 오류:', error.message);
+  }
+}
+
+/**
+ * 스레드에 최종 요약 메시지 추가
+ */
+async function postThreadSummary(threadTs, uploadResults, totalCount) {
+  const successCount = uploadResults.filter(r => r.success).length;
+  const failedFiles = uploadResults.filter(r => !r.success);
+  
+  let summaryText = `📊 *업로드 완료 요약*\n`;
+  summaryText += `✅ 성공: ${successCount}개\n`;
+  
+  if (failedFiles.length > 0) {
+    summaryText += `❌ 실패: ${failedFiles.length}개\n`;
+    summaryText += `\n*실패한 파일들:*\n`;
+    failedFiles.forEach(file => {
+      summaryText += `• ${file.fileName}\n`;
+    });
   }
   
   try {
-    const result = await slack.chat.postMessage({
+    await slack.chat.postMessage({
       channel: SLACK_CHANNEL_ID,
-      text: messageText, // fallback text
+      thread_ts: threadTs,
+      text: summaryText,
       blocks: [
         {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: messageText
+            text: summaryText
           }
         }
       ]
     });
     
-    if (result.ok) {
-      console.log('📤 요약 메시지 전송 성공');
-    } else {
-      console.error('❌ 요약 메시지 전송 실패:', result.error);
-    }
+    console.log('✅ 스레드 요약 메시지 전송 성공');
   } catch (error) {
-    console.error('❌ 요약 메시지 전송 중 오류:', error.message);
-  }
-}
-
-/**
- * 대안: Block Kit을 사용한 리치 메시지 (선택사항)
- */
-async function postRichSummaryMessage(uploadResults, totalCount) {
-  const successCount = uploadResults.filter(r => r.success).length;
-  const successfulFiles = uploadResults.filter(r => r.success);
-  
-  const blocks = [
-    {
-      type: 'header',
-      text: {
-        type: 'plain_text',
-        text: '🚀 Deployment Complete'
-      }
-    },
-    {
-      type: 'section',
-      fields: [
-        {
-          type: 'mrkdwn',
-          text: `*Website:*\n${DEPLOY_URL}`
-        },
-        {
-          type: 'mrkdwn',
-          text: `*Screenshots:*\n${successCount}/${totalCount} uploaded`
-        }
-      ]
-    },
-    {
-      type: 'actions',
-      elements: [
-        {
-          type: 'button',
-          text: {
-            type: 'plain_text',
-            text: '🌐 View Website'
-          },
-          url: DEPLOY_URL,
-          style: 'primary'
-        },
-        {
-          type: 'button',
-          text: {
-            type: 'plain_text',
-            text: '🔧 GitHub Actions'
-          },
-          url: GITHUB_RUN_URL
-        }
-      ]
-    }
-  ];
-  
-  // 업로드된 파일 목록 추가 (최대 10개)
-  if (successfulFiles.length > 0) {
-    const fileList = successfulFiles.slice(0, 10).map(file => 
-      `• <${file.permalink}|${file.name || file.fileName}>`
-    ).join('\n');
-    
-    blocks.push({
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `*📸 Uploaded Screenshots:*\n${fileList}${successfulFiles.length > 10 ? `\n...and ${successfulFiles.length - 10} more` : ''}`
-      }
-    });
-  }
-  
-  try {
-    const result = await slack.chat.postMessage({
-      channel: SLACK_CHANNEL_ID,
-      text: `Deployment complete! ${successCount}/${totalCount} screenshots uploaded.`,
-      blocks: blocks
-    });
-    
-    if (result.ok) {
-      console.log('📤 리치 요약 메시지 전송 성공');
-    } else {
-      console.error('❌ 리치 요약 메시지 전송 실패:', result.error);
-    }
-  } catch (error) {
-    console.error('❌ 리치 요약 메시지 전송 중 오류:', error.message);
+    console.error('❌ 스레드 요약 메시지 전송 실패:', error.message);
   }
 }
 
@@ -231,8 +298,9 @@ async function postRichSummaryMessage(uploadResults, totalCount) {
  * 메인 실행 함수
  */
 async function main() {
-  console.log('\n🚀 Slack SDK를 사용한 이미지 업로드 시작...\n');
+  console.log('\n🚀 스레드 기반 Slack 이미지 업로드 시작...\n');
   
+  // 환경 변수 검증
   if (!process.env.SLACK_BOT_TOKEN) {
     console.error('❌ SLACK_BOT_TOKEN 환경변수가 설정되지 않았습니다.');
     process.exit(1);
@@ -252,20 +320,34 @@ async function main() {
     process.exit(1);
   }
   
-  const uploadResults = [];
   const totalCount = attachments.length;
   
   if (totalCount === 0) {
     console.log('📋 업로드할 스크린샷 파일이 없습니다.');
+    
+    // 스크린샷이 없어도 배포 완료 메시지는 전송
+    await postInitialMessage(0);
     return;
   }
   
-  // 각 파일을 순차적으로 업로드
+  // 1단계: 초기 메시지 전송
+  console.log('\n📤 1단계: 초기 배포 완료 메시지 전송...');
+  const threadTs = await postInitialMessage(totalCount);
+  
+  if (!threadTs) {
+    console.error('❌ 초기 메시지 전송에 실패하여 프로그램을 종료합니다.');
+    return;
+  }
+  
+  // 2단계: 각 파일을 스레드에 업로드
+  console.log('\n📸 2단계: 스크린샷들을 스레드에 업로드...');
+  const uploadResults = [];
+  
   for (let i = 0; i < attachments.length; i++) {
     const att = attachments[i];
-    console.log(`\n[${i + 1}/${totalCount}] ${att.filename} 처리 중...`);
+    console.log(`\n[${i + 1}/${totalCount}] ${att.filename} 스레드 업로드 중...`);
     
-    const result = await uploadFileToSlack(att.filePath, att.filename);
+    const result = await uploadFileToThread(att.filePath, att.filename, threadTs);
     uploadResults.push(result);
     
     // API rate limit 방지를 위한 딜레이 (마지막 파일이 아닌 경우)
@@ -275,7 +357,7 @@ async function main() {
     }
   }
   
-  // 결과 요약
+  // 3단계: 결과 요약
   const successCount = uploadResults.filter(r => r.success).length;
   const failedCount = totalCount - successCount;
   
@@ -283,23 +365,16 @@ async function main() {
   console.log(`✅ 성공: ${successCount}개`);
   console.log(`❌ 실패: ${failedCount}개`);
   
-  if (failedCount > 0) {
-    console.log('\n실패한 파일들:');
-    uploadResults.filter(r => !r.success).forEach(r => {
-      console.log(`- ${r.fileName}: ${r.error}`);
-    });
-  }
+  // 4단계: 초기 메시지 업데이트
+  console.log('\n🔄 3단계: 초기 메시지 업데이트...');
+  await updateInitialMessage(threadTs, uploadResults, totalCount);
   
-  // 요약 메시지 전송 (일반 메시지 또는 리치 메시지 선택)
-  console.log('\n📤 요약 메시지 전송 중...');
-  
-  // 리치 메시지 사용 (Block Kit)
-  await postRichSummaryMessage(uploadResults, totalCount);
-  
-  // 또는 간단한 메시지 사용
-  // await postSummaryMessage(uploadResults, totalCount);
+  // 5단계: 스레드에 요약 메시지 추가
+  console.log('\n📋 4단계: 스레드 요약 메시지 추가...');
+  await postThreadSummary(threadTs, uploadResults, totalCount);
   
   console.log('\n✨ 모든 작업 완료!');
+  console.log(`🔗 스레드 링크: https://${(await slack.auth.test()).team}.slack.com/archives/${SLACK_CHANNEL_ID}/p${threadTs.replace('.', '')}`);
 }
 
 // 프로그램 실행
