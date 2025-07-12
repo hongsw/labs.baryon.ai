@@ -51,8 +51,8 @@ jobs:
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
 
-      - name: Zip Screenshots
-        run: zip -r screenshots.zip screenshots/
+      # - name: Zip Screenshots
+      #   run: zip -r screenshots.zip screenshots/
 
       - name: Send Slack Notification
         run: node scripts/send-slack-notification.js
