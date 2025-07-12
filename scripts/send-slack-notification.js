@@ -59,13 +59,13 @@ async function uploadFileToSlack(filePath, fileName) {
   });
 }
 
-async function postMessageToSlack(imageBlocks) {
+async function postMessageToSlack(imageBlocks, screenshotCount) {
   if (!SLACK_BOT_TOKEN || !SLACK_CHANNEL_ID) {
     console.error('SLACK_BOT_TOKEN or SLACK_CHANNEL_ID is not set.');
     process.exit(1);
   }
 
-  const messageText = `Deployment to ${DEPLOY_URL} is complete!\nView website: ${DEPLOY_URL}\nGitHub Actions Run: ${GITHUB_RUN_URL}`;
+  const messageText = `Deployment to ${DEPLOY_URL} is complete!\nView website: ${DEPLOY_URL}\nGitHub Actions Run: ${GITHUB_RUN_URL}\n총 스크린샷 이미지 개수: ${screenshotCount}개`;
   const blocks = [
     {
       "type": "section",
@@ -123,26 +123,28 @@ async function postMessageToSlack(imageBlocks) {
 
 async function main() {
   const imageBlocks = [];
+  let screenshotCount = 0;
   try {
     const files = fs.readdirSync(SCREENSHOTS_DIR);
-    for (const file of files) {
+    const pngFiles = files.filter(file => file.endsWith('.png'));
+    screenshotCount = pngFiles.length;
+    console.log(`SCREENSHOTS_DIR에 PNG 파일이 총 ${screenshotCount}개 있습니다.`);
+    for (const file of pngFiles) {
       const filePath = path.join(SCREENSHOTS_DIR, file);
-      if (file.endsWith('.png')) { // Only process PNG images
-        const permalink = await uploadFileToSlack(filePath, file);
-        if (permalink) {
-          imageBlocks.push({
-            "type": "image",
-            "image_url": permalink,
-            "alt_text": `Screenshot for ${file.replace('.png', '')}`
-          });
-        }
+      const permalink = await uploadFileToSlack(filePath, file);
+      if (permalink) {
+        imageBlocks.push({
+          "type": "image",
+          "image_url": permalink,
+          "alt_text": `Screenshot for ${file.replace('.png', '')}`
+        });
       }
     }
   } catch (error) {
     console.warn(`Could not read screenshots from ${SCREENSHOTS_DIR}:`, error.message);
   }
 
-  await postMessageToSlack(imageBlocks);
+  await postMessageToSlack(imageBlocks, screenshotCount);
 }
 
 main();
