@@ -37,6 +37,19 @@ console.log('attachments.length', attachments.length);
 
 
 async function getUploadUrl(filename, filesize, mimetype) {
+  // 인자 유효성 검사
+  if (!filename || typeof filename !== 'string' || filename.trim() === '') {
+    throw new Error('getUploadUrl: filename이 올바르지 않습니다. (filename: ' + filename + ')');
+  }
+  if (!filesize || typeof filesize !== 'number' || filesize <= 0) {
+    throw new Error('getUploadUrl: filesize가 올바르지 않습니다. (filesize: ' + filesize + ')');
+  }
+  if (!mimetype || typeof mimetype !== 'string' || mimetype.trim() === '') {
+    throw new Error('getUploadUrl: mimetype이 올바르지 않습니다. (mimetype: ' + mimetype + ')');
+  }
+  if (!SLACK_CHANNEL_ID || typeof SLACK_CHANNEL_ID !== 'string' || !SLACK_CHANNEL_ID.startsWith('C')) {
+    throw new Error('getUploadUrl: SLACK_CHANNEL_ID가 올바르지 않습니다. (SLACK_CHANNEL_ID: ' + SLACK_CHANNEL_ID + ')');
+  }
   console.log('getUploadUrl 인자:', { filename, filesize, mimetype, SLACK_CHANNEL_ID });
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
