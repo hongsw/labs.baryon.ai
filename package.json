@@ -4,9 +4,11 @@
   "description": "Baryon Labs Homepage",
   "main": "main.js",
   "scripts": {
-    "lint": "eslint . --ext .js"
+    "lint": "eslint . --ext .js",
+    "set-secrets": "node -e \"require(\'dotenv\').config({ path: \'.env.prod\' }); for (const key in process.env) { if ([\'CLOUDFLARE_API_TOKEN\', \'CLOUDFLARE_ACCOUNT_ID\', \'RESEND_API_KEY\'].includes(key)) { require(\'child_process\').execSync(\`gh secret set \${key} --body \\"\${process.env[key]}\\"\`, { stdio: \'inherit\' }); } }\""
   },
   "devDependencies": {
+    "dotenv": "^17.2.0",
     "eslint": "^8.57.0"
   }
 }
