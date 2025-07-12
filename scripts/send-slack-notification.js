@@ -6,7 +6,30 @@ const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
 const SLACK_CHANNEL_ID = process.env.SLACK_CHANNEL_ID;
 const DEPLOY_URL = process.env.DEPLOY_URL;
 const GITHUB_RUN_URL = process.env.GITHUB_RUN_URL;
-const SCREENSHOTS_DIR = path.join(process.cwd(), 'screenshots');
+const SCREENSHOTS_DIR = path.join(process.cwd(), 'screenshots'); // Assuming screenshots are in the root of the workspace
+
+
+
+const attachments = [];
+
+try {
+  const files = fs.readdirSync(SCREENSHOTS_DIR);
+  for (const file of files) {
+    const filePath = path.join(SCREENSHOTS_DIR, file);
+    const content = fs.readFileSync(filePath);
+    attachments.push({
+      filename: file,
+      content: content, // Resend expects Buffer or string for content
+      filePath: filePath, // 업로드용 경로도 저장
+    });
+  }
+} catch (error) {
+  console.warn(`Could not read screenshots from ${SCREENSHOTS_DIR}:`, error.message);
+  // Continue without attachments if directory not found or empty
+}
+
+console.log('attachments.length', attachments.length);
+
 
 async function uploadFileToSlack(filePath, fileName) {
   return new Promise((resolve, reject) => {
@@ -123,28 +146,19 @@ async function postMessageToSlack(imageBlocks, screenshotCount) {
 
 async function main() {
   const imageBlocks = [];
-  let screenshotCount = 0;
-  try {
-    const files = fs.readdirSync(SCREENSHOTS_DIR);
-    const pngFiles = files.filter(file => file.endsWith('.png'));
-    screenshotCount = pngFiles.length;
-    console.log(`SCREENSHOTS_DIR에 PNG 파일이 총 ${screenshotCount}개 있습니다.`);
-    for (const file of pngFiles) {
-      const filePath = path.join(SCREENSHOTS_DIR, file);
-      const permalink = await uploadFileToSlack(filePath, file);
+  for (const att of attachments) {
+    if (att.filename.endsWith('.png')) {
+      const permalink = await uploadFileToSlack(att.filePath, att.filename);
       if (permalink) {
         imageBlocks.push({
           "type": "image",
           "image_url": permalink,
-          "alt_text": `Screenshot for ${file.replace('.png', '')}`
+          "alt_text": `Screenshot for ${att.filename.replace('.png', '')}`
         });
       }
     }
-  } catch (error) {
-    console.warn(`Could not read screenshots from ${SCREENSHOTS_DIR}:`, error.message);
   }
-
-  await postMessageToSlack(imageBlocks, screenshotCount);
+  await postMessageToSlack(imageBlocks, attachments.filter(att => att.filename.endsWith('.png')).length);
 }
 
 main();
