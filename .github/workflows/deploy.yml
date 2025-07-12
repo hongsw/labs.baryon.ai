@@ -31,16 +31,15 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy ./ --project-name=www-baryon-ai
 
-      - name: install puppeteer-headful
-        uses: mujo-code/puppeteer-headful@master # Required for headful puppeteer
-        env:
-          CI: 'true'
+      - name: wait 10 seconds
+        run: sleep 10
+
       - name: screenshots-ci-action
-        uses: flameddd/screenshots-ci-action@master
+        uses: flameddd/screenshots-ci-action@v2.1.0
         with:
           url: https://www-baryon-ai.pages.dev
           devices: iPhone 6,iPhone 6 landscape,Nexus 7,Pad Pro,Galaxy S III landscape,iPad Pro landscape
-      - uses: actions/upload-artifact@v2 # Uplaod screenshots to Actions Artifacts via actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4 # Uplaod screenshots to Actions Artifacts via actions/upload-artifact@v2
         with:
           path: screenshots
           name: Download-screenshots
@@ -52,7 +51,7 @@ jobs:
           const { Resend } = require('resend');
           const resend = new Resend('${{ secrets.RESEND_API_KEY }}');
           resend.emails.send({
-            from: 'onboarding@resend.dev',
+            from: 'noreply@wwwai.site',
             to: 'ai.baryon.ai@gmail.com',
             subject: 'Deployment Complete',
             html: 'The latest deployment is complete. Check GitHub Actions for screenshots.'
