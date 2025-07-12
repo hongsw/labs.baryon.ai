@@ -53,11 +53,12 @@ async function getUploadUrl(filename, filesize, mimetype) {
   console.log('getUploadUrl 인자:', { filename, filesize, mimetype, SLACK_CHANNEL_ID });
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
-      filename,
-      length: filesize,
-      channels: [SLACK_CHANNEL_ID],
-      filetype: mimetype,
+      filename: String(filename),
+      length: Number(filesize),
+      channels: [String(SLACK_CHANNEL_ID)],
+      filetype: String(mimetype),
     });
+    console.log('getUploadUrl 전송 JSON:', data);
     const options = {
       hostname: 'slack.com',
       path: '/api/files.getUploadURLExternal',
