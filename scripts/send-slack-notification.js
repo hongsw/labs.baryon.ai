@@ -17,13 +17,16 @@ try {
   console.log(`SCREENSHOTS_DIR(${SCREENSHOTS_DIR}) 하위 파일 목록:`);
   files.forEach(f => console.log(' -', f));
   for (const file of files) {
-    const filePath = path.join(SCREENSHOTS_DIR, file);
-    const content = fs.readFileSync(filePath);
-    attachments.push({
-      filename: file,
-      content: content, // Resend expects Buffer or string for content
-      filePath: filePath, // 업로드용 경로도 저장
-    });
+    const ext = path.extname(file).toLowerCase();
+    if (ext === '.png' || ext === '.jpg' || ext === '.jpeg') {
+      const filePath = path.join(SCREENSHOTS_DIR, file);
+      const content = fs.readFileSync(filePath);
+      attachments.push({
+        filename: file,
+        content: content, // Resend expects Buffer or string for content
+        filePath: filePath, // 업로드용 경로도 저장
+      });
+    }
   }
 } catch (error) {
   console.warn(`Could not read screenshots from ${SCREENSHOTS_DIR}:`, error.message);
@@ -34,6 +37,7 @@ console.log('attachments.length', attachments.length);
 
 
 async function getUploadUrl(filename, filesize, mimetype) {
+  console.log('getUploadUrl 인자:', { filename, filesize, mimetype, SLACK_CHANNEL_ID });
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
       filename,
@@ -209,17 +213,15 @@ async function postMessageToSlack(imageBlocks, screenshotCount) {
 async function main() {
   let uploadedCount = 0;
   for (const att of attachments) {
-    if (att.filename.endsWith('.png') || att.filename.endsWith('.jpg') || att.filename.endsWith('.jpeg')) {
-      try {
-        await uploadFileToSlack(att.filePath, att.filename); // presigned 방식으로 업로드
-        uploadedCount++;
-      } catch (e) {
-        console.error(`${att.filename} 업로드 실패:`, e.message);
-      }
+    try {
+      await uploadFileToSlack(att.filePath, att.filename);
+      uploadedCount++;
+    } catch (e) {
+      console.error(`${att.filename} 업로드 실패:`, e.message);
     }
   }
   // 파일 업로드 후, 업로드된 파일 개수만 안내하는 메시지 전송
-  await postMessageToSlack([], uploadedCount);
+  await postMessageToSlack([], attachments.length);
 }
 
 main();
