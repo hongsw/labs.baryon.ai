@@ -1,5 +1,5 @@
 const { execSync } = require('child_process');
-require('dotenv').config({ path: '.env.prod' });
+require('dotenv').config({ path: '.env.prod', override: true });
 
 const secrets = [
   'CLOUDFLARE_API_TOKEN',
