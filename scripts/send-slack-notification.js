@@ -100,6 +100,7 @@ async function uploadToPresignedUrl(url, fileBuffer, mimetype) {
         'Content-Length': fileBuffer.length,
       },
     };
+    console.log('PUT request options:', options);
     const req = https.request(options, (res) => {
       let responseData = '';
       res.on('data', (chunk) => { responseData += chunk; });
