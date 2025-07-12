@@ -149,7 +149,7 @@ async function postMessageToSlack(imageBlocks, screenshotCount) {
 async function main() {
   let uploadedCount = 0;
   for (const att of attachments) {
-    if (att.filename.endsWith('.png')) {
+    if (att.filename.endsWith('.png') || att.filename.endsWith('.jpg') || att.filename.endsWith('.jpeg')) {
       try {
         await uploadFileToSlack(att.filePath, att.filename); // 파일 자체를 슬랙에 첨부
         uploadedCount++;
