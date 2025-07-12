@@ -51,9 +51,13 @@ jobs:
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
 
+      - name: Zip Screenshots
+        run: zip -r screenshots.zip screenshots/
+
       - name: Send Slack Notification
         run: node scripts/send-slack-notification.js
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
           DEPLOY_URL: https://www-baryon-ai.pages.dev
           GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
