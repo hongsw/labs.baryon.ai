@@ -48,3 +48,5 @@ jobs:
         run: |
           npm install resend
           node scripts/send-screenshot-email.js
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
