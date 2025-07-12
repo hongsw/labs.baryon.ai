@@ -31,7 +31,7 @@ async function sendEmailWithScreenshots() {
 
   try {
     await resend.emails.send({
-      from: 'noreply@wwwai.site',
+      from: 'onboarding@resend.dev',
       to: 'ai.baryon.ai@gmail.com',
       subject: 'Deployment Screenshots',
       html: 'Attached are the screenshots of the latest deployment.',
