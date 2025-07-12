@@ -33,55 +33,115 @@ try {
 console.log('attachments.length', attachments.length);
 
 
-async function uploadFileToSlack(filePath, fileName) {
+async function getUploadUrl(filename, filesize, mimetype) {
   return new Promise((resolve, reject) => {
-    const fileContent = fs.readFileSync(filePath);
-    const boundary = '----WebKitFormBoundary' + Math.random().toString().substr(2);
-    const postData = [
-      `--${boundary}`,
-      `Content-Disposition: form-data; name="channels"\r\n\r\n${SLACK_CHANNEL_ID}`,
-      `--${boundary}`,
-      `Content-Disposition: form-data; name="file"; filename="${fileName}"\r\nContent-Type: image/png\r\n\r\n`,
-      fileContent,
-      `\r\n--${boundary}--`,
-    ].join('\r\n');
-
+    const data = JSON.stringify({
+      filename,
+      length: filesize,
+      channels: [SLACK_CHANNEL_ID],
+      filetype: mimetype,
+    });
     const options = {
       hostname: 'slack.com',
-      path: '/api/files.upload',
+      path: '/api/files.getUploadURLExternal',
       method: 'POST',
       headers: {
-        'Content-Type': `multipart/form-data; boundary=${boundary}`,
-        'Content-Length': Buffer.byteLength(postData),
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${SLACK_BOT_TOKEN}`,
+        'Content-Length': Buffer.byteLength(data),
       },
     };
-
     const req = https.request(options, (res) => {
       let responseData = '';
-      res.on('data', (chunk) => {
-        responseData += chunk;
-      });
+      res.on('data', (chunk) => { responseData += chunk; });
       res.on('end', () => {
         const result = JSON.parse(responseData);
         if (result.ok) {
-          console.log(`File ${fileName} uploaded to Slack successfully.`);
-          resolve(result.file.permalink);
+          resolve(result);
         } else {
-          console.error(`Failed to upload file ${fileName} to Slack:`, result.error);
           reject(new Error(result.error));
         }
       });
     });
-
-    req.on('error', (e) => {
-      console.error(`Problem with file upload request for ${fileName}:`, e.message);
-      reject(e);
-    });
-
-    req.write(postData);
+    req.on('error', reject);
+    req.write(data);
     req.end();
   });
+}
+
+async function uploadToPresignedUrl(url, fileBuffer, mimetype) {
+  return new Promise((resolve, reject) => {
+    const { hostname, pathname, search } = new URL(url);
+    const options = {
+      hostname,
+      path: pathname + (search || ''),
+      method: 'PUT',
+      headers: {
+        'Content-Type': mimetype,
+        'Content-Length': fileBuffer.length,
+      },
+    };
+    const req = https.request(options, (res) => {
+      if (res.statusCode === 200) resolve();
+      else reject(new Error('Upload failed'));
+    });
+    req.on('error', reject);
+    req.write(fileBuffer);
+    req.end();
+  });
+}
+
+async function completeUploadExternal(files, channel) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify({
+      files,
+      channel_id: channel,
+    });
+    const options = {
+      hostname: 'slack.com',
+      path: '/api/files.completeUploadExternal',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SLACK_BOT_TOKEN}`,
+        'Content-Length': Buffer.byteLength(data),
+      },
+    };
+    const req = https.request(options, (res) => {
+      let responseData = '';
+      res.on('data', (chunk) => { responseData += chunk; });
+      res.on('end', () => {
+        const result = JSON.parse(responseData);
+        if (result.ok) resolve(result);
+        else reject(new Error(result.error));
+      });
+    });
+    req.on('error', reject);
+    req.write(data);
+    req.end();
+  });
+}
+
+function getMimeType(filename) {
+  const ext = path.extname(filename).toLowerCase();
+  if (ext === '.png') return 'image/png';
+  if (ext === '.jpg' || ext === '.jpeg') return 'image/jpeg';
+  return 'application/octet-stream';
+}
+
+async function uploadFileToSlack(filePath, fileName) {
+  const fileBuffer = fs.readFileSync(filePath);
+  const filesize = fileBuffer.length;
+  const mimetype = getMimeType(fileName);
+  // 1. presigned URL 요청
+  const uploadUrlRes = await getUploadUrl(fileName, filesize, mimetype);
+  const uploadUrl = uploadUrlRes.upload_url;
+  const fileId = uploadUrlRes.file_id;
+  // 2. presigned URL로 파일 업로드
+  await uploadToPresignedUrl(uploadUrl, fileBuffer, mimetype);
+  // 3. 업로드 완료 알리기
+  await completeUploadExternal([{ id: fileId }], SLACK_CHANNEL_ID);
+  return fileId;
 }
 
 async function postMessageToSlack(imageBlocks, screenshotCount) {
@@ -151,7 +211,7 @@ async function main() {
   for (const att of attachments) {
     if (att.filename.endsWith('.png') || att.filename.endsWith('.jpg') || att.filename.endsWith('.jpeg')) {
       try {
-        await uploadFileToSlack(att.filePath, att.filename); // 파일 자체를 슬랙에 첨부
+        await uploadFileToSlack(att.filePath, att.filename); // presigned 방식으로 업로드
         uploadedCount++;
       } catch (e) {
         console.error(`${att.filename} 업로드 실패:`, e.message);
