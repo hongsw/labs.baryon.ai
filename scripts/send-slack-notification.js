@@ -1,6 +1,7 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const querystring = require('querystring');
 
 const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
 const SLACK_CHANNEL_ID = process.env.SLACK_CHANNEL_ID;
@@ -50,20 +51,20 @@ async function getUploadUrl(filename, filesize, mimetype) {
   if (!SLACK_CHANNEL_ID || typeof SLACK_CHANNEL_ID !== 'string' || !SLACK_CHANNEL_ID.startsWith('C')) {
     throw new Error('getUploadUrl: SLACK_CHANNEL_ID가 올바르지 않습니다. (SLACK_CHANNEL_ID: ' + SLACK_CHANNEL_ID + ')');
   }
+  const data = querystring.stringify({
+    filename: filename,
+    length: filesize,
+    filetype: mimetype,
+    // channels: SLACK_CHANNEL_ID, // 필요시 추가
+  });
+  console.log('getUploadUrl 전송 form:', data);
   return new Promise((resolve, reject) => {
-    const data = JSON.stringify({
-      filename: String(filename),
-      length: Number(filesize),
-      // channels: [String(SLACK_CHANNEL_ID)], // 일단 주석처리
-      filetype: String(mimetype),
-    });
-    console.log('getUploadUrl 전송 JSON:', data);
     const options = {
       hostname: 'slack.com',
       path: '/api/files.getUploadURLExternal',
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json; charset=utf-8',
+        'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': `Bearer ${SLACK_BOT_TOKEN}`,
         'Content-Length': Buffer.byteLength(data),
       },
