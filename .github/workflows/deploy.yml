@@ -31,37 +31,30 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy ./ --project-name=www-baryon-ai
 
-      - name: Take Screenshot
-        run: |
-          npm install puppeteer
-          node -e "
-          const puppeteer = require('puppeteer');
-          (async () => {
-            const browser = await puppeteer.launch();
-            const page = await browser.newPage();
-            await page.goto('https://www-baryon-ai.pages.dev', { waitUntil: 'networkidle2' });
-            await page.screenshot({ path: 'screenshot.png' });
-            await browser.close();
-          })();
-          "
+      - name: install puppeteer-headful
+        uses: mujo-code/puppeteer-headful@master # Required for headful puppeteer
+        env:
+          CI: 'true'
+      - name: screenshots-ci-action
+        uses: flameddd/screenshots-ci-action@master
+        with:
+          url: https://www-baryon-ai.pages.dev
+          devices: iPhone 6,iPhone 6 landscape,Nexus 7,Pad Pro,Galaxy S III landscape,iPad Pro landscape
+      - uses: actions/upload-artifact@v2 # Uplaod screenshots to Actions Artifacts via actions/upload-artifact@v2
+        with:
+          path: screenshots
+          name: Download-screenshots
 
       - name: Send Email
         run: |
           npm install resend
           node -e "
           const { Resend } = require('resend');
-          const fs = require('fs');
           const resend = new Resend('${{ secrets.RESEND_API_KEY }}');
           resend.emails.send({
             from: 'onboarding@resend.dev',
             to: 'ai.baryon.ai@gmail.com',
-            subject: 'Deployment Screenshot',
-            html: 'Attached is the screenshot of the latest deployment.',
-            attachments: [
-              {
-                filename: 'screenshot.png',
-                content: fs.readFileSync('screenshot.png')
-              }
-            ]
+            subject: 'Deployment Complete',
+            html: 'The latest deployment is complete. Check GitHub Actions for screenshots.'
           });
           "
