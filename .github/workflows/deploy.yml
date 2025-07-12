@@ -45,7 +45,7 @@ jobs:
           name: Download-screenshots
 
       - name: Send Email
-        run: |
+        run: | # artifact screenshots attach to email
           npm install resend
           node -e "
           const { Resend } = require('resend');
@@ -54,6 +54,12 @@ jobs:
             from: 'noreply@wwwai.site',
             to: 'ai.baryon.ai@gmail.com',
             subject: 'Deployment Complete',
-            html: 'The latest deployment is complete. Check GitHub Actions for screenshots.'
+            attachments: [
+              {
+                filename: 'screenshots.zip',
+                content: fs.readFileSync('screenshots.zip')
+              }
+            ],
+            html: 'The latest deployment is complete. Check GitHub Actions for screenshots. <br> <br> <a href="https://www-baryon-ai.pages.dev">View the website</a> <br> <br> <a href="https://www-baryon-ai.pages.dev/screenshots">View the screenshots</a> <br> <br> <a href="https://www-baryon-ai.pages.dev/screenshots">View the screenshots</a>'
           });
           "
