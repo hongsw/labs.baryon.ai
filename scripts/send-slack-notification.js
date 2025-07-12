@@ -105,7 +105,7 @@ async function uploadToPresignedUrl(url, fileBuffer, mimetype) {
       res.on('data', (chunk) => { responseData += chunk; });
       res.on('end', () => {
         console.log('Upload 응답 status:', res.statusCode, 'body:', responseData);
-        if (res.statusCode === 200) resolve();
+        if (res.statusCode === 200 || res.statusCode === 302) resolve();
         else reject(new Error('Upload failed: ' + res.statusCode + ' ' + responseData));
       });
     });
