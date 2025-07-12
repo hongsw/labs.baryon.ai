@@ -6,28 +6,17 @@ const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
 const SLACK_CHANNEL_ID = process.env.SLACK_CHANNEL_ID;
 const DEPLOY_URL = process.env.DEPLOY_URL;
 const GITHUB_RUN_URL = process.env.GITHUB_RUN_URL;
-const SCREENSHOTS_ZIP_PATH = path.join(process.cwd(), 'screenshots.zip');
+const SCREENSHOTS_DIR = path.join(process.cwd(), 'screenshots');
 
-async function uploadFileToSlack() {
-  if (!SLACK_BOT_TOKEN || !SLACK_CHANNEL_ID) {
-    console.error('SLACK_BOT_TOKEN or SLACK_CHANNEL_ID is not set.');
-    return null;
-  }
-
-  if (!fs.existsSync(SCREENSHOTS_ZIP_PATH)) {
-    console.warn(`Screenshot zip file not found at ${SCREENSHOTS_ZIP_PATH}. Skipping file upload.`);
-    return null;
-  }
-
-  const fileContent = fs.readFileSync(SCREENSHOTS_ZIP_PATH);
-
+async function uploadFileToSlack(filePath, fileName) {
   return new Promise((resolve, reject) => {
+    const fileContent = fs.readFileSync(filePath);
     const boundary = '----WebKitFormBoundary' + Math.random().toString().substr(2);
     const postData = [
       `--${boundary}`,
       `Content-Disposition: form-data; name="channels"\r\n\r\n${SLACK_CHANNEL_ID}`,
       `--${boundary}`,
-      `Content-Disposition: form-data; name="file"; filename="screenshots.zip"\r\nContent-Type: application/zip\r\n\r\n`,
+      `Content-Disposition: form-data; name="file"; filename="${fileName}"\r\nContent-Type: image/png\r\n\r\n`,
       fileContent,
       `\r\n--${boundary}--`,
     ].join('\r\n');
@@ -51,17 +40,17 @@ async function uploadFileToSlack() {
       res.on('end', () => {
         const result = JSON.parse(responseData);
         if (result.ok) {
-          console.log('File uploaded to Slack successfully.');
+          console.log(`File ${fileName} uploaded to Slack successfully.`);
           resolve(result.file.permalink);
         } else {
-          console.error('Failed to upload file to Slack:', result.error);
+          console.error(`Failed to upload file ${fileName} to Slack:`, result.error);
           reject(new Error(result.error));
         }
       });
     });
 
     req.on('error', (e) => {
-      console.error('Problem with file upload request:', e.message);
+      console.error(`Problem with file upload request for ${fileName}:`, e.message);
       reject(e);
     });
 
@@ -70,10 +59,10 @@ async function uploadFileToSlack() {
   });
 }
 
-async function postMessageToSlack(filePermalink) {
+async function postMessageToSlack(imageBlocks) {
   if (!SLACK_BOT_TOKEN || !SLACK_CHANNEL_ID) {
     console.error('SLACK_BOT_TOKEN or SLACK_CHANNEL_ID is not set.');
-    return;
+    process.exit(1);
   }
 
   const messageText = `Deployment to ${DEPLOY_URL} is complete!\nView website: ${DEPLOY_URL}\nGitHub Actions Run: ${GITHUB_RUN_URL}`;
@@ -84,18 +73,9 @@ async function postMessageToSlack(filePermalink) {
         "type": "mrkdwn",
         "text": messageText
       }
-    }
+    },
+    ...imageBlocks
   ];
-
-  if (filePermalink) {
-    blocks.push({
-      "type": "section",
-      "text": {
-        "type": "mrkdwn",
-        "text": `Screenshots: <${filePermalink}|Download>`
-      }
-    });
-  }
 
   const postData = JSON.stringify({
     channel: SLACK_CHANNEL_ID,
@@ -142,20 +122,27 @@ async function postMessageToSlack(filePermalink) {
 }
 
 async function main() {
-  let filePermalink = null;
+  const imageBlocks = [];
   try {
-    filePermalink = await uploadFileToSlack();
-  }
-  catch (error) {
-    console.error('Error during Slack file upload:', error.message);
+    const files = fs.readdirSync(SCREENSHOTS_DIR);
+    for (const file of files) {
+      const filePath = path.join(SCREENSHOTS_DIR, file);
+      if (file.endsWith('.png')) { // Only process PNG images
+        const permalink = await uploadFileToSlack(filePath, file);
+        if (permalink) {
+          imageBlocks.push({
+            "type": "image",
+            "image_url": permalink,
+            "alt_text": `Screenshot for ${file.replace('.png', '')}`
+          });
+        }
+      }
+    }
+  } catch (error) {
+    console.warn(`Could not read screenshots from ${SCREENSHOTS_DIR}:`, error.message);
   }
 
-  try {
-    await postMessageToSlack(filePermalink);
-  }
-  catch (error) {
-    console.error('Error during Slack message post:', error.message);
-  }
+  await postMessageToSlack(imageBlocks);
 }
 
 main();
