@@ -14,6 +14,8 @@ const attachments = [];
 
 try {
   const files = fs.readdirSync(SCREENSHOTS_DIR);
+  console.log(`SCREENSHOTS_DIR(${SCREENSHOTS_DIR}) 하위 파일 목록:`);
+  files.forEach(f => console.log(' -', f));
   for (const file of files) {
     const filePath = path.join(SCREENSHOTS_DIR, file);
     const content = fs.readFileSync(filePath);
@@ -145,20 +147,19 @@ async function postMessageToSlack(imageBlocks, screenshotCount) {
 }
 
 async function main() {
-  const imageBlocks = [];
+  let uploadedCount = 0;
   for (const att of attachments) {
     if (att.filename.endsWith('.png')) {
-      const permalink = await uploadFileToSlack(att.filePath, att.filename);
-      if (permalink) {
-        imageBlocks.push({
-          "type": "image",
-          "image_url": permalink,
-          "alt_text": `Screenshot for ${att.filename.replace('.png', '')}`
-        });
+      try {
+        await uploadFileToSlack(att.filePath, att.filename); // 파일 자체를 슬랙에 첨부
+        uploadedCount++;
+      } catch (e) {
+        console.error(`${att.filename} 업로드 실패:`, e.message);
       }
     }
   }
-  await postMessageToSlack(imageBlocks, attachments.filter(att => att.filename.endsWith('.png')).length);
+  // 파일 업로드 후, 업로드된 파일 개수만 안내하는 메시지 전송
+  await postMessageToSlack([], uploadedCount);
 }
 
 main();

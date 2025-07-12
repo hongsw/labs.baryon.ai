@@ -44,15 +44,6 @@ jobs:
           path: screenshots
           name: Download-screenshots
 
-      - name: Send Email with Screenshots
-        run: |
-          npm install resend
-          node scripts/send-screenshot-email.js
-        env:
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-
-      # - name: Zip Screenshots
-      #   run: zip -r screenshots.zip screenshots/
 
       - name: Send Slack Notification
         run: node scripts/send-slack-notification.js
@@ -62,3 +53,14 @@ jobs:
           DEPLOY_URL: https://www-baryon-ai.pages.dev
           GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           DEVICES: iPhone 6,iPhone 6 landscape,Nexus 7,Pad Pro,Galaxy S III landscape,iPad Pro landscape
+
+
+      - name: Send Email with Screenshots
+        run: |
+          npm install resend
+          node scripts/send-screenshot-email.js
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+
+      # - name: Zip Screenshots
+      #   run: zip -r screenshots.zip screenshots/
