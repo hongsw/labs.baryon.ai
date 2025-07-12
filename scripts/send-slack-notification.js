@@ -50,12 +50,11 @@ async function getUploadUrl(filename, filesize, mimetype) {
   if (!SLACK_CHANNEL_ID || typeof SLACK_CHANNEL_ID !== 'string' || !SLACK_CHANNEL_ID.startsWith('C')) {
     throw new Error('getUploadUrl: SLACK_CHANNEL_ID가 올바르지 않습니다. (SLACK_CHANNEL_ID: ' + SLACK_CHANNEL_ID + ')');
   }
-  console.log('getUploadUrl 인자:', { filename, filesize, mimetype, SLACK_CHANNEL_ID });
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
       filename: String(filename),
       length: Number(filesize),
-      channels: [String(SLACK_CHANNEL_ID)],
+      // channels: [String(SLACK_CHANNEL_ID)], // 일단 주석처리
       filetype: String(mimetype),
     });
     console.log('getUploadUrl 전송 JSON:', data);
@@ -64,7 +63,7 @@ async function getUploadUrl(filename, filesize, mimetype) {
       path: '/api/files.getUploadURLExternal',
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
         'Authorization': `Bearer ${SLACK_BOT_TOKEN}`,
         'Content-Length': Buffer.byteLength(data),
       },
