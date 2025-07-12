@@ -73,6 +73,7 @@ async function getUploadUrl(filename, filesize, mimetype) {
       res.on('data', (chunk) => { responseData += chunk; });
       res.on('end', () => {
         const result = JSON.parse(responseData);
+        console.log('Slack API 응답:', result);
         if (result.ok) {
           resolve(result);
         } else {
