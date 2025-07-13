@@ -141,16 +141,16 @@ async function uploadFileToThread(filePath, fileName, threadTs) {
   } catch (error) {
     console.error(`❌ ${fileName} 스레드 업로드 실패:`, error.message);
     
-    // 실패한 경우 스레드에 에러 메시지 전송
-    try {
-      await slack.chat.postMessage({
-        channel: SLACK_CHANNEL_ID,
-        thread_ts: threadTs,
-        text: `❌ ${fileName} 업로드 실패: ${error.message}`
-      });
-    } catch (msgError) {
-      console.error('에러 메시지 전송 실패:', msgError.message);
-    }
+    // 실패한 경우 스레드에 에러 메시지 전송 - 안함
+    // try {
+    //   await slack.chat.postMessage({
+    //     channel: SLACK_CHANNEL_ID,
+    //     thread_ts: threadTs,
+    //     text: `❌ ${fileName} 업로드 실패: ${error.message}`
+    //   });
+    // } catch (msgError) {
+    //   console.error('에러 메시지 전송 실패:', msgError.message);
+    // }
     
     return {
       fileName: fileName,
@@ -371,7 +371,7 @@ async function main() {
   
   // 5단계: 스레드에 요약 메시지 추가
   console.log('\n📋 4단계: 스레드 요약 메시지 추가...');
-  await postThreadSummary(threadTs, uploadResults, totalCount);
+  // await postThreadSummary(threadTs, uploadResults, totalCount);
   
   console.log('\n✨ 모든 작업 완료!');
   console.log(`🔗 스레드 링크: https://${(await slack.auth.test()).team}.slack.com/archives/${SLACK_CHANNEL_ID}/p${threadTs.replace('.', '')}`);
