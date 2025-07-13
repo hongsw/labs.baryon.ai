@@ -36,56 +36,29 @@
       }
     },
     {
-      "id": "fullstack",
+      "id": "open-source",
       "title": {
-        "en": "Full Stack Developer",
-        "ko": "풀스택 개발자"
+        "en": "Open Source Developer",
+        "ko": "오픈소스 개발자"
       },
       "type": {
         "en": "Full-time",
         "ko": "정규직"
       },
       "description": {
-        "en": "Build scalable web applications for AI model deployment and monitoring.",
-        "ko": "AI 모델 배포 및 모니터링을 위한 확장 가능한 웹 애플리케이션을 구축합니다."
+        "en": "Contribute to open source AI projects and build community-driven AI solutions.",
+        "ko": "오픈소스 AI 프로젝트에 기여하고 커뮤니티 주도 AI 솔루션을 구축합니다."
       },
       "requirements": {
         "en": [
-          "React/Node.js expertise",
-          "Python/Docker experience",
-          "3+ years web development"
+          "Strong open source contribution experience",
+          "Proficiency in Python, JavaScript, or C++",
+          "Experience with AI/ML frameworks and tools"
         ],
         "ko": [
-          "React/Node.js 전문 지식",
-          "Python/Docker 경험",
-          "웹 개발 3년 이상"
-        ]
-      }
-    },
-    {
-      "id": "ai-ops",
-      "title": {
-        "en": "AI Operations Engineer",
-        "ko": "AI 운영 엔지니어"
-      },
-      "type": {
-        "en": "Full-time",
-        "ko": "정규직"
-      },
-      "description": {
-        "en": "Design and maintain ML infrastructure and automation pipelines.",
-        "ko": "ML 인프라 및 자동화 파이프라인을 설계하고 유지보수합니다."
-      },
-      "requirements": {
-        "en": [
-          "MLOps/DevOps experience",
-          "Kubernetes/Cloud platforms",
-          "CI/CD and automation tools"
-        ],
-        "ko": [
-          "MLOps/DevOps 경험",
-          "Kubernetes/클라우드 플랫폼",
-          "CI/CD 및 자동화 도구"
+          "강한 오픈소스 기여 경험",
+          "Python, JavaScript 또는 C++ 숙련도",
+          "AI/ML 프레임워크 및 도구 경험"
         ]
       }
     }
