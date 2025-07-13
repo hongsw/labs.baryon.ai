@@ -121,6 +121,7 @@ async function uploadFileToThread(filePath, fileName, threadTs) {
       initial_comment: `📸 ${fileName.replace(/\.[^/.]+$/, '')}`, // 확장자 제거한 간단한 설명
       title: fileName.replace(/\.[^/.]+$/, ''), // 파일 제목
     });
+    console.log(`Slack filesUploadV2 result for ${fileName}:`, JSON.stringify(result, null, 2));
     
     if (result.ok && result.file) {
       const file = result.file;
