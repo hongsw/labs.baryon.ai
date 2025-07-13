@@ -85,23 +85,31 @@
     "form": {
       "fullName": {
         "en": "Full Name *",
-        "ko": "성명 *"
+        "ko": "이름 *"
       },
       "email": {
         "en": "Email *",
-        "ko": "이메일 *"
+        "ko": "이메일주소 *"
       },
       "phone": {
-        "en": "Phone",
-        "ko": "전화번호"
+        "en": "Phone *",
+        "ko": "전화번호 *"
       },
-      "resume": {
-        "en": "Resume/CV Link *",
-        "ko": "이력서 링크 *"
+      "github": {
+        "en": "GitHub Profile *",
+        "ko": "GitHub Profile *"
       },
-      "resumePlaceholder": {
-        "en": "https://drive.google.com/file/d/your-resume-link or https://your-website.com/resume.pdf",
-        "ko": "https://drive.google.com/file/d/your-resume-link 또는 https://your-website.com/resume.pdf"
+      "githubPlaceholder": {
+        "en": "https://github.com/your-username",
+        "ko": "https://github.com/your-username"
+      },
+      "message": {
+        "en": "Message *",
+        "ko": "하고싶은말 *"
+      },
+      "messagePlaceholder": {
+        "en": "Please introduce yourself and explain your motivation for applying",
+        "ko": "자기소개나 지원 동기 등을 자유롭게 작성해주세요"
       },
       "submitButton": {
         "en": "Submit Application",
