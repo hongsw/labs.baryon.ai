@@ -123,8 +123,11 @@ async function uploadFileToThread(filePath, fileName, threadTs) {
     });
     console.log(`Slack filesUploadV2 result for ${fileName}:`, JSON.stringify(result, null, 2));
     
-    if (result.ok && result.file) {
-      const file = result.file;
+    // Check for the actual file object within the nested structure
+    const uploadedFile = result.files && result.files[0] && result.files[0].files && result.files[0].files[0];
+
+    if (result.ok && uploadedFile) {
+      const file = uploadedFile;
       console.log(`✅ ${fileName} 스레드 업로드 성공!`);
       console.log(`- File ID: ${file.id}`);
       
