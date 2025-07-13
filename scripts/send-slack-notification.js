@@ -135,6 +135,8 @@ async function uploadFileToThread(filePath, fileName, threadTs) {
         success: true
       };
     } else {
+      // Log the full result object when not ok or file is missing
+      console.error(`❌ ${fileName} 스레드 업로드 실패 (result.ok: ${result.ok}, result.file: ${!!result.file}):`, result);
       throw new Error(result.error || '알 수 없는 오류');
     }
     
