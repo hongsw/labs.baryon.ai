@@ -376,40 +376,7 @@
                     </div>
                 </div>
 
-                <!-- Optional Toggle Button -->
-                <div class="optional-toggle">
-                    <button type="button" class="toggle-btn" id="toggleOptional" data-i18n="contact.addOptional">
-                        + Add Optional Details
-                    </button>
-                </div>
 
-                <!-- Optional Fields (Initially Hidden) -->
-                <div class="form-grid optional" id="optionalFields">
-                    <div class="form-group">
-                        <label class="form-label" for="phone" data-i18n="contact.phone">Phone</label>
-                        <input 
-                            type="tel" 
-                            id="phone" 
-                            name="phone" 
-                            class="form-input" 
-                            data-i18n-placeholder="contact.phonePlaceholder"
-                            placeholder="+1 (555) 123-4567"
-                        >
-                        <div class="form-error" id="phoneError"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="company" data-i18n="contact.company">Company</label>
-                        <input 
-                            type="text" 
-                            id="company" 
-                            name="company" 
-                            class="form-input" 
-                            data-i18n-placeholder="contact.companyPlaceholder"
-                            placeholder="Your company"
-                        >
-                    </div>
-                </div>
                 
                 <button type="submit" class="form-submit" id="submitBtn">
                     <span class="loading-spinner"></span>
@@ -1199,8 +1166,7 @@
         const contactForm = document.getElementById('contactForm');
         const submitBtn = document.getElementById('submitBtn');
         const formMessage = document.getElementById('formMessage');
-        const toggleBtn = document.getElementById('toggleOptional');
-        const optionalFields = document.getElementById('optionalFields');
+
 
 
 
@@ -1295,38 +1261,9 @@
             }
         }
 
-        // Check if all required fields are filled
-        function checkRequiredFields() {
-            const requiredFields = document.querySelectorAll('.required-field');
-            let allFilled = true;
-            
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    allFilled = false;
-                }
-            });
-            
-            if (allFilled) {
-                toggleBtn.classList.add('hidden');
-                optionalFields.classList.add('expanded');
-            } else {
-                toggleBtn.classList.remove('hidden');
-                if (!optionalFields.classList.contains('expanded')) {
-                    // Keep collapsed if not manually expanded
-                }
-            }
-        }
 
-        // Toggle optional fields manually
-        function toggleOptionalFields() {
-            if (optionalFields.classList.contains('expanded')) {
-                optionalFields.classList.remove('expanded');
-                toggleBtn.textContent = '+ Add Optional Details';
-            } else {
-                optionalFields.classList.add('expanded');
-                toggleBtn.textContent = '- Hide Optional Details';
-            }
-        }
+
+
 
         // Real-time validation
         document.getElementById('work_email').addEventListener('blur', function() {
@@ -1342,25 +1279,17 @@
             }
         });
 
-        document.getElementById('phone').addEventListener('blur', function() {
-            if (this.value && !validatePhone(this.value)) {
-                showError('phone', 'Please enter a valid phone number');
-            } else {
-                clearError('phone');
-            }
-        });
+
 
         // Clear errors on input and check required fields
         const formInputs = document.querySelectorAll('.form-input, .form-select, .form-textarea');
         formInputs.forEach(input => {
             input.addEventListener('input', function() {
                 clearError(this.id === 'inquiry-type' ? 'inquiry-type' : this.id);
-                checkRequiredFields();
             });
         });
 
-        // Toggle button event listener
-        toggleBtn.addEventListener('click', toggleOptionalFields);
+
 
         // Form submission
         contactForm.addEventListener('submit', async function(e) {
@@ -1373,8 +1302,6 @@
             const data = {
                 name: formData.get('name').trim(),
                 work_email: formData.get('work_email').trim(),
-                phone: formData.get('phone') ? formData.get('phone').trim() : '',
-                company: formData.get('company') ? formData.get('company').trim() : '',
                 inquiry_type: formData.get('inquiry_type'),
                 subject: formData.get('subject'),
                 message: formData.get('message').trim()
@@ -1399,10 +1326,7 @@
                 }
             }
 
-            if (data.phone && !validatePhone(data.phone)) {
-                showError('phone', 'Please enter a valid phone number');
-                hasErrors = true;
-            }
+
 
             if (!data.inquiry_type) {
                 showError('inquiry-type', 'Please select an inquiry type');
@@ -1884,12 +1808,7 @@
                     other: 'Other',
                     message: 'Message *',
                     messagePlaceholder: 'Tell us about your project or inquiry...',
-                    addOptional: '+ Add Optional Details',
-                    hideOptional: '- Hide Optional Details',
-                    phone: 'Phone',
-                    phonePlaceholder: '+1 (555) 123-4567',
-                    company: 'Company',
-                    companyPlaceholder: 'Your company',
+
                     sendMessage: 'Send Message'
                 },
                 footer: {
@@ -2003,12 +1922,7 @@
                     other: '기타',
                     message: '메시지 *',
                     messagePlaceholder: '프로젝트나 문의 사항에 대해 알려주세요...',
-                    addOptional: '+ 추가 정보 입력',
-                    hideOptional: '- 추가 정보 숨기기',
-                    phone: '전화번호',
-                    phonePlaceholder: '+82 10-1234-5678',
-                    company: '회사',
-                    companyPlaceholder: '회사명',
+
                     sendMessage: '메시지 보내기'
                 },
                 footer: {
@@ -2059,14 +1973,7 @@
                 translateElement(element, key);
             });
             
-            // Update toggle button text based on state
-            const toggleBtn = document.getElementById('toggleOptional');
-            const optionalFields = document.getElementById('optionalFields');
-            if (toggleBtn) {
-                const isExpanded = optionalFields?.classList.contains('expanded');
-                const key = isExpanded ? 'contact.hideOptional' : 'contact.addOptional';
-                translateElement(toggleBtn, key);
-            }
+
         }
 
         // Initialize language switcher
@@ -2117,25 +2024,7 @@
             });
         });
 
-        // Update toggle button text when toggled
-        if (typeof toggleOptionalFields === 'function') {
-            const originalToggleFunction = toggleOptionalFields;
-            toggleOptionalFields = function() {
-                try {
-                    originalToggleFunction();
-                    const optionalFields = document.getElementById('optionalFields');
-                    const toggleBtn = document.getElementById('toggleOptional');
-                    
-                    if (optionalFields && toggleBtn) {
-                        const isExpanded = optionalFields.classList.contains('expanded');
-                        const key = isExpanded ? 'contact.hideOptional' : 'contact.addOptional';
-                        translateElement(toggleBtn, key);
-                    }
-                } catch (error) {
-                    console.error('Error in toggleOptionalFields:', error);
-                }
-            };
-        }
+
     </script>
 </body>
 </html>
