@@ -947,48 +947,7 @@ body[data-lang="en"] .services-cta p {
     margin-bottom: 20px;
 }
 
-.form-grid.optional {
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    margin-bottom: 0;
-}
 
-.form-grid.optional.expanded {
-    max-height: 200px;
-    opacity: 1;
-    margin-bottom: 16px;
-}
-
-.optional-toggle {
-    text-align: center;
-    margin: 16px 0;
-}
-
-.toggle-btn {
-    background: none;
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    color: var(--accent-cyan);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-family: var(--font-primary);
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    opacity: 0.7;
-}
-
-.toggle-btn:hover {
-    border-color: var(--accent-cyan);
-    background: rgba(6, 182, 212, 0.1);
-    opacity: 1;
-}
-
-.toggle-btn.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
 
 .form-group {
     display: flex;

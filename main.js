@@ -1004,8 +1004,7 @@ function initializeContactForm() {
 
     const submitBtn = document.getElementById('submitBtn');
     const formMessage = document.getElementById('formMessage');
-    const toggleBtn = document.getElementById('toggleOptional');
-    const optionalFields = document.getElementById('optionalFields');
+
 
     // Form validation functions
     function validateEmail(email) {
@@ -1102,39 +1101,9 @@ function initializeContactForm() {
         }
     }
 
-    // Check if all required fields are filled
-    function checkRequiredFields() {
-        const requiredFields = document.querySelectorAll('.required-field');
-        let allFilled = true;
-        
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                allFilled = false;
-            }
-        });
-        
-        if (toggleBtn && optionalFields) {
-            if (allFilled) {
-                toggleBtn.classList.add('hidden');
-                optionalFields.classList.add('expanded');
-            } else {
-                toggleBtn.classList.remove('hidden');
-            }
-        }
-    }
 
-    // Toggle optional fields manually
-    function toggleOptionalFields() {
-        if (optionalFields && toggleBtn) {
-            if (optionalFields.classList.contains('expanded')) {
-                optionalFields.classList.remove('expanded');
-                toggleBtn.textContent = '+ Add Optional Details';
-            } else {
-                optionalFields.classList.add('expanded');
-                toggleBtn.textContent = '- Hide Optional Details';
-            }
-        }
-    }
+
+
 
     // Real-time validation (with null checks)
     const workEmailField = document.getElementById('work_email');
@@ -1153,30 +1122,17 @@ function initializeContactForm() {
         });
     }
 
-    const phoneField = document.getElementById('phone');
-    if (phoneField) {
-        phoneField.addEventListener('blur', function() {
-            if (this.value && !validatePhone(this.value)) {
-                showError('phone', 'Please enter a valid phone number');
-            } else {
-                clearError('phone');
-            }
-        });
-    }
+
 
     // Clear errors on input and check required fields (with null checks)
     const formInputs = document.querySelectorAll('.form-input, .form-select, .form-textarea');
     formInputs.forEach(input => {
         input.addEventListener('input', function() {
             clearError(this.id === 'inquiry-type' ? 'inquiry-type' : this.id);
-            checkRequiredFields();
         });
     });
 
-    // Toggle button event listener (with null check)
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', toggleOptionalFields);
-    }
+
 
     // Form submission (with null check)
     if (contactForm) {
@@ -1190,8 +1146,6 @@ function initializeContactForm() {
             const data = {
                 name: formData.get('name').trim(),
                 work_email: formData.get('work_email').trim(),
-                phone: formData.get('phone') ? formData.get('phone').trim() : '',
-                company: formData.get('company') ? formData.get('company').trim() : '',
                 inquiry_type: formData.get('inquiry_type'),
                 subject: formData.get('subject'),
                 message: formData.get('message').trim()
@@ -1216,10 +1170,7 @@ function initializeContactForm() {
                 }
             }
 
-            if (data.phone && !validatePhone(data.phone)) {
-                showError('phone', 'Please enter a valid phone number');
-                hasErrors = true;
-            }
+
 
             if (!data.inquiry_type) {
                 showError('inquiry-type', 'Please select an inquiry type');

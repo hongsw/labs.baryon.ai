@@ -146,12 +146,7 @@ const translations = {
             other: 'Other',
             message: 'Message *',
             messagePlaceholder: 'Tell us about your project or inquiry...',
-            addOptional: '+ Add Optional Details',
-            hideOptional: '- Hide Optional Details',
-            phone: 'Phone',
-            phonePlaceholder: '+1 (555) 123-4567',
-            company: 'Company',
-            companyPlaceholder: 'Your company',
+
             sendMessage: 'Send Message'
         },
         footer: {
@@ -293,12 +288,7 @@ const translations = {
             other: '기타',
             message: '메시지 *',
             messagePlaceholder: '프로젝트나 문의 사항에 대해 알려주세요...',
-            addOptional: '+ 추가 정보 입력',
-            hideOptional: '- 추가 정보 숨기기',
-            phone: '전화번호',
-            phonePlaceholder: '+82 10-1234-5678',
-            company: '회사',
-            companyPlaceholder: '회사명',
+
             sendMessage: '메시지 보내기'
         },
         footer: {
@@ -354,14 +344,7 @@ function switchLanguage(lang) {
         translateElement(element, key);
     });
     
-    // Update toggle button text based on state
-    const toggleBtn = document.getElementById('toggleOptional');
-    const optionalFields = document.getElementById('optionalFields');
-    if (toggleBtn) {
-        const isExpanded = optionalFields?.classList.contains('expanded');
-        const key = isExpanded ? 'contact.hideOptional' : 'contact.addOptional';
-        translateElement(toggleBtn, key);
-    }
+
     
     // 새로운 JSON 기반 시스템에 언어 변경 이벤트 전송
     const languageChangedEvent = new CustomEvent('languageChanged', {
