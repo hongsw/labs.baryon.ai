@@ -102,6 +102,13 @@ const translations = {
                 feature2: 'Data Sync',
                 feature3: 'Backend'
             },
+            baryonWorkspace: {
+                title: 'Baryon Agents Parallel Workspace',
+                description: 'Integrated environment for parallel agent programming that provides simultaneous workspace for Claude, Cursor, Gemini, Kiro agents with Git worktree isolation, TMUX session management, and flexible spec-driven workflow conversion',
+                feature1: 'Parallel Agents',
+                feature2: 'VS Code Extension',
+                feature3: 'Spec-driven'
+            },
             comingSoon: {
                 title: 'New Service Coming Soon',
                 description: 'We are developing an innovative AI solution with our new team member. Stay tuned for an amazing service that will be unveiled soon.',
@@ -243,6 +250,13 @@ const translations = {
                 feature1: 'API 게이트웨이',
                 feature2: '데이터 동기화',
                 feature3: '백엔드'
+            },
+            baryonWorkspace: {
+                title: 'Baryon Agents Parallel Workspace',
+                description: '클로드, 커서, 제미니, 키로 에이전트를 동시에 사용할 수 있는 Git 워크트리 격리, TMUX 세션 관리, 유연한 Spec 기반 워크플로우 변환을 제공하는 병렬 에이전트 프로그래밍 통합 환경',
+                feature1: '병렬 에이전트',
+                feature2: 'VS Code 확장',
+                feature3: 'Spec 기반'
             },
             comingSoon: {
                 title: '새로운 서비스 준비중',
