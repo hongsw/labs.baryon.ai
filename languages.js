@@ -102,6 +102,13 @@ const translations = {
                 feature2: 'Data Sync',
                 feature3: 'Backend'
             },
+            baryonWorkspace: {
+                title: 'Baryon Agents Parallel Workspace',
+                description: 'Integrated environment for spec-driven parallel agent programming with VS Code extension',
+                feature1: 'Parallel Workspace',
+                feature2: 'Spec-driven',
+                feature3: 'VS Code Extension'
+            },
             comingSoon: {
                 title: 'New Service Coming Soon',
                 description: 'We are developing an innovative AI solution with our new team member. Stay tuned for an amazing service that will be unveiled soon.',
@@ -115,6 +122,10 @@ const translations = {
                 description: 'Let\'s discuss how our AI services can accelerate your digital transformation',
                 button: 'Get Started'
             }
+        },
+        corporate: {
+            title: 'Corporate Custom Training & Hackathons',
+            subtitle: 'We offer customized corporate lectures, hackathons and workshops for enterprises. Details will be provided on our blog.'
         },
         careers: {
             title: 'Join Our Team',
@@ -244,6 +255,13 @@ const translations = {
                 feature2: '데이터 동기화',
                 feature3: '백엔드'
             },
+            baryonWorkspace: {
+                title: 'Baryon Agents Parallel Workspace',
+                description: '스펙 중심 병렬 에이전트 프로그래밍을 위한 통합 환경으로, VS Code 확장 프로그램을 제공합니다',
+                feature1: '병렬 워크스페이스',
+                feature2: '스펙 기반',
+                feature3: 'VS Code 확장'
+            },
             comingSoon: {
                 title: '새로운 서비스 준비중',
                 description: '새로운 팀원과 함께 혁신적인 AI 솔루션을 개발하고 있습니다. 곧 여러분께 놀라운 서비스를 선보일 예정입니다.',
@@ -257,6 +275,10 @@ const translations = {
                 description: 'AI 서비스가 어떻게 디지털 혁신을 가속화할 수 있는지 논의해보세요',
                 button: '시작하기'
             }
+        },
+        corporate: {
+            title: '기업 맞춤 강의 · 해커톤/워크샵',
+            subtitle: '기업 맞춤 강의 서비스와 해커톤, 워크샵을 제공합니다. 자세한 내용은 블로그에서 확인하세요.'
         },
         careers: {
             title: '팀에 합류하세요',
